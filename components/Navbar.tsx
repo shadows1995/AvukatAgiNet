@@ -31,16 +31,16 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
 
     try {
       const q = query(
-        collection(db, "notifications"), 
+        collection(db, "notifications"),
         where("userId", "==", user.uid)
       );
-      
+
       unsubscribe = onSnapshot(q, (snapshot) => {
         const notifs: Notification[] = [];
         snapshot.forEach(doc => {
           notifs.push({ id: doc.id, ...doc.data() } as Notification);
         });
-        
+
         notifs.sort((a, b) => {
           const timeA = a.createdAt?.seconds || 0;
           const timeB = b.createdAt?.seconds || 0;
@@ -68,16 +68,16 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     if (!showNotifs && unreadCount > 0) {
       notifications.forEach(async (n) => {
         if (!n.read && n.id) {
-           try {
-             await updateDoc(doc(db, "notifications", n.id), { read: true });
-           } catch (e) { console.error("Err marking read:", e); }
+          try {
+            await updateDoc(doc(db, "notifications", n.id), { read: true });
+          } catch (e) { console.error("Err marking read:", e); }
         }
       });
     }
   };
 
   const goToProfile = () => {
-    if(user) navigate(`/profile/${user.uid}`);
+    if (user) navigate(`/profile/${user.uid}`);
   }
 
   return (
@@ -93,6 +93,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 <Link to="/home" className={isActive('/home')}>Anasayfa</Link>
                 <Link to="/dashboard" className={isActive('/dashboard')}>İlanlar</Link>
                 <Link to="/my-jobs" className={isActive('/my-jobs')}>İlanlarım</Link>
+                <Link to="/accepted-jobs" className={isActive('/accepted-jobs')}>Aldığım İşler</Link>
                 <Link to="/create-job" className={isActive('/create-job')}>İlan Ver</Link>
                 {!user.isPremium && (
                   <Link to="/premium" className="flex items-center text-secondary-600 font-medium bg-secondary-50 px-3 py-2 rounded-md hover:bg-secondary-100 transition">
@@ -112,10 +113,10 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                   </span>
                 )}
                 <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
-                  
+
                   {/* Notification Bell */}
                   <div className="relative">
-                    <button 
+                    <button
                       onClick={handleReadNotifications}
                       className="p-2 text-slate-400 hover:text-primary-600 transition relative"
                     >
@@ -124,7 +125,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                         <span className="absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border border-white"></span>
                       )}
                     </button>
-                    
+
                     {showNotifs && (
                       <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                         <div className="p-3 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700 text-sm">
@@ -151,7 +152,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     <p className="text-xs text-slate-500">{user.baroCity} Barosu</p>
                   </div>
                   <div onClick={goToProfile} className="h-9 w-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold border-2 border-primary-50 cursor-pointer hover:border-primary-200 transition">
-                     {user.fullName.charAt(0)}
+                    {user.fullName.charAt(0)}
                   </div>
                   <Link to="/settings" className="p-2 text-slate-400 hover:text-primary-600 transition" title="Ayarlar">
                     <Settings className="h-5 w-5" />
@@ -174,13 +175,13 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           </div>
 
           <div className="flex items-center md:hidden">
-             <button onClick={() => setIsOpen(!isOpen)} className="text-slate-600">
-               {isOpen ? <X /> : <Menu />}
-             </button>
+            <button onClick={() => setIsOpen(!isOpen)} className="text-slate-600">
+              {isOpen ? <X /> : <Menu />}
+            </button>
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       {isOpen && user && (
         <div className="md:hidden bg-white border-t border-slate-100 px-2 pt-2 pb-3 space-y-1">
@@ -188,6 +189,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <Link to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">İlanlar</Link>
           <Link to="/create-job" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">İlan Ver</Link>
           <Link to="/my-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">İlanlarım</Link>
+          <Link to="/accepted-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım İşler</Link>
           <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Ayarlar</Link>
           <Link to={`/profile/${user.uid}`} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Profilim</Link>
           <button onClick={onLogout} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
