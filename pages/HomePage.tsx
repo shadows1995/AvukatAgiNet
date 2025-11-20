@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check } from 'lucide-react';
-import { Job } from '../types';
+import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle } from 'lucide-react';
+import { User, Job } from '../types';
 import { db } from '../firebaseConfig';
-import { collection, query, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
-const HomePage = () => {
+const HomePage = ({ user }: { user: User }) => {
    const navigate = useNavigate();
    const [recentActivity, setRecentActivity] = useState<Job[]>([]);
    const [archive, setArchive] = useState<Job[]>([]);
    const [loading, setLoading] = useState(true);
+
+   // Stats State
+   const [completedJobs, setCompletedJobs] = useState<Job[]>([]);
+   const [statsLoading, setStatsLoading] = useState(true);
 
    useEffect(() => {
       const q = query(collection(db, "jobs"));
@@ -35,6 +40,77 @@ const HomePage = () => {
       });
       return () => unsubscribe();
    }, []);
+
+   // Fetch Completed Jobs for Stats
+   useEffect(() => {
+      if (!user) return;
+      const fetchStats = async () => {
+         try {
+            const appsQuery = query(
+               collection(db, "applications"),
+               where("applicantId", "==", user.uid),
+               where("status", "==", "accepted")
+            );
+            const appsSnap = await getDocs(appsQuery);
+            const jobIds = appsSnap.docs.map(d => d.data().jobId);
+
+            if (jobIds.length > 0) {
+               const jobsQuery = query(collection(db, "jobs"), where("status", "==", "completed"));
+               const jobsSnap = await getDocs(jobsQuery);
+
+               const myCompletedJobs: Job[] = [];
+               jobsSnap.forEach(doc => {
+                  if (jobIds.includes(doc.id)) {
+                     myCompletedJobs.push({ jobId: doc.id, ...doc.data() } as Job);
+                  }
+               });
+               setCompletedJobs(myCompletedJobs);
+            } else {
+               setCompletedJobs([]);
+            }
+         } catch (e) {
+            console.error("Error fetching stats:", e);
+         } finally {
+            setStatsLoading(false);
+         }
+      };
+      fetchStats();
+   }, [user]);
+
+   // --- STATS CALCULATIONS ---
+   const totalEarnings = completedJobs.reduce((sum, job) => {
+      return sum + (Number(job.offeredFee) || 0);
+   }, 0);
+
+   const completedCount = completedJobs.length;
+
+   // Chart Data: Earnings per Courthouse
+   const courthouseStats = completedJobs.reduce((acc, job) => {
+      const ch = job.courthouse || 'Diğer';
+      acc[ch] = (acc[ch] || 0) + 1;
+      return acc;
+   }, {} as Record<string, number>);
+
+   const pieData = Object.keys(courthouseStats).map(key => ({
+      name: key,
+      value: courthouseStats[key]
+   }));
+
+   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+   // Chart Data: Earnings over time
+   const earningsByMonth = completedJobs.reduce((acc, job) => {
+      if (!job.completedAt) return acc;
+      const date = new Date(job.completedAt.seconds * 1000);
+      const key = `${date.getMonth() + 1}/${date.getFullYear()}`;
+      acc[key] = (acc[key] || 0) + (Number(job.offeredFee) || 0);
+      return acc;
+   }, {} as Record<string, number>);
+
+   const areaData = Object.keys(earningsByMonth).map(key => ({
+      name: key,
+      kazanc: earningsByMonth[key]
+   }));
 
    const maskName = (name?: string) => {
       if (!name) return "Av. Kullanıcı";
@@ -71,6 +147,112 @@ const HomePage = () => {
          </div>
 
          <div className="max-w-7xl mx-auto px-4 mt-8">
+
+            {/* STATS SECTION */}
+            <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <h3 className="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider border-b border-slate-100 pb-2">İSTATİSTİKLERİM</h3>
+
+               {/* KPI Cards */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-blue-100 font-medium mb-1">Toplam Kazanç</p>
+                           <h3 className="text-3xl font-bold">{totalEarnings.toLocaleString('tr-TR')} TL</h3>
+                        </div>
+                        <div className="bg-white/20 p-3 rounded-xl">
+                           <Wallet className="w-6 h-6 text-white" />
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-slate-500 font-medium mb-1">Tamamlanan Görevler</p>
+                           <h3 className="text-3xl font-bold text-slate-900">{completedCount}</h3>
+                        </div>
+                        <div className="bg-green-100 p-3 rounded-xl">
+                           <CheckCircle className="w-6 h-6 text-green-600" />
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-slate-500 font-medium mb-1">Çalışılan Adliyeler</p>
+                           <h3 className="text-3xl font-bold text-slate-900">{Object.keys(courthouseStats).length}</h3>
+                        </div>
+                        <div className="bg-purple-100 p-3 rounded-xl">
+                           <Briefcase className="w-6 h-6 text-purple-600" />
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* Charts */}
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Area Chart */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                     <h3 className="text-lg font-bold text-slate-800 mb-4">Kazanç Grafiği</h3>
+                     <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                           <AreaChart data={areaData}>
+                              <defs>
+                                 <linearGradient id="colorKazanc" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                 </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                              <Tooltip
+                                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                              />
+                              <Area type="monotone" dataKey="kazanc" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
+                           </AreaChart>
+                        </ResponsiveContainer>
+                     </div>
+                  </div>
+
+                  {/* Pie Chart */}
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                     <h3 className="text-lg font-bold text-slate-800 mb-4">Adliye Dağılımı</h3>
+                     <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                           <PieChart>
+                              <Pie
+                                 data={pieData}
+                                 cx="50%"
+                                 cy="50%"
+                                 innerRadius={60}
+                                 outerRadius={80}
+                                 fill="#8884d8"
+                                 paddingAngle={5}
+                                 dataKey="value"
+                              >
+                                 {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                 ))}
+                              </Pie>
+                              <Tooltip />
+                           </PieChart>
+                        </ResponsiveContainer>
+                        <div className="flex flex-wrap justify-center gap-4 mt-4">
+                           {pieData.map((entry, index) => (
+                              <div key={index} className="flex items-center text-xs text-slate-600">
+                                 <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                                 {entry.name} ({entry.value})
+                              </div>
+                           ))}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
             {/* History Links */}
             <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-slate-100">
                <h3 className="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider border-b border-slate-100 pb-2">GÖREVLENDİRME GEÇMİŞİM</h3>
