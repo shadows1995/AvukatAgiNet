@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Gavel, Bell, Settings, LogOut, Sparkles, Menu, X } from 'lucide-react';
 import { User, Notification } from '../types';
@@ -22,6 +22,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const [showNotifs, setShowNotifs] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const notificationRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path ? "text-primary-600 font-semibold bg-primary-50 rounded-md px-3 py-2" : "text-slate-600 hover:text-primary-600 hover:bg-slate-50 rounded-md px-3 py-2 transition";
 
@@ -60,6 +61,20 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
       if (unsubscribe) unsubscribe();
     }
   }, [user]);
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifs(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -115,7 +130,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
 
                   {/* Notification Bell */}
-                  <div className="relative">
+                  <div className="relative" ref={notificationRef}>
                     <button
                       onClick={handleReadNotifications}
                       className="p-2 text-slate-400 hover:text-primary-600 transition relative"
