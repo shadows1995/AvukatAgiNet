@@ -127,8 +127,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                   <button
                     onClick={() => setShowPremiumModal(true)}
                     className={`px-3 py-1 text-xs font-bold text-white rounded-full flex items-center shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 ${user.membershipType === 'premium_plus'
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                        : 'bg-gradient-to-r from-amber-500 to-orange-600'
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
+                      : 'bg-gradient-to-r from-amber-500 to-orange-600'
                       }`}
                   >
                     {user.membershipType === 'premium_plus' ? <Sparkles className="w-3 h-3 mr-1" /> : <Crown className="w-3 h-3 mr-1" />}
@@ -223,8 +223,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className={`p-6 text-white relative ${user.membershipType === 'premium_plus'
-                ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                : 'bg-gradient-to-r from-amber-500 to-orange-600'
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
+              : 'bg-gradient-to-r from-amber-500 to-orange-600'
               }`}>
               <button
                 onClick={() => setShowPremiumModal(false)}
@@ -294,8 +294,17 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
 
               <div className="pt-2">
                 <button
+                  onClick={() => {
+                    setShowPremiumModal(false);
+                    window.location.hash = "#/premium";
+                  }}
+                  className="w-full py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition mb-3"
+                >
+                  Planları İncele / Yükselt
+                </button>
+                <button
                   onClick={() => setShowPremiumModal(false)}
-                  className="w-full py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition"
+                  className="w-full py-3 text-slate-500 font-medium hover:text-slate-700 transition"
                 >
                   Kapat
                 </button>

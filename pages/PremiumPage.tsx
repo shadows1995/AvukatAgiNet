@@ -7,8 +7,10 @@ import { doc, updateDoc } from 'firebase/firestore';
 const PremiumPage = ({ user }: { user: User }) => {
     const [loading, setLoading] = useState<string | null>(null);
 
-    const handleUpgrade = async (plan: 'premium' | 'premium_plus', duration: 'monthly' | 'yearly') => {
-        setLoading(`${plan}-${duration}`);
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+
+    const handleUpgrade = async (plan: 'premium' | 'premium_plus') => {
+        setLoading(`${plan}-${billingCycle}`);
 
         // Payment Links (Replace with actual links provided by user)
         const PAYMENT_LINKS = {
@@ -22,25 +24,21 @@ const PremiumPage = ({ user }: { user: User }) => {
             }
         };
 
-        // If we had real links, we would redirect here:
-        // window.location.href = PAYMENT_LINKS[plan][duration];
-        // return;
-
         // Simulate payment processing for now
         setTimeout(async () => {
             try {
                 const now = Date.now();
-                const durationMs = duration === 'monthly' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000;
+                const durationMs = billingCycle === 'monthly' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000;
 
                 await updateDoc(doc(db, "users", user.uid), {
                     isPremium: true,
                     membershipType: plan,
-                    premiumPlan: duration,
+                    premiumPlan: billingCycle,
                     premiumSince: now,
                     premiumUntil: now + durationMs,
                     premiumPrice: plan === 'premium'
-                        ? (duration === 'monthly' ? 300 : 1500)
-                        : (duration === 'monthly' ? 500 : 2500)
+                        ? (billingCycle === 'monthly' ? 300 : 1500)
+                        : (billingCycle === 'monthly' ? 500 : 2500)
                 });
 
                 alert(`Tebrikler! ${plan === 'premium' ? 'Premium' : 'Premium +'} üyeliğiniz başarıyla aktif edildi.`);
@@ -72,7 +70,6 @@ const PremiumPage = ({ user }: { user: User }) => {
         color: string
     }) => {
         const isCurrent = user.membershipType === type || (type === 'free' && !user.isPremium);
-        const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
 
         return (
             <div className={`relative bg-white rounded-2xl shadow-xl border-2 flex flex-col ${recommended ? 'border-amber-500 scale-105 z-10' : 'border-slate-100'} p-6 transition hover:shadow-2xl`}>
@@ -90,22 +87,7 @@ const PremiumPage = ({ user }: { user: User }) => {
 
                 <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold text-slate-900">{title}</h3>
-                    {type !== 'free' && (
-                        <div className="flex justify-center space-x-2 mt-4 bg-slate-100 p-1 rounded-lg inline-flex mx-auto">
-                            <button
-                                onClick={() => setBillingCycle('monthly')}
-                                className={`px-3 py-1 text-xs font-bold rounded-md transition ${billingCycle === 'monthly' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
-                            >
-                                Aylık
-                            </button>
-                            <button
-                                onClick={() => setBillingCycle('yearly')}
-                                className={`px-3 py-1 text-xs font-bold rounded-md transition ${billingCycle === 'yearly' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'}`}
-                            >
-                                Yıllık %60 İndirim
-                            </button>
-                        </div>
-                    )}
+
                     <div className="mt-4 h-16 flex items-center justify-center flex-col">
                         {type === 'free' ? (
                             <span className="text-4xl font-bold text-slate-900">Ücretsiz</span>
@@ -145,7 +127,7 @@ const PremiumPage = ({ user }: { user: User }) => {
 
                 <button
                     disabled={isCurrent || (loading !== null)}
-                    onClick={() => type !== 'free' && handleUpgrade(type, billingCycle)}
+                    onClick={() => type !== 'free' && handleUpgrade(type)}
                     className={`w-full py-3 rounded-xl font-bold transition flex items-center justify-center ${isCurrent
                         ? 'bg-slate-100 text-slate-400 cursor-default'
                         : recommended
@@ -170,13 +152,27 @@ const PremiumPage = ({ user }: { user: User }) => {
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4">
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-16">
+                <div className="text-center mb-8">
                     <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
                         Mesleğinizi <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Zirveye Taşıyın</span>
                     </h1>
-                    <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                    <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
                         Size en uygun paketi seçin, Türkiye'nin en büyük avukat ağında yerinizi alın ve kazanmaya başlayın.
                     </p>
+
+                    {/* Global Billing Toggle */}
+                    <div className="flex justify-center items-center space-x-4 mb-8">
+                        <span className={`text-sm font-bold ${billingCycle === 'monthly' ? 'text-slate-900' : 'text-slate-500'}`}>Aylık</span>
+                        <button
+                            onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
+                            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${billingCycle === 'yearly' ? 'bg-primary-600' : 'bg-slate-300'}`}
+                        >
+                            <div className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${billingCycle === 'yearly' ? 'translate-x-6' : ''}`}></div>
+                        </button>
+                        <span className={`text-sm font-bold ${billingCycle === 'yearly' ? 'text-slate-900' : 'text-slate-500'}`}>
+                            Yıllık <span className="text-green-600 text-xs ml-1">(%60 İndirim)</span>
+                        </span>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start mb-20">
