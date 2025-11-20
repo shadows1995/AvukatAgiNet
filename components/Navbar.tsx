@@ -296,7 +296,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 <button
                   onClick={() => {
                     setShowPremiumModal(false);
-                    window.location.hash = "#/premium";
+                    navigate('/premium');
                   }}
                   className="w-full py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition mb-3"
                 >

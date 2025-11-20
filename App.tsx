@@ -14,7 +14,9 @@ import MyJobs from './pages/MyJobs';
 import CreateJob from './pages/CreateJob';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
-import { LandingPage, LoginPage, RegisterPage, PremiumPage } from './pages/AuthPages';
+import { LandingPage, LoginPage, RegisterPage } from './pages/AuthPages';
+import PremiumPage from './pages/Premium';
+import PaymentPage from './pages/Payment';
 import AcceptedJobs from './pages/AcceptedJobs';
 
 const AppContent = () => {
@@ -61,6 +63,7 @@ const AppContent = () => {
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
           <Route path="/create-job" element={user ? <CreateJob user={user} /> : <Navigate to="/login" />} />
           <Route path="/premium" element={user ? <PremiumPage user={user} /> : <Navigate to="/login" />} />
+          <Route path="/payment" element={user ? <PaymentPage /> : <Navigate to="/login" />} />
           <Route path="/settings" element={user ? <SettingsPage user={user} /> : <Navigate to="/login" />} />
           <Route path="/my-jobs" element={user ? <MyJobs /> : <Navigate to="/login" />} />
           <Route path="/accepted-jobs" element={user ? <AcceptedJobs /> : <Navigate to="/login" />} />
