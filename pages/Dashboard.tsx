@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircle, AlertCircle, Briefcase, MapPin, Search, Loader2, BarChart3, Search as SearchIcon, TrendingUp, CheckCircle, Wallet } from 'lucide-react';
+import { PlusCircle, AlertCircle, Briefcase, MapPin, Search, Loader2, BarChart3, Search as SearchIcon, TrendingUp, CheckCircle, Wallet, X } from 'lucide-react';
 import { User, Job, JobType } from '../types';
 import { db } from '../firebaseConfig';
 import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
@@ -14,6 +14,7 @@ const Dashboard = ({ user }: { user: User }) => {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>('ALL');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showCourthouseModal, setShowCourthouseModal] = useState(false);
 
   // Fetch Jobs for Search
   useEffect(() => {
@@ -131,15 +132,53 @@ const Dashboard = ({ user }: { user: User }) => {
 
           <div className="text-sm text-slate-500">
             {userCourthouses.length > 0 ? (
-              <span className="flex items-center">
-                <MapPin className="w-4 h-4 mr-1 text-primary-500" />
-                <strong>{userCourthouses.length}</strong> adliye izleniyor
-              </span>
+              <button
+                onClick={() => setShowCourthouseModal(true)}
+                className="flex items-center hover:text-primary-600 transition group"
+              >
+                <MapPin className="w-4 h-4 mr-1 text-primary-500 group-hover:scale-110 transition" />
+                <strong>{userCourthouses.length}</strong>&nbsp;adliye izleniyor
+              </button>
             ) : (
               <span>Tüm Türkiye (Filtresiz)</span>
             )}
           </div>
         </div>
+
+        {/* Monitored Courthouses Modal */}
+        {showCourthouseModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="bg-slate-900 p-4 text-white flex justify-between items-center">
+                <div className="flex items-center">
+                  <MapPin className="w-5 h-5 mr-2 text-primary-400" />
+                  <h3 className="font-bold">İzlenen Adliyeler</h3>
+                </div>
+                <button
+                  onClick={() => setShowCourthouseModal(false)}
+                  className="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 max-h-[60vh] overflow-y-auto">
+                <div className="space-y-2">
+                  {userCourthouses.map((ch, index) => (
+                    <div key={index} className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div className="w-2 h-2 rounded-full bg-primary-500 mr-3"></div>
+                      <span className="text-slate-700 font-medium">{ch}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 pt-4 border-t border-slate-100">
+                  <p className="text-xs text-slate-500 text-center">
+                    Adliye tercihlerinizi <Link to="/settings" className="text-primary-600 hover:underline">Ayarlar</Link> sayfasından değiştirebilirsiniz.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Job List */}
         {loading ? (

@@ -125,13 +125,37 @@ const SettingsPage = ({ user }: { user: UserType }) => {
   };
 
   const CourthousesTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
-    const [viewCity, setViewCity] = useState<string>(user.city || 'İstanbul');
     const [preferences, setPreferences] = useState<string[]>(user.preferredCourthouses || []);
+    const [viewCity, setViewCity] = useState(user.city || 'İstanbul');
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleToggle = (courthouse: string) => {
-      setPreferences(prev => prev.includes(courthouse) ? prev.filter(p => p !== courthouse) : [...prev, courthouse]);
+    const currentCourthouses = COURTHOUSES[viewCity] || [];
+
+    // Helper to find city of a courthouse
+    const getCityFromCourthouse = (courthouse: string): string | undefined => {
+      for (const [city, courthouses] of Object.entries(COURTHOUSES)) {
+        if (courthouses.includes(courthouse)) return city;
+      }
+      return undefined;
     };
 
+    const handleToggle = (courthouse: string) => {
+      if (preferences.includes(courthouse)) {
+        setPreferences(preferences.filter(c => c !== courthouse));
+      } else {
+        // Check if we are adding a courthouse from a different city
+        if (preferences.length > 0) {
+          const firstCourthouseCity = getCityFromCourthouse(preferences[0]);
+          const newCourthouseCity = getCityFromCourthouse(courthouse);
+
+          if (firstCourthouseCity && newCourthouseCity && firstCourthouseCity !== newCourthouseCity) {
+            showNotification('error', `Sadece tek bir ilden adliye seçebilirsiniz. (${firstCourthouseCity})`);
+            return;
+          }
+        }
+        setPreferences([...preferences, courthouse]);
+      }
+    };
     const handleSavePreferences = async () => {
       setIsSaving(true);
       try {
@@ -143,7 +167,7 @@ const SettingsPage = ({ user }: { user: UserType }) => {
       } finally { setIsSaving(false); }
     };
 
-    const currentCourthouses = COURTHOUSES[viewCity] || [];
+
 
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
@@ -161,6 +185,29 @@ const SettingsPage = ({ user }: { user: UserType }) => {
             {isSaving && <Loader2 className="animate-spin h-3 w-3 mr-2" />} Kaydet
           </button>
         </div>
+
+        {/* Selected Courthouses Summary */}
+        {preferences.length > 0 && (
+          <div className="mb-6 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+              Seçili Adliyeler ({preferences.length})
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {preferences.map(ch => (
+                <span key={ch} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
+                  {ch}
+                  <button
+                    onClick={() => handleToggle(ch)}
+                    className="ml-2 text-green-400 hover:text-green-600 focus:outline-none"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-2">
           {currentCourthouses.map(ch => (
             <label key={ch} className={`flex items-center p-3 rounded-lg border cursor-pointer transition ${preferences.includes(ch) ? 'bg-primary-50 border-primary-200 ring-1 ring-primary-200' : 'bg-white border-slate-200 hover:bg-slate-50'}`}>
@@ -299,8 +346,8 @@ const SettingsPage = ({ user }: { user: UserType }) => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center p-4 rounded-xl border text-sm font-medium transition duration-200 ${isActive
-                    ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-200'
-                    : 'bg-white text-primary-500 border-primary-200 hover:bg-primary-50'
+                  ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-200'
+                  : 'bg-white text-primary-500 border-primary-200 hover:bg-primary-50'
                   }`}
               >
                 <Icon className={`h-5 w-5 mr-3 ${isActive ? 'text-white' : 'text-primary-500'}`} />
