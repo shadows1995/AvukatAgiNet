@@ -10,7 +10,23 @@ const PremiumPage = ({ user }: { user: User }) => {
     const handleUpgrade = async (plan: 'premium' | 'premium_plus', duration: 'monthly' | 'yearly') => {
         setLoading(`${plan}-${duration}`);
 
-        // Simulate payment processing
+        // Payment Links (Replace with actual links provided by user)
+        const PAYMENT_LINKS = {
+            premium: {
+                monthly: "https://iyzico.com/...", // Placeholder
+                yearly: "https://iyzico.com/..."   // Placeholder
+            },
+            premium_plus: {
+                monthly: "https://iyzico.com/...", // Placeholder
+                yearly: "https://iyzico.com/..."   // Placeholder
+            }
+        };
+
+        // If we had real links, we would redirect here:
+        // window.location.href = PAYMENT_LINKS[plan][duration];
+        // return;
+
+        // Simulate payment processing for now
         setTimeout(async () => {
             try {
                 const now = Date.now();
@@ -163,7 +179,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start mb-20">
                     {/* FREE PLAN */}
                     <PlanCard
                         type="free"
@@ -196,7 +212,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                             { text: "Başvurudan Gelir Kazanma", included: true },
                             { text: "Acil İlan Açabilme", included: true },
                             { text: "Bölgesel E-posta Bildirimleri", included: true },
-                            { text: "Para İadesi Garantisi", included: true },
+                            { text: "Para İadesi Garantisi", included: false },
                             { text: "Öncelikli Bildirim (10 sn erken)", included: false },
                             { text: "Başvurularda Üstte Çıkma", included: false },
                             { text: "Adliye Filtreli E-posta", included: false },
@@ -221,6 +237,60 @@ const PremiumPage = ({ user }: { user: User }) => {
                             { text: "Yılda 5 Görev Alamazsa İade", included: true },
                         ]}
                     />
+                </div>
+
+                {/* Feature Details Section */}
+                <div className="max-w-5xl mx-auto mb-20">
+                    <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">Neden Premium?</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
+                            <div className="bg-amber-100 p-3 rounded-lg mr-4">
+                                <Crown className="w-6 h-6 text-amber-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">15 Dakika Avantajı</h3>
+                                <p className="text-slate-600">
+                                    Yeni açılan görevlere ilk 15 dakika sadece Premium üyeler başvurabilir. Bu sayede rekabet avantajı elde edersiniz.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
+                            <div className="bg-indigo-100 p-3 rounded-lg mr-4">
+                                <Zap className="w-6 h-6 text-indigo-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">Öncelikli Bildirim (Premium+)</h3>
+                                <p className="text-slate-600">
+                                    Premium+ üyeler, yeni görev bildirimlerini diğer kullanıcılardan 10 saniye daha erken alır.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
+                            <div className="bg-green-100 p-3 rounded-lg mr-4">
+                                <MapPin className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">Bölgesel ve Filtreli Bildirimler</h3>
+                                <p className="text-slate-600">
+                                    Sadece ilgilendiğiniz şehir veya adliyelerdeki görevler için bildirim alın. Gereksiz e-postalarla uğraşmayın.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
+                            <div className="bg-purple-100 p-3 rounded-lg mr-4">
+                                <Shield className="w-6 h-6 text-purple-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">Para İadesi Garantisi (Premium+)</h3>
+                                <p className="text-slate-600">
+                                    Premium+ üyeliğiniz boyunca yılda en az 5 görev alamazsanız, üyelik ücretiniz iade edilir.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="mt-16 text-center">
