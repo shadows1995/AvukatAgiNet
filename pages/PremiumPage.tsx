@@ -172,13 +172,13 @@ const PremiumPage = ({ user }: { user: User }) => {
                         priceYearly={0}
                         color="bg-slate-400"
                         features={[
-                            { text: "İlan Oluşturma (Sınırsız)", included: true },
+                            { text: "İlan Açabilme (Sınırsız)", included: true },
                             { text: "Profil Oluşturma", included: true },
                             { text: "Başvuruları Görüntüleme", included: true },
                             { text: "Mesajlaşma", included: true },
                             { text: "İlanlara Başvuru Yapma", included: false },
-                            { text: "Acil İlan Oluşturma", included: false },
-                            { text: "Bölgesel Bildirimler", included: false },
+                            { text: "Acil İlan Açabilme", included: false },
+                            { text: "Bölgesel E-posta Bildirimleri", included: false },
                             { text: "Çoklu İl Seçimi", included: false },
                         ]}
                     />
@@ -192,15 +192,14 @@ const PremiumPage = ({ user }: { user: User }) => {
                         color="bg-gradient-to-br from-amber-400 to-orange-500"
                         recommended={true}
                         features={[
-                            { text: "İlan Oluşturma (Sınırsız)", included: true },
-                            { text: "Profil Oluşturma", included: true },
-                            { text: "Başvuruları Görüntüleme", included: true },
-                            { text: "Mesajlaşma", included: true },
-                            { text: "İlanlara Başvuru Yapma (15dk penceresi)", included: true },
-                            { text: "Acil İlan Oluşturma", included: true },
-                            { text: "Bölgesel Bildirimler", included: true },
+                            { text: "15 dk Başvuru Penceresi", included: true },
+                            { text: "Başvurudan Gelir Kazanma", included: true },
+                            { text: "Acil İlan Açabilme", included: true },
+                            { text: "Bölgesel E-posta Bildirimleri", included: true },
                             { text: "Para İadesi Garantisi", included: true },
-                            { text: "Öncelikli Bildirim (10sn erken)", included: false },
+                            { text: "Öncelikli Bildirim (10 sn erken)", included: false },
+                            { text: "Başvurularda Üstte Çıkma", included: false },
+                            { text: "Adliye Filtreli E-posta", included: false },
                             { text: "Çoklu İl Seçimi", included: false },
                         ]}
                     />
@@ -213,16 +212,13 @@ const PremiumPage = ({ user }: { user: User }) => {
                         priceYearly={2500}
                         color="bg-gradient-to-br from-indigo-500 to-purple-600"
                         features={[
-                            { text: "İlan Oluşturma (Sınırsız)", included: true },
-                            { text: "Profil Oluşturma", included: true },
-                            { text: "Başvuruları Görüntüleme", included: true },
-                            { text: "Mesajlaşma", included: true },
-                            { text: "İlanlara Başvuru Yapma (Öncelikli)", included: true },
-                            { text: "Acil İlan Oluşturma", included: true },
-                            { text: "Filtreli Özel Bildirimler", included: true },
-                            { text: "Para İadesi Garantisi", included: true },
-                            { text: "Öncelikli Bildirim (10sn erken)", included: true },
+                            { text: "Tüm Premium Özellikleri", included: true },
+                            { text: "Öncelikli Bildirim (10 sn erken)", included: true },
+                            { text: "Başvurularda Üstte Çıkma", included: true },
+                            { text: "Acil İlan Açabilme", included: true },
+                            { text: "Adliye Filtreli E-posta", included: true },
                             { text: "Çoklu İl Seçimi (Tüm Türkiye)", included: true },
+                            { text: "Yılda 5 Görev Alamazsa İade", included: true },
                         ]}
                     />
                 </div>
