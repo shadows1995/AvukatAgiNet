@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Loader2 } from 'lucide-react';
+import { PlusCircle, Loader2, Briefcase, Send } from 'lucide-react';
 import { User, JobType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { db } from '../firebaseConfig';
@@ -60,7 +60,7 @@ const CreateJob = ({ user }: { user: User }) => {
       navigate('/my-jobs');
     } catch (error) {
       console.error("Error creating job: ", error);
-      alert("İlan oluşturulurken bir hata oluştu.");
+      alert("Görev oluşturulurken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -68,15 +68,14 @@ const CreateJob = ({ user }: { user: User }) => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <h2 className="text-2xl font-bold text-slate-900 mb-8 flex items-center">
-        <div className="bg-primary-100 p-2 rounded-lg mr-3">
-          <PlusCircle className="text-primary-600 h-6 w-6" />
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        <div className="bg-primary-600 p-6 text-white">
+          <h2 className="text-2xl font-bold flex items-center">
+            <Briefcase className="mr-3" />
+            Yeni Görev Oluştur
+          </h2>
+          <p className="text-primary-100 mt-2">Meslektaşlarınızla paylaşmak için yeni bir görev oluşturun.</p>
         </div>
-        Yeni Görev İlanı
-      </h2>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-1 bg-gradient-to-r from-primary-500 to-secondary-500"></div>
         <div className="p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -159,8 +158,8 @@ const CreateJob = ({ user }: { user: User }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">İlan Başlığı</label>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Görev Başlığı</label>
               <input
                 type="text"
                 required
@@ -171,7 +170,7 @@ const CreateJob = ({ user }: { user: User }) => {
               />
             </div>
 
-            <div className={`p-4 rounded-lg border ${user.isPremium ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={`p - 4 rounded - lg border ${user.isPremium ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'} `}>
               <label className="flex items-start cursor-pointer">
                 <div className="flex items-center h-5">
                   <input
@@ -183,11 +182,11 @@ const CreateJob = ({ user }: { user: User }) => {
                   />
                 </div>
                 <div className="ml-3 text-sm">
-                  <span className={`font-bold ${user.isPremium ? 'text-red-700' : 'text-slate-500'}`}>
-                    Acil İlan (5 Dakika Süre)
+                  <span className={`font - medium text - slate - 900`}>
+                    Acil Görev (5 Dakika Süre)
                   </span>
-                  <p className="text-slate-500 text-xs mt-1">
-                    Normal ilanlarda başvuru toplama süresi 15 dakikadır. Acil ilanlarda bu süre 5 dakikaya düşer.
+                  <p className="text-xs text-slate-500 mt-1">
+                    Normal görevlerde başvuru toplama süresi 15 dakikadır. Acil görevlerde bu süre 5 dakikaya düşer.
                     {!user.isPremium && <span className="text-primary-600 ml-1">(Sadece Premium Üyeler)</span>}
                   </p>
                 </div>
@@ -215,10 +214,10 @@ const CreateJob = ({ user }: { user: User }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-2.5 rounded-lg shadow-lg hover:shadow-primary-200 font-medium flex items-center transition transform hover:-translate-y-0.5 disabled:opacity-70"
+                className="w-full bg-primary-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-primary-700 transition shadow-lg hover:shadow-xl flex items-center justify-center"
               >
-                {isLoading && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
-                İlanı Yayınla
+                {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2" />}
+                Görevi Yayınla
               </button>
             </div>
           </form>

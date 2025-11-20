@@ -40,7 +40,7 @@ const Dashboard = ({ user }: { user: User }) => {
       setLoading(false);
     }, (error) => {
       console.error("Dashboard job listener error:", error);
-      setErrorMsg("İlanlar yüklenirken bir sorun oluştu.");
+      setErrorMsg("Görevler yüklenirken bir sorun oluştu.");
       setLoading(false);
     });
 
@@ -181,7 +181,7 @@ const Dashboard = ({ user }: { user: User }) => {
             onClick={() => setActiveTab('search')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition ${activeTab === 'search' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            <div className="flex items-center"><SearchIcon className="w-4 h-4 mr-2" /> İlan Ara</div>
+            <div className="flex items-center"><SearchIcon className="w-4 h-4 mr-2" /> Görev Ara</div>
           </button>
         </div>
       </div>
@@ -307,7 +307,7 @@ const Dashboard = ({ user }: { user: User }) => {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex justify-end mb-6">
             <Link to="/create-job" className="flex items-center bg-primary-600 text-white px-5 py-2.5 rounded-lg hover:bg-primary-700 transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-              <PlusCircle className="h-5 w-5 mr-2" /> Yeni İlan Oluştur
+              <PlusCircle className="h-5 w-5 mr-2" /> Yeni Görev Oluştur
             </Link>
           </div>
 
@@ -326,7 +326,7 @@ const Dashboard = ({ user }: { user: User }) => {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm text-yellow-700">
-                    Henüz görev almak istediğiniz bir adliye seçmediniz. Size uygun ilanları görebilmek için
+                    Henüz görev almak istediğiniz bir adliye seçmediniz. Size uygun görevleri görebilmek için
                     <Link to="/settings" className="font-medium underline text-yellow-800 ml-1 hover:text-yellow-900">
                       Ayarlar sayfasından seçim yapınız.
                     </Link>
@@ -374,7 +374,7 @@ const Dashboard = ({ user }: { user: User }) => {
               {filteredJobs.length === 0 ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-16 text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                   <Search className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Şu an için uygun ilan bulunamadı.</p>
+                  <p className="text-lg font-medium">Şu an için uygun görev bulunamadı.</p>
                   <p className="text-sm mt-2 text-center max-w-md">
                     Seçtiğiniz adliyelerde ({userCourthouses.join(', ') || 'Yok'}) henüz açık bir görev yok veya kriterlerinize uymuyor.
                     <br />

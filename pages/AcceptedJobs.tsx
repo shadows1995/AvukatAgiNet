@@ -162,7 +162,7 @@ const AcceptedJobs = () => {
             </div>
 
             <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-8">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">İlan Sahibi</h3>
+              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Görev Sahibi</h3>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="h-12 w-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-primary-600 font-bold text-lg shadow-sm">
@@ -211,7 +211,7 @@ const AcceptedJobs = () => {
                 Görevi Tamamla
               </button>
               <p className="text-center text-xs text-slate-400 mt-3">
-                Görevi tamamladığınızda ilan sahibine bildirim gönderilecektir.
+                Görevi tamamladığınızda görev sahibine bildirim gönderilecektir.
               </p>
             </div>
           </div>
@@ -223,7 +223,7 @@ const AcceptedJobs = () => {
   // LIST VIEW
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-slate-900 mb-6">Aldığım İşler</h2>
+      <h2 className="text-2xl font-bold text-slate-900 mb-6">Aldığım Görevler</h2>
 
       {acceptedJobs.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-slate-200 shadow-sm">
@@ -236,7 +236,7 @@ const AcceptedJobs = () => {
             onClick={() => navigate('/')}
             className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition"
           >
-            İlanlara Göz At
+            Görevlere Göz At
           </button>
         </div>
       ) : (

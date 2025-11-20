@@ -20,34 +20,37 @@ export interface User {
   email: string;
   fullName: string;
   baroNumber: string;
-  baroCity: string; 
+  baroCity: string;
   phone?: string;
   specializations?: string[];
-  city: string; 
-  preferredCourthouses?: string[]; 
+  city: string;
+  preferredCourthouses?: string[];
   isPremium: boolean;
   premiumUntil?: number; // timestamp
+  premiumSince?: number; // timestamp
+  premiumPlan?: 'monthly' | 'yearly';
+  premiumPrice?: number;
   role: UserRole;
   rating: number;
   completedJobs: number;
-  avatarUrl?: string; 
-  createdAt: any; 
+  avatarUrl?: string;
+  createdAt: any;
   updatedAt?: any;
-  jobStatus?: 'active' | 'passive'; 
-  aboutMe?: string; 
-  title?: string; 
+  jobStatus?: 'active' | 'passive';
+  aboutMe?: string;
+  title?: string;
 }
 
 // Firestore Job Collection Schema
 export interface Job {
-  jobId?: string; 
+  jobId?: string;
   title: string;
-  createdBy: string; 
-  ownerName?: string; 
+  createdBy: string;
+  ownerName?: string;
   ownerPhone?: string;
-  city: string; 
+  city: string;
   courthouse: string;
-  date: string; 
+  date: string;
   time: string;
   jobType: JobType;
   description: string;
@@ -72,7 +75,7 @@ export interface Application {
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: any;
   // Denormalized fields for UI efficiency
-  applicantPhone?: string; 
+  applicantPhone?: string;
   applicantRating?: number;
 }
 

@@ -24,23 +24,23 @@ export const LandingPage = () => (
     <div className="bg-slate-50 pt-20 pb-32 px-4 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-primary-50 to-transparent opacity-60"></div>
       <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-tr from-secondary-50 to-transparent opacity-60"></div>
-      
+
       <div className="max-w-7xl mx-auto text-center relative z-10">
         <div className="inline-flex items-center px-4 py-2 rounded-full bg-white border border-primary-100 text-primary-700 font-medium text-sm mb-8 shadow-sm animate-bounce">
           <span className="flex h-2 w-2 rounded-full bg-primary-500 mr-2"></span>
           Türkiye'nin En Büyük Hukuk Ağı
         </div>
-        
+
         <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight">
           Meslektaşlarınızla <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500">Güçlerinizi Birleştirin</span>
         </h1>
-        
+
         <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlarla 
+          Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlarla
           anında eşleşin. Premium üyelik ile iş ağınızı genişletin.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
           <Link to="/register" className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-200 flex items-center justify-center">
             Ücretsiz Üye Ol
@@ -84,7 +84,7 @@ export const LandingPage = () => (
           <h2 className="text-3xl font-bold text-slate-900">Neden AvukatNet?</h2>
           <p className="mt-4 text-lg text-slate-600">Tek platformda güvenli ve hızlı hukuki işbirliği</p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
             <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
@@ -92,10 +92,10 @@ export const LandingPage = () => (
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Kolay Görev Oluşturma</h3>
             <p className="text-slate-600 leading-relaxed">
-              Yapay zeka desteği ile saniyeler içinde detaylı görev ilanı oluşturun. Şehir, adliye ve ücret bilgisini girin, gerisini bize bırakın.
+              Yapay zeka desteği ile saniyeler içinde detaylı görev oluşturun. Şehir, adliye ve ücret bilgisini girin, gerisini bize bırakın.
             </p>
           </div>
-          
+
           <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
             <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
               <ShieldCheck className="h-7 w-7 text-green-600" />
@@ -105,7 +105,7 @@ export const LandingPage = () => (
               Sadece baro levhasına kayıtlı ve kimliği doğrulanmış avukatlar sisteme katılabilir. Güvenli bir ortamda çalışın.
             </p>
           </div>
-          
+
           <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
             <div className="w-14 h-14 bg-secondary-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
               <Star className="h-7 w-7 text-secondary-600" />
@@ -151,12 +151,12 @@ export const PremiumPage = ({ user }: { user: User }) => {
         <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300 relative z-0">
           <h3 className="text-xl font-bold text-slate-800">Standart Üyelik</h3>
           <p className="text-4xl font-bold text-slate-900 mt-4">Ücretsiz</p>
-          <p className="text-slate-500 mt-2">İlan açmak ve ağı kullanmak için</p>
+          <p className="text-slate-500 mt-2">Görev açmak ve ağı kullanmak için</p>
           <hr className="my-8 border-slate-100" />
           <ul className="space-y-4">
-            <li className="flex items-center text-slate-700"><CheckCircle className="h-5 w-5 text-green-500 mr-3" /> Sınırsız Görev İlanı Açma</li>
+            <li className="flex items-center text-slate-700"><CheckCircle className="h-5 w-5 text-green-500 mr-3" /> Sınırsız Görev Açma</li>
             <li className="flex items-center text-slate-700"><CheckCircle className="h-5 w-5 text-green-500 mr-3" /> Başvuruları Görüntüleme</li>
-            <li className="flex items-center text-slate-400"><X className="h-5 w-5 mr-3" /> İlanlara Başvuru Yapma</li>
+            <li className="flex items-center text-slate-400"><X className="h-5 w-5 mr-3" /> Görevlere Başvuru Yapma</li>
             <li className="flex items-center text-slate-400"><X className="h-5 w-5 mr-3" /> Onaylı Profil Rozeti</li>
           </ul>
           <button disabled className="w-full mt-8 py-3.5 rounded-xl bg-slate-100 text-slate-500 font-bold text-sm tracking-wide cursor-default">MEVCUT PLAN</button>
@@ -168,29 +168,29 @@ export const PremiumPage = ({ user }: { user: User }) => {
           <div className="absolute top-4 right-4">
             <span className="bg-secondary-100 text-secondary-700 text-xs font-bold px-3 py-1.5 rounded-full">EN POPÜLER</span>
           </div>
-          
+
           <h3 className="text-2xl font-bold text-slate-900">Premium Avukat</h3>
           <div className="flex items-baseline mt-4">
-             <p className="text-5xl font-bold text-primary-600">₺249</p>
-             <p className="text-slate-500 ml-2">/ay</p>
+            <p className="text-5xl font-bold text-primary-600">₺249</p>
+            <p className="text-slate-500 ml-2">/ay</p>
           </div>
           <p className="text-slate-500 mt-2">Aktif çalışmak ve gelir elde etmek için</p>
-          
+
           <hr className="my-8 border-slate-100" />
-          
+
           <ul className="space-y-5">
             <li className="flex items-center text-slate-800 font-medium"><CheckCircle className="h-5 w-5 text-primary-600 mr-3" /> Tüm Standart Özellikler</li>
-            <li className="flex items-center text-slate-800 font-medium"><CheckCircle className="h-5 w-5 text-primary-600 mr-3" /> Sınırsız İlana Başvuru Hakkı</li>
+            <li className="flex items-center text-slate-800 font-medium"><CheckCircle className="h-5 w-5 text-primary-600 mr-3" /> Sınırsız Göreve Başvuru Hakkı</li>
             <li className="flex items-center text-slate-800 font-medium"><CheckCircle className="h-5 w-5 text-primary-600 mr-3" /> "Premium" Profil Rozeti</li>
             <li className="flex items-center text-slate-800 font-medium"><CheckCircle className="h-5 w-5 text-primary-600 mr-3" /> Öncelikli Destek Hattı</li>
           </ul>
-          
+
           {user.isPremium ? (
-             <button disabled className="w-full mt-10 py-4 rounded-xl bg-green-600 text-white font-bold shadow-lg cursor-default">
-               ZATEN PREMIUM ÜYESİNİZ
-             </button>
+            <button disabled className="w-full mt-10 py-4 rounded-xl bg-green-600 text-white font-bold shadow-lg cursor-default">
+              ZATEN PREMIUM ÜYESİNİZ
+            </button>
           ) : (
-             <button 
+            <button
               onClick={handleUpgrade}
               className="w-full mt-10 py-4 rounded-xl bg-primary-600 text-white font-bold shadow-lg hover:bg-primary-700 hover:shadow-primary-500/30 transition transform hover:-translate-y-1"
             >
@@ -228,7 +228,7 @@ export const RegisterPage = () => {
   };
 
   useEffect(() => {
-     setFormData(prev => ({ ...prev, preferredCourthouses: [] }));
+    setFormData(prev => ({ ...prev, preferredCourthouses: [] }));
   }, [formData.barCity]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -271,9 +271,9 @@ export const RegisterPage = () => {
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-              <div className="bg-primary-100 p-3 rounded-full">
-                  <Gavel className="h-8 w-8 text-primary-600" />
-              </div>
+            <div className="bg-primary-100 p-3 rounded-full">
+              <Gavel className="h-8 w-8 text-primary-600" />
+            </div>
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Hesap Oluştur</h2>
           <p className="text-slate-500 mt-2">Baro sicil numaranız ile hemen katılın</p>
@@ -282,28 +282,28 @@ export const RegisterPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Ad</label>
-              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} />
+              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Soyad</label>
-              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
+              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">E-posta</label>
-            <input type="email" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+            <input type="email" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div>
-               <label className="block text-sm font-medium text-slate-700 mb-1">Baro / Şehir</label>
-               <select className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barCity} onChange={e => setFormData({...formData, barCity: e.target.value})}>
-                 {TURKISH_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-               </select>
-             </div>
-             <div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Baro / Şehir</label>
+              <select className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barCity} onChange={e => setFormData({ ...formData, barCity: e.target.value })}>
+                {TURKISH_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Sicil No</label>
-              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barNo} onChange={e => setFormData({...formData, barNo: e.target.value})} />
-             </div>
+              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barNo} onChange={e => setFormData({ ...formData, barNo: e.target.value })} />
+            </div>
           </div>
 
           <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
@@ -311,7 +311,7 @@ export const RegisterPage = () => {
               Görev Almak İstediğiniz Adliyeler ({formData.barCity})
             </label>
             <p className="text-xs text-slate-500 mb-3">
-               Sadece ulaşım sağlayabileceğiniz ve göreve hazır olduğunuz adliyeleri seçiniz.
+              Sadece ulaşım sağlayabileceğiniz ve göreve hazır olduğunuz adliyeleri seçiniz.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
               {currentCourthouses.length > 0 ? (
@@ -323,7 +323,7 @@ export const RegisterPage = () => {
                 ))
               ) : (
                 <div className="col-span-2 text-center text-sm text-slate-400 italic py-2">
-                   Bu şehir için kayıtlı adliye bulunamadı.
+                  Bu şehir için kayıtlı adliye bulunamadı.
                 </div>
               )}
             </div>
@@ -331,7 +331,7 @@ export const RegisterPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Şifre</label>
-            <input type="password" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+            <input type="password" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
           </div>
           <button type="submit" disabled={isLoading} className="w-full bg-primary-600 text-white py-3 rounded-lg font-bold mt-6 hover:bg-primary-700 transition shadow-lg hover:shadow-primary-500/30 disabled:opacity-70">
             {isLoading ? <Loader2 className="animate-spin inline h-5 w-5" /> : 'Kayıt Ol'}
@@ -368,9 +368,9 @@ export const LoginPage = () => {
     <div className="min-h-screen flex bg-white">
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-12 z-10">
         <div className="mb-10">
-            <Link to="/" className="inline-block">
-                 <Logo className="scale-110 origin-left" />
-            </Link>
+          <Link to="/" className="inline-block">
+            <Logo className="scale-110 origin-left" />
+          </Link>
         </div>
 
         <h2 className="text-3xl font-bold text-slate-900 mb-2">Tekrar Hoşgeldiniz</h2>
@@ -394,7 +394,7 @@ export const LoginPage = () => {
             </div>
           </div>
           <div>
-             <div className="flex justify-between mb-1">
+            <div className="flex justify-between mb-1">
               <label className="block text-sm font-medium text-slate-700">Şifre</label>
               <a href="#" className="text-xs text-primary-600 hover:underline font-medium">Şifremi Unuttum?</a>
             </div>
@@ -416,44 +416,44 @@ export const LoginPage = () => {
       </div>
       {/* Right Side */}
       <div className="hidden lg:flex lg:w-1/2 bg-slate-50 relative overflow-hidden items-center justify-center p-12">
-         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-         <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-         <div className="relative z-10 w-full max-w-lg">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8 animate-float">
-               <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                  <h3 className="font-bold text-slate-800 flex items-center"><span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> Canlı Görevler</h3>
-                  <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">Canlı Akış</span>
-               </div>
-               <div className="space-y-4">
-                 <div className="flex items-start p-3 rounded-lg bg-slate-50 border border-slate-100">
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3 flex-shrink-0">AK</div>
-                    <div>
-                       <p className="text-sm font-medium text-slate-800">Av. Ahmet K. <span className="text-slate-400 font-normal">İstanbul</span></p>
-                       <p className="text-xs text-slate-500 mt-0.5">Duruşma Yetki Belgesi • 1.500₺</p>
-                       <p className="text-[10px] text-slate-400 mt-1">Az önce yayınlandı</p>
-                    </div>
-                 </div>
-                 <div className="flex items-start p-3 rounded-lg bg-slate-50 border border-slate-100">
-                    <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs mr-3 flex-shrink-0">ZD</div>
-                    <div>
-                       <p className="text-sm font-medium text-slate-800">Av. Zeynep D. <span className="text-slate-400 font-normal">Ankara</span></p>
-                       <p className="text-xs text-slate-500 mt-0.5">Dosya İnceleme • 750₺</p>
-                       <p className="text-[10px] text-slate-400 mt-1">2 dakika önce</p>
-                    </div>
-                 </div>
-               </div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8 animate-float">
+            <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+              <h3 className="font-bold text-slate-800 flex items-center"><span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> Canlı Görevler</h3>
+              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">Canlı Akış</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-               <div className="bg-white/60 backdrop-blur p-4 rounded-xl border border-white/50">
-                  <div className="text-2xl font-bold text-primary-700">12,542</div>
-                  <div className="text-sm text-slate-600">Kayıtlı Avukat</div>
-               </div>
-               <div className="bg-white/60 backdrop-blur p-4 rounded-xl border border-white/50">
-                  <div className="text-2xl font-bold text-primary-700">595</div>
-                  <div className="text-sm text-slate-600">Aktif Adliye</div>
-               </div>
+            <div className="space-y-4">
+              <div className="flex items-start p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3 flex-shrink-0">AK</div>
+                <div>
+                  <p className="text-sm font-medium text-slate-800">Av. Ahmet K. <span className="text-slate-400 font-normal">İstanbul</span></p>
+                  <p className="text-xs text-slate-500 mt-0.5">Duruşma Yetki Belgesi • 1.500₺</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Az önce yayınlandı</p>
+                </div>
+              </div>
+              <div className="flex items-start p-3 rounded-lg bg-slate-50 border border-slate-100">
+                <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs mr-3 flex-shrink-0">ZD</div>
+                <div>
+                  <p className="text-sm font-medium text-slate-800">Av. Zeynep D. <span className="text-slate-400 font-normal">Ankara</span></p>
+                  <p className="text-xs text-slate-500 mt-0.5">Dosya İnceleme • 750₺</p>
+                  <p className="text-[10px] text-slate-400 mt-1">2 dakika önce</p>
+                </div>
+              </div>
             </div>
-         </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/60 backdrop-blur p-4 rounded-xl border border-white/50">
+              <div className="text-2xl font-bold text-primary-700">12,542</div>
+              <div className="text-sm text-slate-600">Kayıtlı Avukat</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur p-4 rounded-xl border border-white/50">
+              <div className="text-2xl font-bold text-primary-700">595</div>
+              <div className="text-sm text-slate-600">Aktif Adliye</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

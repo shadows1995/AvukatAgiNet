@@ -5,7 +5,7 @@ import { db } from '../firebaseConfig';
 import { addDoc, collection, updateDoc, doc, increment, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 
 const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () => void }) => {
-  const [message, setMessage] = useState('İlanınızla ilgileniyorum. Müsaitim.');
+  const [message, setMessage] = useState('Görevle ilgileniyorum. Müsaitim.');
   const [bid, setBid] = useState(job.offeredFee.toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,14 +18,14 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
 
       // 1. Check if already applied
       const q = query(
-        collection(db, "applications"), 
+        collection(db, "applications"),
         where("jobId", "==", job.jobId),
         where("applicantId", "==", user.uid)
       );
       const snapshot = await getDocs(q);
-      
+
       if (!snapshot.empty) {
-        alert("Bu ilana zaten başvurdunuz.");
+        alert("Bu göreve zaten başvurdunuz.");
         onClose();
         return;
       }
@@ -52,7 +52,7 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
       await addDoc(collection(db, "notifications"), {
         userId: job.createdBy,
         title: "Yeni Başvuru Geldi 📢",
-        message: `${user.fullName}, "${job.title}" ilanınıza başvurdu.`,
+        message: `${user.fullName}, "${job.title}" görevinize başvurdu.`,
         type: "info",
         read: false,
         createdAt: serverTimestamp()
@@ -76,10 +76,10 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
           <h3 className="font-bold text-slate-800">Göreve Başvur</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
         </div>
-        
+
         <div className="p-6">
           <div className="mb-4">
-            <p className="text-sm text-slate-500">Başvurulan İlan:</p>
+            <p className="text-sm text-slate-500">Başvurulan Görev:</p>
             <p className="font-semibold text-slate-800">{job.title}</p>
             <p className="text-xs text-primary-600 mt-1 font-medium">Teklif Edilen: {job.offeredFee} TL</p>
           </div>
@@ -87,18 +87,18 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Teklifiniz (TL)</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 required
                 className="w-full rounded-lg border-slate-300 focus:ring-primary-500 focus:border-primary-500"
                 value={bid}
                 onChange={e => setBid(e.target.value)}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Kısa Mesajınız</label>
-              <textarea 
+              <textarea
                 required
                 rows={3}
                 className="w-full rounded-lg border-slate-300 focus:ring-primary-500 focus:border-primary-500"
@@ -109,13 +109,13 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
             </div>
 
             <div className="pt-2">
-               <button 
-                 type="submit" 
-                 disabled={isSubmitting}
-                 className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 rounded-lg font-bold shadow-md flex justify-center items-center"
-               >
-                 {isSubmitting ? <Loader2 className="animate-spin w-5 h-5" /> : <><Send className="w-4 h-4 mr-2" /> Başvuruyu Gönder</>}
-               </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 rounded-lg font-bold shadow-md flex justify-center items-center"
+              >
+                {isSubmitting ? <Loader2 className="animate-spin w-5 h-5" /> : <><Send className="w-4 h-4 mr-2" /> Başvuruyu Gönder</>}
+              </button>
             </div>
           </form>
         </div>
