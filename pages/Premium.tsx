@@ -69,7 +69,7 @@ export const PremiumPage = ({ user }: { user: User }) => {
 
                     </ul>
                     <button disabled className="w-full mt-8 py-3.5 rounded-xl bg-slate-100 text-slate-500 font-bold text-sm tracking-wide cursor-default">
-                        MEVCUT PLAN
+                        {!user.membershipType || user.membershipType === 'free' ? 'MEVCUT PLAN' : 'STANDART PAKET'}
                     </button>
                 </div>
 
