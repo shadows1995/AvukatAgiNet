@@ -14,11 +14,20 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
   const formattedFee = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(job.offeredFee);
 
   const handleApplyClick = () => {
-    if (isPremium) {
-      setShowApplyModal(true);
-    } else {
-      navigate('/premium');
+    if (!user) {
+      alert("Başvuru yapmak için giriş yapmalısınız.");
+      return;
     }
+
+    if (!user.isPremium) {
+      const confirmUpgrade = window.confirm("Ücretsiz üyeler ilanlara başvuru yapamaz. Premium'a geçmek ister misiniz?");
+      if (confirmUpgrade) {
+        window.location.hash = "#/premium";
+      }
+      return;
+    }
+
+    setShowApplyModal(true);
   };
 
   return (
@@ -32,8 +41,8 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
         <div className="p-6 flex-1">
           <div className="flex justify-between items-start mb-4">
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${job.jobType === JobType.DURUSMA ? 'bg-blue-50 text-blue-700' :
-                job.jobType === JobType.ICRA ? 'bg-orange-50 text-orange-700' :
-                  'bg-slate-100 text-slate-700'
+              job.jobType === JobType.ICRA ? 'bg-orange-50 text-orange-700' :
+                'bg-slate-100 text-slate-700'
               }`}>
               {job.jobType}
             </span>
@@ -101,10 +110,10 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
               onClick={handleApplyClick}
               disabled={hasApplied}
               className={`w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white transition duration-200 ${hasApplied
-                  ? 'bg-slate-400 cursor-not-allowed'
-                  : isPremium
-                    ? 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
-                    : 'bg-slate-800 hover:bg-slate-900'
+                ? 'bg-slate-400 cursor-not-allowed'
+                : isPremium
+                  ? 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
+                  : 'bg-slate-800 hover:bg-slate-900'
                 }`}
             >
               {hasApplied

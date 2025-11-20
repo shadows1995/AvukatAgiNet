@@ -26,6 +26,7 @@ export interface User {
   city: string;
   preferredCourthouses?: string[];
   isPremium: boolean;
+  membershipType?: 'free' | 'premium' | 'premium_plus';
   premiumUntil?: number; // timestamp
   premiumSince?: number; // timestamp
   premiumPlan?: 'monthly' | 'yearly';

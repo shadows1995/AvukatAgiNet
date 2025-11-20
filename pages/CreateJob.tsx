@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Loader2, Briefcase, Send } from 'lucide-react';
+import { PlusCircle, Loader2, Briefcase, Send, AlertCircle } from 'lucide-react';
 import { User, JobType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { db } from '../firebaseConfig';
@@ -170,27 +170,35 @@ const CreateJob = ({ user }: { user: User }) => {
               />
             </div>
 
-            <div className={`p - 4 rounded - lg border ${user.isPremium ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'} `}>
-              <label className="flex items-start cursor-pointer">
+            <div className={`p-4 rounded-lg border ${user.isPremium ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'} `}>
+              <div className="flex items-start">
                 <div className="flex items-center h-5">
                   <input
                     type="checkbox"
-                    disabled={!user.isPremium}
+                    id="isUrgent"
                     checked={formData.isUrgent}
-                    onChange={e => setFormData({ ...formData, isUrgent: e.target.checked })}
-                    className="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded"
+                    onChange={(e) => {
+                      if (!user.isPremium && e.target.checked) {
+                        const confirm = window.confirm("Acil görev oluşturmak Premium özelliklerden biridir. Yükseltmek ister misiniz?");
+                        if (confirm) window.location.hash = "#/premium";
+                        return;
+                      }
+                      setFormData({ ...formData, isUrgent: e.target.checked });
+                    }}
+                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
-                  <span className={`font - medium text - slate - 900`}>
-                    Acil Görev (5 Dakika Süre)
-                  </span>
+                  <label htmlFor="isUrgent" className="font-medium text-slate-900 flex items-center cursor-pointer">
+                    <AlertCircle className="w-4 h-4 text-red-500 mr-1" />
+                    Acil Görev
+                    {!user.isPremium && <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Premium</span>}
+                  </label>
                   <p className="text-xs text-slate-500 mt-1">
                     Normal görevlerde başvuru toplama süresi 15 dakikadır. Acil görevlerde bu süre 5 dakikaya düşer.
-                    {!user.isPremium && <span className="text-primary-600 ml-1">(Sadece Premium Üyeler)</span>}
                   </p>
                 </div>
-              </label>
+              </div>
             </div>
 
             <div>
@@ -222,8 +230,8 @@ const CreateJob = ({ user }: { user: User }) => {
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

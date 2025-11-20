@@ -126,9 +126,13 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 {user.isPremium && (
                   <button
                     onClick={() => setShowPremiumModal(true)}
-                    className="px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 rounded-full flex items-center shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5"
+                    className={`px-3 py-1 text-xs font-bold text-white rounded-full flex items-center shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 ${user.membershipType === 'premium_plus'
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
+                        : 'bg-gradient-to-r from-amber-500 to-orange-600'
+                      }`}
                   >
-                    <Crown className="w-3 h-3 mr-1" /> PREMIUM
+                    {user.membershipType === 'premium_plus' ? <Sparkles className="w-3 h-3 mr-1" /> : <Crown className="w-3 h-3 mr-1" />}
+                    {user.membershipType === 'premium_plus' ? 'PREMIUM +' : 'PREMIUM'}
                   </button>
                 )}
                 <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
@@ -218,7 +222,10 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
       {showPremiumModal && user && user.isPremium && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-6 text-white relative">
+            <div className={`p-6 text-white relative ${user.membershipType === 'premium_plus'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
+                : 'bg-gradient-to-r from-amber-500 to-orange-600'
+              }`}>
               <button
                 onClick={() => setShowPremiumModal(false)}
                 className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition"
@@ -227,11 +234,11 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
               </button>
               <div className="flex items-center mb-2">
                 <div className="bg-white/20 p-2 rounded-lg mr-3">
-                  <Crown className="w-8 h-8 text-white" />
+                  {user.membershipType === 'premium_plus' ? <Sparkles className="w-8 h-8 text-white" /> : <Crown className="w-8 h-8 text-white" />}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">Premium Üyelik</h3>
-                  <p className="text-amber-100 text-sm">Aktif ve Onaylı</p>
+                  <h3 className="text-xl font-bold">{user.membershipType === 'premium_plus' ? 'Premium + Üyelik' : 'Premium Üyelik'}</h3>
+                  <p className="text-white/80 text-sm">Aktif ve Onaylı</p>
                 </div>
               </div>
             </div>

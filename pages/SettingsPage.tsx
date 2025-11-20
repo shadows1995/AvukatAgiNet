@@ -149,8 +149,11 @@ const SettingsPage = ({ user }: { user: UserType }) => {
           const newCourthouseCity = getCityFromCourthouse(courthouse);
 
           if (firstCourthouseCity && newCourthouseCity && firstCourthouseCity !== newCourthouseCity) {
-            showNotification('error', `Sadece tek bir ilden adliye seçebilirsiniz. (${firstCourthouseCity})`);
-            return;
+            // Allow multi-city ONLY for Premium +
+            if (user.membershipType !== 'premium_plus') {
+              showNotification('error', `Birden fazla ilden adliye seçimi sadece Premium + üyeler içindir. (${firstCourthouseCity})`);
+              return;
+            }
           }
         }
         setPreferences([...preferences, courthouse]);
