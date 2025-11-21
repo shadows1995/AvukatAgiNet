@@ -100,42 +100,54 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
           </div>
 
           {/* About Section */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold text-slate-800">Hakkında</h3>
-            </div>
-            <p className="text-slate-600 leading-relaxed">
-              {profileUser.aboutMe || "Bu kullanıcı henüz kendini tanıtan bir yazı eklememiş."}
-            </p>
-          </div>
+          {(canViewContact || currentUser.uid === profileUser.uid) ? (
+            <>
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-semibold text-slate-800">Hakkında</h3>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  {profileUser.aboutMe || "Bu kullanıcı henüz kendini tanıtan bir yazı eklememiş."}
+                </p>
+              </div>
 
-          {/* Specializations */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-3">Uzmanlık Alanları</h3>
-            <div className="flex flex-wrap gap-2">
-              {profileUser.specializations && profileUser.specializations.length > 0 ? (
-                profileUser.specializations.map(spec => (
-                  <span key={spec} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
-                    {spec}
-                  </span>
-                ))
-              ) : (
-                <span className="text-slate-400 italic text-sm">Belirtilmemiş</span>
-              )}
+              {/* Specializations */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">Uzmanlık Alanları</h3>
+                <div className="flex flex-wrap gap-2">
+                  {profileUser.specializations && profileUser.specializations.length > 0 ? (
+                    profileUser.specializations.map(spec => (
+                      <span key={spec} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
+                        {spec}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-slate-400 italic text-sm">Belirtilmemiş</span>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="py-12 text-center">
+              <Lock className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-slate-700 mb-2">Profil Kısıtlı</h3>
+              <p className="text-slate-500 max-w-md mx-auto">
+                Bu kullanıcının detaylı profil bilgilerini görüntülemek için, kendisiyle onaylanmış bir göreviniz bulunmalıdır.
+              </p>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Contact Information - Conditional Visibility */}
-      <div className={`rounded-2xl shadow-sm border overflow-hidden ${canViewContact ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-200'}`}>
-        <div className="p-6 border-b border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 flex items-center">
-            <Phone className="w-5 h-5 mr-2 text-primary-600" /> İletişim Bilgileri
-          </h3>
-        </div>
-        <div className="p-6">
-          {canViewContact ? (
+      {(canViewContact || currentUser.uid === profileUser.uid) && (
+        <div className={`rounded-2xl shadow-sm border overflow-hidden ${canViewContact ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="p-6 border-b border-slate-100">
+            <h3 className="text-lg font-bold text-slate-800 flex items-center">
+              <Phone className="w-5 h-5 mr-2 text-primary-600" /> İletişim Bilgileri
+            </h3>
+          </div>
+          <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center p-4 bg-green-50 rounded-xl border border-green-100">
                 <div className="bg-white p-2 rounded-lg shadow-sm mr-4">
@@ -172,18 +184,9 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <Lock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <h4 className="text-slate-800 font-medium mb-1">İletişim Bilgileri Gizli</h4>
-              <p className="text-sm text-slate-500 max-w-md mx-auto">
-                Telefon ve E-posta bilgilerini görüntüleyebilmek için bu kullanıcı ile aranızda
-                onaylanmış bir görev (İşveren veya Çalışan olarak) bulunmalıdır.
-              </p>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
