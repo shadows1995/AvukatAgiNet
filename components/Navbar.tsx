@@ -26,8 +26,23 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const notificationRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path
-    ? "text-primary-600 font-bold bg-primary-50/80 rounded-xl px-4 py-2.5 shadow-sm ring-1 ring-primary-100"
-    : "text-slate-600 font-medium hover:text-primary-600 hover:bg-slate-50/80 rounded-xl px-4 py-2.5 transition-all duration-200";
+    ? "text-primary-600 font-bold bg-primary-50/80 rounded-xl px-3 py-2 shadow-sm ring-1 ring-primary-100 whitespace-nowrap text-sm"
+    : "text-slate-600 font-medium hover:text-primary-600 hover:bg-slate-50/80 rounded-xl px-3 py-2 transition-all duration-200 whitespace-nowrap text-sm";
+
+  const formatName = (fullName: string) => {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+
+    const firstName = parts[0];
+    const lastName = parts[parts.length - 1];
+
+    // If name is long (> 15 chars), abbreviate last name
+    if (fullName.length > 15) {
+      return `${firstName} ${lastName.charAt(0)}.`;
+    }
+
+    return fullName;
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -98,23 +113,23 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     if (user) navigate(`/profile/${user.uid}`);
   }
 
-  return (
+  return (<>
     <nav className="glass-effect border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0">
               <Logo />
             </Link>
             {user && (
-              <div className="hidden md:flex ml-10 space-x-4">
+              <div className="hidden md:flex ml-6 space-x-2">
                 <Link to="/home" className={isActive('/home')}>Anasayfa</Link>
                 <Link to="/dashboard" className={isActive('/dashboard')}>Görevler</Link>
                 <Link to="/my-jobs" className={isActive('/my-jobs')}>Görevlerim</Link>
                 <Link to="/accepted-jobs" className={isActive('/accepted-jobs')}>Aldığım Görevler</Link>
                 <Link to="/create-job" className={isActive('/create-job')}>Görev Ver</Link>
                 {!user.isPremium && (
-                  <Link to="/premium" className="flex items-center text-secondary-600 font-medium bg-secondary-50 px-3 py-2 rounded-md hover:bg-secondary-100 transition">
+                  <Link to="/premium" className="flex items-center text-secondary-600 font-medium bg-secondary-50 px-3 py-2 rounded-md hover:bg-secondary-100 transition whitespace-nowrap text-sm">
                     <Sparkles className="w-4 h-4 mr-1" /> Premium
                   </Link>
                 )}
@@ -128,7 +143,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 {user.isPremium && (
                   <button
                     onClick={() => setShowPremiumModal(true)}
-                    className={`px-4 py-1.5 text-xs font-bold text-white rounded-full flex items-center shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-0.5 ${user.membershipType === 'premium_plus'
+                    className={`px-4 py-1.5 text-xs font-bold text-white rounded-full flex items-center shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap ${user.membershipType === 'premium_plus'
                       ? 'bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 border border-primary-700'
                       : 'bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 border border-primary-400'
                       }`}
@@ -173,10 +188,10 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                   </div>
 
                   <div className="text-right hidden lg:block cursor-pointer group" onClick={goToProfile}>
-                    <p className="text-sm font-bold text-slate-800 group-hover:text-primary-600 transition">{user.fullName}</p>
-                    <p className="text-xs text-slate-500 font-medium">{user.baroCity} Barosu</p>
+                    <p className="text-sm font-bold text-slate-800 group-hover:text-primary-600 transition whitespace-nowrap">{formatName(user.fullName)}</p>
+                    <p className="text-xs text-slate-500 font-medium whitespace-nowrap">{user.baroCity} Barosu</p>
                   </div>
-                  <div onClick={goToProfile} className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200">
+                  <div onClick={goToProfile} className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200 flex-shrink-0">
                     {user.fullName.charAt(0)}
                   </div>
                   <Link to="/settings" className="p-2.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all duration-200" title="Ayarlar">
@@ -220,9 +235,11 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <button onClick={onLogout} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
         </div>
       )}
-      {/* Premium Details Modal */}
-      {showPremiumModal && user && user.isPremium && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+    </nav>
+    {/* Premium Details Modal */}
+    {
+      showPremiumModal && user && user.isPremium && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className={`p-6 text-white relative ${user.membershipType === 'premium_plus'
               ? 'bg-primary-800'
@@ -314,9 +331,9 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             </div>
           </div>
         </div>
-      )}
-    </nav>
-  );
+      )
+    }
+  </>);
 };
 
 export default Navbar;
