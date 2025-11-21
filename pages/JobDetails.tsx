@@ -176,12 +176,14 @@ const JobDetails = ({ user }: { user: User }) => {
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => navigate(`/profile/${owner.uid}`)}
-                                className="text-primary-600 font-medium hover:underline text-sm"
-                            >
-                                Profili Gör
-                            </button>
+                            {canViewContact && (
+                                <button
+                                    onClick={() => navigate(`/profile/${owner.uid}`)}
+                                    className="text-primary-600 font-medium hover:underline text-sm"
+                                >
+                                    Profili Gör
+                                </button>
+                            )}
                         </div>
                     </div>
 

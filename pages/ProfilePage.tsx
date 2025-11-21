@@ -73,16 +73,26 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
           <div className="flex flex-col md:flex-row items-start md:items-end -mt-10 mb-6">
             <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg relative z-10">
               <div className="h-full w-full rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-3xl font-bold">
-                {profileUser.fullName.charAt(0)}
+                {(canViewContact || currentUser.uid === profileUser.uid) ? profileUser.fullName.charAt(0) : <Lock className="w-8 h-8 opacity-50" />}
               </div>
             </div>
             <div className="md:ml-6 mt-4 md:mt-0 flex-1">
               <h1 className="text-2xl font-bold text-slate-900 flex items-center">
-                {profileUser.title || 'Av.'} {profileUser.fullName}
-                {profileUser.isPremium && <Sparkles className="w-5 h-5 text-amber-500 ml-2 fill-current" />}
+                {(canViewContact || currentUser.uid === profileUser.uid) ? (
+                  <>
+                    {profileUser.title || 'Av.'} {profileUser.fullName}
+                    {profileUser.isPremium && <Sparkles className="w-5 h-5 text-amber-500 ml-2 fill-current" />}
+                  </>
+                ) : (
+                  <span className="flex items-center">
+                    Av. {profileUser.fullName.split(' ').map(n => n[0] + '***').join(' ')}
+                    <Lock className="w-4 h-4 text-slate-400 ml-2" />
+                  </span>
+                )}
               </h1>
               <p className="text-slate-500 flex items-center mt-1">
-                <MapPin className="w-4 h-4 mr-1" /> {profileUser.city} • {profileUser.baroCity} Barosu ({profileUser.baroNumber})
+                <MapPin className="w-4 h-4 mr-1" /> {profileUser.city} • {profileUser.baroCity} Barosu
+                {(canViewContact || currentUser.uid === profileUser.uid) && ` (${profileUser.baroNumber})`}
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex flex-col items-end space-y-2">
