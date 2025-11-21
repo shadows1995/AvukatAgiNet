@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { User } from './types';
 import { auth, db } from './firebaseConfig';
@@ -8,6 +8,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 
 // Component Imports
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Dashboard from './pages/Dashboard';
 import HomePage from './pages/HomePage';
 import MyJobs from './pages/MyJobs';
@@ -22,6 +23,7 @@ import AcceptedJobs from './pages/AcceptedJobs';
 const AppContent = () => {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -51,6 +53,9 @@ const AppContent = () => {
 
   if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="h-12 w-12 text-primary-600 animate-spin" /></div>;
 
+  // Footer visibility logic
+  const showFooter = ['/', '/home', '/login', '/register'].includes(location.pathname);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar user={user} onLogout={handleLogout} />
@@ -70,7 +75,7 @@ const AppContent = () => {
           <Route path="/profile/:userId" element={user ? <ProfilePage currentUser={user} /> : <Navigate to="/login" />} />
         </Routes>
       </div>
-      {!user && <footer className="bg-slate-50 text-slate-500 py-8 border-t border-slate-200"><div className="max-w-7xl mx-auto px-4 text-center"><p>© 2024 AvukatNet. Tüm hakları saklıdır.</p></div></footer>}
+      {showFooter && <Footer />}
     </div>
   );
 };

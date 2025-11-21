@@ -124,14 +124,44 @@ const CreateJob = ({ user }: { user: User }) => {
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                     <span className="text-slate-500 sm:text-sm">₺</span>
                   </div>
-                  <input
-                    type="number"
+                  <select
                     required
                     className="block w-full rounded-lg border-slate-300 pl-7 focus:border-primary-500 focus:ring-primary-500 h-11"
-                    placeholder="0.00"
                     value={formData.fee}
                     onChange={e => setFormData({ ...formData, fee: e.target.value })}
-                  />
+                  >
+                    <option value="" disabled>Seçiniz</option>
+                    {(() => {
+                      let minFee = 0;
+                      switch (formData.type) {
+                        case JobType.DURUSMA: minFee = 800; break;
+                        case JobType.ICRA:
+                        case JobType.DOSYA_INCELEME:
+                        case JobType.HACIZ:
+                        case JobType.DILEKCE:
+                          minFee = 700; break;
+                        case JobType.DIGER: minFee = 0; break;
+                        default: minFee = 0;
+                      }
+
+                      const options = [];
+                      // Special case for 0 start
+                      if (minFee === 0) {
+                        options.push(0);
+                        for (let i = 100; i <= 1500; i += 100) {
+                          options.push(i);
+                        }
+                      } else {
+                        for (let i = minFee; i <= 1500; i += 100) {
+                          options.push(i);
+                        }
+                      }
+
+                      return options.map(amount => (
+                        <option key={amount} value={amount}>{amount}</option>
+                      ));
+                    })()}
+                  </select>
                 </div>
               </div>
 
