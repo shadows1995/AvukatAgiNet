@@ -6,6 +6,8 @@ import { db } from '../firebaseConfig';
 import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
+import InteractiveSphere from '../components/InteractiveSphere';
+
 const HomePage = ({ user }: { user: User }) => {
    const navigate = useNavigate();
    const [recentActivity, setRecentActivity] = useState<Job[]>([]);
@@ -122,27 +124,35 @@ const HomePage = ({ user }: { user: User }) => {
       <div className="bg-slate-50 min-h-screen pb-12">
          {/* Hero Section - BOXED LAYOUT & BLUE COLOR */}
          <div className="max-w-7xl mx-auto px-4 mt-8">
-            <div className="bg-primary-600 text-white py-12 px-8 rounded-2xl shadow-lg relative overflow-hidden">
+            <div className="bg-primary-900 text-white py-20 px-8 rounded-3xl shadow-2xl relative overflow-hidden">
+               {/* Interactive Sphere Background */}
+               <div className="absolute top-0 right-0 w-full h-full md:w-2/3 md:h-full opacity-60 pointer-events-auto z-0">
+                  <InteractiveSphere />
+               </div>
+
                <div className="flex flex-col md:flex-row items-center justify-between relative z-10">
                   <div className="mb-6 md:mb-0 max-w-2xl">
-                     <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">Tevkil vererek il dışındaki meslektaşlarınızı görevlendirin, duruşmalarınızı kaçırmayın!</h1>
-                     <p className="text-primary-100 text-lg mb-8">Türkiye'nin lider tevkil uygulamasını kullanmanın tadını çıkarın!</p>
+                     <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+                        Meslektaşlarınızla <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-200">
+                           Güçlerinizi Birleştirin
+                        </span>
+                     </h1>
+                     <p className="text-primary-100 text-xl mb-10 max-w-lg leading-relaxed">
+                        Türkiye'nin lider tevkil uygulaması ile iş ağınızı genişletin, zaman kazanın.
+                     </p>
                      <button
                         onClick={() => navigate('/create-job')}
-                        className="bg-white text-primary-600 px-8 py-3 rounded-xl font-bold text-base shadow-md hover:bg-blue-50 transition flex items-center inline-flex transform hover:-translate-y-1"
+                        className="bg-white text-primary-900 px-10 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-blue-50 transition transform hover:-translate-y-1 flex items-center"
                      >
-                        <PlusCircle className="w-5 h-5 mr-2" /> Yeni Görev Ver
+                        <PlusCircle className="w-6 h-6 mr-3" /> Yeni Görev Ver
                      </button>
                   </div>
-                  <div className="hidden md:block relative">
-                     <div className="bg-white/10 p-6 rounded-full backdrop-blur-sm animate-pulse">
-                        <Gavel className="w-24 h-24 text-white opacity-90" />
-                     </div>
-                  </div>
                </div>
-               {/* Decoration */}
-               <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl"></div>
-               <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-secondary-500 opacity-20 rounded-full blur-3xl"></div>
+
+               {/* Decoration Gradients */}
+               <div className="absolute top-0 left-0 -mt-20 -ml-20 w-96 h-96 bg-blue-500 opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+               <div className="absolute bottom-0 right-0 -mb-20 -mr-20 w-80 h-80 bg-indigo-500 opacity-10 rounded-full blur-3xl pointer-events-none"></div>
             </div>
          </div>
 
