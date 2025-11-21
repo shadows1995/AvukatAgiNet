@@ -64,6 +64,19 @@ const Dashboard = ({ user }: { user: User }) => {
     if (job.status !== 'open') return false;
     if (filterType !== 'ALL' && job.jobType !== filterType) return false;
     if (!userCourthouses.includes(job.courthouse)) return false;
+
+    // Filter expired jobs: hide if deadline passed AND user is not involved
+    if (job.deadline) {
+      const deadlineDate = new Date(job.deadline.seconds * 1000);
+      const now = new Date();
+      const isExpired = deadlineDate < now;
+      const isInvolved = job.createdBy === user.uid || job.assignedTo === user.uid;
+
+      if (isExpired && !isInvolved) {
+        return false;
+      }
+    }
+
     return true;
   });
 

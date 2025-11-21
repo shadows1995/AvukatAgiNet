@@ -141,9 +141,21 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                 <div className="bg-white p-2 rounded-lg shadow-sm mr-4">
                   <Phone className="w-6 h-6 text-green-600" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs text-green-600 font-bold uppercase tracking-wider">Telefon</p>
-                  <p className="text-lg font-bold text-slate-800">{profileUser.phone || 'Belirtilmemiş'}</p>
+                  {profileUser.phone ? (
+                    <a
+                      href={`https://wa.me/90${profileUser.phone.replace(/\s+/g, '').replace(/^0/, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center mt-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
+                    >
+                      <Phone className="w-4 h-4 mr-2" />
+                      WhatsApp ile İletişime Geç
+                    </a>
+                  ) : (
+                    <p className="text-sm text-slate-500 mt-1">Belirtilmemiş</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center p-4 bg-blue-50 rounded-xl border border-blue-100">
