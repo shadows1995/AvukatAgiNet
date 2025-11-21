@@ -68,22 +68,23 @@ const CreateJob = ({ user }: { user: User }) => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
-        <div className="bg-primary-600 p-6 text-white">
-          <h2 className="text-2xl font-bold flex items-center">
-            <Briefcase className="mr-3" />
+      <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-700 p-8 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+          <h2 className="text-3xl font-bold flex items-center relative z-10">
+            <Briefcase className="mr-3 w-8 h-8" />
             Yeni Görev Oluştur
           </h2>
-          <p className="text-primary-100 mt-2">Meslektaşlarınızla paylaşmak için yeni bir görev oluşturun.</p>
+          <p className="text-primary-100 mt-2 relative z-10 text-lg">Meslektaşlarınızla paylaşmak için yeni bir görev oluşturun.</p>
         </div>
-        <div className="p-6 md:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-8 md:p-10">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Görev Türü</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Görev Türü</label>
                 <select
                   required
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                   value={formData.type}
                   onChange={e => setFormData({ ...formData, type: e.target.value as JobType })}
                 >
@@ -92,10 +93,10 @@ const CreateJob = ({ user }: { user: User }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Şehir</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Şehir</label>
                 <select
                   required
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                   value={formData.city}
                   onChange={e => setFormData({ ...formData, city: e.target.value })}
                 >
@@ -104,10 +105,10 @@ const CreateJob = ({ user }: { user: User }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Adliye / Yer</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Adliye / Yer</label>
                 <select
                   required
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                   value={formData.courthouse}
                   onChange={e => setFormData({ ...formData, courthouse: e.target.value })}
                 >
@@ -119,14 +120,14 @@ const CreateJob = ({ user }: { user: User }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Ücret (TL)</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Ücret (TL)</label>
                 <div className="relative rounded-md shadow-sm">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <span className="text-slate-500 sm:text-sm">₺</span>
+                    <span className="text-slate-500 sm:text-sm font-bold">₺</span>
                   </div>
                   <select
                     required
-                    className="block w-full rounded-lg border-slate-300 pl-7 focus:border-primary-500 focus:ring-primary-500 h-11"
+                    className="block w-full rounded-xl border-slate-200 bg-slate-50 pl-8 focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                     value={formData.fee}
                     onChange={e => setFormData({ ...formData, fee: e.target.value })}
                   >
@@ -166,22 +167,22 @@ const CreateJob = ({ user }: { user: User }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tarih</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Tarih</label>
                 <input
                   type="date"
                   required
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                   value={formData.date}
                   onChange={e => setFormData({ ...formData, date: e.target.value })}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Saat</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Saat</label>
                 <input
                   type="time"
                   required
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                   value={formData.time}
                   onChange={e => setFormData({ ...formData, time: e.target.value })}
                 />
@@ -189,20 +190,20 @@ const CreateJob = ({ user }: { user: User }) => {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Görev Başlığı</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Görev Başlığı</label>
               <input
                 type="text"
                 required
                 placeholder="Örn: 12. Aile Mah. Duruşma Yetki Belgesi"
-                className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white px-4"
                 value={formData.title}
                 onChange={e => setFormData({ ...formData, title: e.target.value })}
               />
             </div>
 
-            <div className={`p-4 rounded-lg border ${user.isPremium ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'} `}>
+            <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${user.isPremium ? 'bg-red-50 border-red-100 hover:border-red-200' : 'bg-slate-50 border-slate-100 hover:border-slate-200'} `}>
               <div className="flex items-start">
-                <div className="flex items-center h-5">
+                <div className="flex items-center h-6">
                   <input
                     type="checkbox"
                     id="isUrgent"
@@ -215,17 +216,17 @@ const CreateJob = ({ user }: { user: User }) => {
                       }
                       setFormData({ ...formData, isUrgent: e.target.checked });
                     }}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded transition-all duration-200"
                   />
                 </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="isUrgent" className="font-medium text-slate-900 flex items-center cursor-pointer">
-                    <AlertCircle className="w-4 h-4 text-red-500 mr-1" />
+                <div className="ml-4 text-sm">
+                  <label htmlFor="isUrgent" className="font-bold text-slate-900 flex items-center cursor-pointer text-base">
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
                     Acil Görev
-                    {!user.isPremium && <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Premium</span>}
+                    {!user.isPremium && <span className="ml-3 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">PREMIUM</span>}
                   </label>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Normal görevlerde başvuru toplama süresi 15 dakikadır. Acil görevlerde bu süre 5 dakikaya düşer.
+                  <p className="text-slate-500 mt-1.5 leading-relaxed">
+                    Normal görevlerde başvuru toplama süresi 15 dakikadır. Acil görevlerde bu süre 5 dakikaya düşer ve göreviniz öne çıkarılır.
                   </p>
                 </div>
               </div>
@@ -233,13 +234,13 @@ const CreateJob = ({ user }: { user: User }) => {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-slate-700">Açıklama / Notlar</label>
+                <label className="block text-sm font-bold text-slate-700">Açıklama / Notlar</label>
               </div>
               <div className="relative">
                 <textarea
                   required
                   rows={4}
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-3"
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 p-4 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                   placeholder="Görev detaylarını buraya yazın..."
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -248,13 +249,13 @@ const CreateJob = ({ user }: { user: User }) => {
             </div>
 
             <div className="pt-6 flex justify-end border-t border-slate-100 mt-8">
-              <button type="button" onClick={() => navigate('/dashboard')} className="mr-4 px-6 py-2.5 text-slate-600 hover:text-slate-800 font-medium transition">İptal</button>
+              <button type="button" onClick={() => navigate('/dashboard')} className="mr-4 px-8 py-3 text-slate-600 hover:text-slate-900 font-bold transition-colors duration-200">İptal</button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-primary-700 transition shadow-lg hover:shadow-xl flex items-center justify-center"
+                className="w-full md:w-auto px-12 bg-gradient-to-r from-primary-600 to-primary-500 text-white py-4 rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-600 transition-all duration-300 shadow-glow hover:shadow-glow-lg flex items-center justify-center transform hover:-translate-y-0.5"
               >
-                {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2" />}
+                {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2 w-5 h-5" />}
                 Görevi Yayınla
               </button>
             </div>

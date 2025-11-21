@@ -178,38 +178,39 @@ const HomePage = ({ user }: { user: User }) => {
 
                {/* KPI Cards */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-lg">
-                     <div className="flex justify-between items-start">
+                  <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl p-6 text-white shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+                     <div className="flex justify-between items-start relative z-10">
                         <div>
-                           <p className="text-primary-100 font-medium mb-1">Toplam Kazanç</p>
-                           <h3 className="text-3xl font-bold">{totalEarnings.toLocaleString('tr-TR')} TL</h3>
+                           <p className="text-primary-100 font-medium mb-1 text-sm uppercase tracking-wide">Toplam Kazanç</p>
+                           <h3 className="text-4xl font-extrabold tracking-tight">{totalEarnings.toLocaleString('tr-TR')} <span className="text-2xl font-bold text-primary-200">TL</span></h3>
                         </div>
-                        <div className="bg-white/20 p-3 rounded-xl">
-                           <Wallet className="w-6 h-6 text-white" />
+                        <div className="bg-white/20 p-3.5 rounded-2xl backdrop-blur-sm border border-white/10">
+                           <Wallet className="w-7 h-7 text-white" />
                         </div>
                      </div>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                      <div className="flex justify-between items-start">
                         <div>
-                           <p className="text-slate-500 font-medium mb-1">Tamamlanan Görevler</p>
-                           <h3 className="text-3xl font-bold text-slate-900">{completedCount}</h3>
+                           <p className="text-slate-500 font-medium mb-1 text-sm uppercase tracking-wide">Tamamlanan Görevler</p>
+                           <h3 className="text-4xl font-extrabold text-slate-900 tracking-tight">{completedCount}</h3>
                         </div>
-                        <div className="bg-primary-50 p-3 rounded-xl">
-                           <CheckCircle className="w-6 h-6 text-primary-600" />
+                        <div className="bg-primary-50 p-3.5 rounded-2xl group-hover:bg-primary-100 transition-colors duration-300">
+                           <CheckCircle className="w-7 h-7 text-primary-600" />
                         </div>
                      </div>
                   </div>
 
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                      <div className="flex justify-between items-start">
                         <div>
-                           <p className="text-slate-500 font-medium mb-1">Çalışılan Adliyeler</p>
-                           <h3 className="text-3xl font-bold text-slate-900">{Object.keys(courthouseStats).length}</h3>
+                           <p className="text-slate-500 font-medium mb-1 text-sm uppercase tracking-wide">Çalışılan Adliyeler</p>
+                           <h3 className="text-4xl font-extrabold text-slate-900 tracking-tight">{Object.keys(courthouseStats).length}</h3>
                         </div>
-                        <div className="bg-primary-100 p-3 rounded-xl">
-                           <Briefcase className="w-6 h-6 text-primary-700" />
+                        <div className="bg-secondary-50 p-3.5 rounded-2xl group-hover:bg-secondary-100 transition-colors duration-300">
+                           <Briefcase className="w-7 h-7 text-secondary-600" />
                         </div>
                      </div>
                   </div>
@@ -302,29 +303,32 @@ const HomePage = ({ user }: { user: User }) => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                {/* Live Feed */}
-               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
-                     <Activity className="w-5 h-5 mr-2 text-primary-600" />
+               <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+                  <h3 className="text-xl font-bold text-slate-800 mb-8 flex items-center">
+                     <div className="p-2 bg-primary-50 rounded-lg mr-3">
+                        <Activity className="w-5 h-5 text-primary-600" />
+                     </div>
                      AvukatNet'te neler oluyor?
                   </h3>
-                  <div className="space-y-6 relative">
-                     <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-slate-100"></div>
+                  <div className="space-y-8 relative pl-2">
+                     <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-100"></div>
                      {loading ? (
                         <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-300" /></div>
                      ) : recentActivity.map((job) => (
-                        <div key={job.jobId} className="flex items-start relative z-10">
-                           <div className="w-9 h-9 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center flex-shrink-0 shadow-sm">
-                              {job.status === 'in_progress' ? <Users className="w-4 h-4 text-blue-500" /> : <Briefcase className="w-4 h-4 text-emerald-500" />}
+                        <div key={job.jobId} className="flex items-start relative z-10 group">
+                           <div className={`w-10 h-10 rounded-full border-4 border-white flex items-center justify-center flex-shrink-0 shadow-sm z-10 transition-transform duration-300 group-hover:scale-110 ${job.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                              {job.status === 'in_progress' ? <Users className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
                            </div>
-                           <div className="ml-4 flex-1">
-                              <div className="flex justify-between items-start">
-                                 <p className="text-sm font-bold text-slate-700">{maskName(job.ownerName)}</p>
-                                 <span className="text-xs text-white bg-purple-500 px-2 py-0.5 rounded font-medium">
+                           <div className="ml-4 flex-1 bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all duration-300">
+                              <div className="flex justify-between items-start mb-1">
+                                 <p className="text-sm font-bold text-slate-800">{maskName(job.ownerName)}</p>
+                                 <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide ${job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                     {job.status === 'in_progress' ? 'Görev Atandı' : job.status === 'completed' ? 'Tamamlandı' : 'Yeni Görev'}
                                  </span>
                               </div>
-                              <p className="text-xs text-slate-500 mt-1">{job.city} • {job.courthouse}</p>
-                              <p className="text-xs text-slate-400 mt-1">
+                              <p className="text-xs text-slate-600 font-medium">{job.city} • {job.courthouse}</p>
+                              <p className="text-[10px] text-slate-400 mt-2 flex items-center">
+                                 <Activity className="w-3 h-3 mr-1" />
                                  {job.updatedAt?.seconds ? new Date(job.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Az önce'}
                               </p>
                            </div>
@@ -334,34 +338,37 @@ const HomePage = ({ user }: { user: User }) => {
                </div>
 
                {/* Archive */}
-               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                  <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                     <h3 className="text-lg font-bold text-slate-800 flex items-center">
-                        <Archive className="w-5 h-5 mr-2 text-primary-600" /> Arşiv
+               <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+                  <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                     <h3 className="text-xl font-bold text-slate-800 flex items-center">
+                        <div className="p-2 bg-secondary-50 rounded-lg mr-3">
+                           <Archive className="w-5 h-5 text-secondary-600" />
+                        </div>
+                        Arşiv
                      </h3>
-                     <span className="text-xs text-slate-500">Son Tamamlananlar</span>
+                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Son Tamamlananlar</span>
                   </div>
 
                   {loading ? (
                      <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-300" /></div>
                   ) : archive.length === 0 ? (
-                     <p className="text-center text-slate-400 py-8">Henüz tamamlanan görev yok.</p>
+                     <p className="text-center text-slate-400 py-12 italic">Henüz tamamlanan görev yok.</p>
                   ) : (
                      <div className="space-y-4">
                         {archive.map(job => (
-                           <div key={job.jobId} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition border border-transparent hover:border-slate-100">
+                           <div key={job.jobId} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 group">
                               <div className="flex items-center">
-                                 <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
-                                    <Check className="w-5 h-5" />
+                                 <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
+                                    <Check className="w-6 h-6" />
                                  </div>
-                                 <div className="ml-3">
+                                 <div className="ml-4">
                                     <p className="text-sm font-bold text-slate-800 max-w-[150px] truncate">{job.courthouse}</p>
-                                    <p className="text-xs text-slate-500">{job.jobType}</p>
+                                    <p className="text-xs text-slate-500 font-medium mt-0.5">{job.jobType}</p>
                                  </div>
                               </div>
                               <div className="text-right">
                                  <p className="text-sm font-bold text-slate-900">{job.offeredFee} TL</p>
-                                 <p className="text-xs text-green-600 font-medium">Tamamlandı</p>
+                                 <p className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1">TAMAMLANDI</p>
                               </div>
                            </div>
                         ))}

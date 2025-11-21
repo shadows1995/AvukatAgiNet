@@ -21,32 +21,33 @@ const Logo = ({ className = "" }: { className?: string }) => (
 export const LandingPage = () => (
   <div className="flex flex-col min-h-screen bg-white">
     {/* Hero Section */}
-    <div className="bg-slate-50 pt-20 pb-32 px-4 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-primary-50 to-transparent opacity-60"></div>
-      <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-tr from-secondary-50 to-transparent opacity-60"></div>
+    {/* Hero Section */}
+    <div className="bg-slate-50 pt-24 pb-32 px-4 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-bl from-primary-100/50 to-transparent opacity-70 blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-1/2 h-2/3 bg-gradient-to-tr from-secondary-100/50 to-transparent opacity-70 blur-3xl"></div>
 
       <div className="max-w-7xl mx-auto text-center relative z-10">
-        <div className="inline-flex items-center px-4 py-2 rounded-full bg-white border border-primary-100 text-primary-700 font-medium text-sm mb-8 shadow-sm animate-bounce">
-          <span className="flex h-2 w-2 rounded-full bg-primary-500 mr-2"></span>
+        <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-primary-100 text-primary-700 font-bold text-sm mb-8 shadow-glow animate-bounce">
+          <span className="flex h-2.5 w-2.5 rounded-full bg-primary-500 mr-2 animate-pulse"></span>
           Türkiye'nin En Büyük Hukuk Ağı
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight">
+        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight">
           Meslektaşlarınızla <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500">Güçlerinizi Birleştirin</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-600 animate-text">Güçlerinizi Birleştirin</span>
         </h1>
 
-        <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
           Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlarla
           anında eşleşin. Premium üyelik ile iş ağınızı genişletin.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <Link to="/register" className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-200 flex items-center justify-center">
+        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <Link to="/register" className="px-10 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-2xl font-bold text-lg shadow-glow hover:shadow-glow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center">
             Ücretsiz Üye Ol
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
-          <Link to="/login" className="px-8 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-xl font-bold text-lg shadow-sm hover:shadow-md transition duration-200">
+          <Link to="/login" className="px-10 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
             Sistemi İncele
           </Link>
         </div>
@@ -54,24 +55,25 @@ export const LandingPage = () => (
     </div>
 
     {/* Stats Section */}
+    {/* Stats Section */}
     <div className="bg-white border-y border-slate-100 relative z-20">
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-600 mb-2">595</div>
-            <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Toplam Adliye</div>
+          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-600 mb-2 group-hover:scale-110 transition-transform duration-300">595</div>
+            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Toplam Adliye</div>
           </div>
-          <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-500 mb-2">49.881</div>
-            <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Kayıtlı Avukat</div>
+          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+            <div className="text-4xl md:text-5xl font-extrabold text-secondary-500 mb-2 group-hover:scale-110 transition-transform duration-300">49.881</div>
+            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Kayıtlı Avukat</div>
           </div>
-          <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2">12.543</div>
-            <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Tamamlanan Görev</div>
+          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2 group-hover:scale-110 transition-transform duration-300">12.543</div>
+            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tamamlanan Görev</div>
           </div>
-          <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2">2.847</div>
-            <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Aktif Premium Üye</div>
+          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2 group-hover:scale-110 transition-transform duration-300">2.847</div>
+            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Aktif Premium Üye</div>
           </div>
         </div>
       </div>
@@ -86,9 +88,9 @@ export const LandingPage = () => (
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
-            <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
-              <Briefcase className="h-7 w-7 text-primary-600" />
+          <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
+            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
+              <Briefcase className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Kolay Görev Oluşturma</h3>
             <p className="text-slate-600 leading-relaxed">
@@ -96,9 +98,9 @@ export const LandingPage = () => (
             </p>
           </div>
 
-          <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
-            <div className="w-14 h-14 bg-primary-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
-              <ShieldCheck className="h-7 w-7 text-primary-500" />
+          <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
+            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
+              <ShieldCheck className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">%100 Avukat Ağı</h3>
             <p className="text-slate-600 leading-relaxed">
@@ -106,9 +108,9 @@ export const LandingPage = () => (
             </p>
           </div>
 
-          <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
-            <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
-              <Star className="h-7 w-7 text-primary-700" />
+          <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
+            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
+              <Star className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Puanlama Sistemi</h3>
             <p className="text-slate-600 leading-relaxed">

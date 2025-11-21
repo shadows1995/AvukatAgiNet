@@ -25,7 +25,9 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const navigate = useNavigate();
   const notificationRef = useRef<HTMLDivElement>(null);
 
-  const isActive = (path: string) => location.pathname === path ? "text-primary-600 font-semibold bg-primary-50 rounded-md px-3 py-2" : "text-slate-600 hover:text-primary-600 hover:bg-slate-50 rounded-md px-3 py-2 transition";
+  const isActive = (path: string) => location.pathname === path
+    ? "text-primary-600 font-bold bg-primary-50/80 rounded-xl px-4 py-2.5 shadow-sm ring-1 ring-primary-100"
+    : "text-slate-600 font-medium hover:text-primary-600 hover:bg-slate-50/80 rounded-xl px-4 py-2.5 transition-all duration-200";
 
   useEffect(() => {
     if (!user) return;
@@ -97,9 +99,9 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   }
 
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <nav className="glass-effect border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-20">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0">
               <Logo />
@@ -126,12 +128,12 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 {user.isPremium && (
                   <button
                     onClick={() => setShowPremiumModal(true)}
-                    className={`px-3 py-1 text-xs font-bold text-white rounded-full flex items-center shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 ${user.membershipType === 'premium_plus'
-                      ? 'bg-primary-800'
-                      : 'bg-primary-500'
+                    className={`px-4 py-1.5 text-xs font-bold text-white rounded-full flex items-center shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-0.5 ${user.membershipType === 'premium_plus'
+                      ? 'bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 border border-primary-700'
+                      : 'bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 border border-primary-400'
                       }`}
                   >
-                    {user.membershipType === 'premium_plus' ? <Sparkles className="w-3 h-3 mr-1" /> : <Crown className="w-3 h-3 mr-1" />}
+                    {user.membershipType === 'premium_plus' ? <Sparkles className="w-3.5 h-3.5 mr-1.5" /> : <Crown className="w-3.5 h-3.5 mr-1.5" />}
                     {user.membershipType === 'premium_plus' ? 'PREMIUM +' : 'PREMIUM'}
                   </button>
                 )}
@@ -170,17 +172,17 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     )}
                   </div>
 
-                  <div className="text-right hidden lg:block cursor-pointer" onClick={goToProfile}>
-                    <p className="text-sm font-medium text-slate-900 hover:text-primary-600 transition">{user.fullName}</p>
-                    <p className="text-xs text-slate-500">{user.baroCity} Barosu</p>
+                  <div className="text-right hidden lg:block cursor-pointer group" onClick={goToProfile}>
+                    <p className="text-sm font-bold text-slate-800 group-hover:text-primary-600 transition">{user.fullName}</p>
+                    <p className="text-xs text-slate-500 font-medium">{user.baroCity} Barosu</p>
                   </div>
-                  <div onClick={goToProfile} className="h-9 w-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold border-2 border-primary-50 cursor-pointer hover:border-primary-200 transition">
+                  <div onClick={goToProfile} className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200">
                     {user.fullName.charAt(0)}
                   </div>
-                  <Link to="/settings" className="p-2 text-slate-400 hover:text-primary-600 transition" title="Ayarlar">
+                  <Link to="/settings" className="p-2.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all duration-200" title="Ayarlar">
                     <Settings className="h-5 w-5" />
                   </Link>
-                  <button onClick={onLogout} className="p-2 text-slate-400 hover:text-red-500 transition" title="Çıkış Yap">
+                  <button onClick={onLogout} className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200" title="Çıkış Yap">
                     <LogOut className="h-5 w-5" />
                   </button>
                 </div>
