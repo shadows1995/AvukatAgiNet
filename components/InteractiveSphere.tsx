@@ -18,10 +18,6 @@ const InteractiveSphere: React.FC = () => {
         const connectionDistance = 100; // Max distance to draw a line
         const baseRadius = Math.min(width, height) / 2.8;
 
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetRotationX = 0;
-        let targetRotationY = 0;
         let rotationX = 0;
         let rotationY = 0;
 
@@ -101,15 +97,9 @@ const InteractiveSphere: React.FC = () => {
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
 
-            // Smooth rotation physics
-            rotationX += (targetRotationX - rotationX) * 0.05;
-            rotationY += (targetRotationY - rotationY) * 0.05;
-
-            // Auto rotation
-            if (Math.abs(targetRotationX) < 0.001 && Math.abs(targetRotationY) < 0.001) {
-                rotationY += 0.002;
-                rotationX += 0.001;
-            }
+            // Constant smooth rotation
+            rotationY += 0.003;
+            rotationX += 0.0015;
 
             const centerX = width / 2;
             const centerY = height / 2;
@@ -171,37 +161,19 @@ const InteractiveSphere: React.FC = () => {
         const handleResize = () => {
             width = canvas.width = canvas.offsetWidth;
             height = canvas.height = canvas.offsetHeight;
-            // Recalculate radius if needed, or just let it scale naturally
-        };
-
-        const handleMouseMove = (e: MouseEvent) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left - width / 2;
-            const y = e.clientY - rect.top - height / 2;
-
-            // Map mouse position to rotation speed
-            targetRotationY = x * 0.0005;
-            targetRotationX = -y * 0.0005;
         };
 
         window.addEventListener('resize', handleResize);
-        canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('mouseleave', () => {
-            targetRotationX = 0;
-            targetRotationY = 0;
-        });
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            canvas.removeEventListener('mousemove', handleMouseMove);
         };
     }, []);
 
     return (
         <canvas
             ref={canvasRef}
-            className="w-full h-full absolute top-0 left-0 pointer-events-auto"
-            style={{ touchAction: 'none' }}
+            className="w-full h-full absolute top-0 left-0 pointer-events-none"
         />
     );
 };
