@@ -32,7 +32,10 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
   return (
     <>
-      <div className={`bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-300 border flex flex-col h-full group ${job.isUrgent ? 'border-red-200 ring-1 ring-red-100' : 'border-slate-200'} ${isSelected ? 'ring-2 ring-green-500 border-green-500' : ''}`}>
+      <div
+        onClick={() => navigate(`/job/${job.jobId}`)}
+        className={`bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-300 border flex flex-col h-full group cursor-pointer ${job.isUrgent ? 'border-red-200 ring-1 ring-red-100' : 'border-slate-200'} ${isSelected ? 'ring-2 ring-green-500 border-green-500' : ''}`}
+      >
         {job.isUrgent && (
           <div className="bg-red-50 text-red-600 text-xs font-bold px-4 py-1 border-b border-red-100 flex items-center justify-center">
             <Clock className="w-3 h-3 mr-1" /> ACİL GÖREV - 5 DK
@@ -67,12 +70,15 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
           </div>
 
           <div className="flex items-center pt-4 border-t border-slate-50">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-600 text-xs font-bold ring-2 ring-white cursor-pointer" onClick={() => navigate(`/profile/${job.createdBy}`)}>
+            <div
+              className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-600 text-xs font-bold ring-2 ring-white cursor-pointer hover:ring-primary-200 transition"
+              onClick={(e) => { e.stopPropagation(); navigate(`/profile/${job.createdBy}`); }}
+            >
               {job.ownerName ? job.ownerName.charAt(0) : '?'}
             </div>
             <div className="ml-3">
               <p
-                onClick={() => navigate(`/profile/${job.createdBy}`)}
+                onClick={(e) => { e.stopPropagation(); navigate(`/profile/${job.createdBy}`); }}
                 className="text-sm font-medium text-slate-900 cursor-pointer hover:text-primary-600 hover:underline"
               >
                 {job.ownerName || 'Bilinmeyen Kullanıcı'}
@@ -94,12 +100,16 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
         <div className="px-6 py-4 bg-slate-50 rounded-b-xl border-t border-slate-100">
           {isOwner ? (
-            <Link to="/my-jobs" className="w-full flex justify-center items-center px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm text-sm font-semibold text-slate-600 hover:bg-white hover:text-primary-600 transition">
+            <Link
+              to="/my-jobs"
+              onClick={(e) => e.stopPropagation()}
+              className="w-full flex justify-center items-center px-4 py-2.5 border border-slate-300 rounded-lg shadow-sm text-sm font-semibold text-slate-600 hover:bg-white hover:text-primary-600 transition"
+            >
               Yönet
             </Link>
           ) : isSelected ? (
             <button
-              onClick={() => navigate(`/profile/${job.createdBy}`)}
+              onClick={(e) => { e.stopPropagation(); navigate(`/profile/${job.createdBy}`); }}
               className="w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition duration-200"
             >
               <Phone className="w-4 h-4 mr-2" />
@@ -107,7 +117,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
             </button>
           ) : (
             <button
-              onClick={handleApplyClick}
+              onClick={(e) => { e.stopPropagation(); handleApplyClick(); }}
               disabled={hasApplied}
               className={`w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white transition duration-200 ${hasApplied
                 ? 'bg-slate-400 cursor-not-allowed'

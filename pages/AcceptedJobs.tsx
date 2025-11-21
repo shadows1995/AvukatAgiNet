@@ -51,19 +51,17 @@ const AcceptedJobs = () => {
             // "Tamamladığı görevler Anasayfada arşiv kısmında görünmeli" -> So maybe remove from here if completed?
             // Let's keep them here but marked as completed, or remove. 
             // Let's filter out 'completed' ones to keep this list for "Active" tasks.
-            if (jobData.status !== 'completed') {
-              // Get Owner
-              const ownerRef = doc(db, "users", jobData.createdBy);
-              const ownerSnap = await getDoc(ownerRef);
+            // Get Owner
+            const ownerRef = doc(db, "users", jobData.createdBy);
+            const ownerSnap = await getDoc(ownerRef);
 
-              if (ownerSnap.exists()) {
-                const ownerData = { uid: ownerSnap.id, ...ownerSnap.data() } as User;
-                jobsData.push({
-                  job: jobData,
-                  application: appData,
-                  owner: ownerData
-                });
-              }
+            if (ownerSnap.exists()) {
+              const ownerData = { uid: ownerSnap.id, ...ownerSnap.data() } as User;
+              jobsData.push({
+                job: jobData,
+                application: appData,
+                owner: ownerData
+              });
             }
           }
         }));
@@ -244,11 +242,19 @@ const AcceptedJobs = () => {
           {acceptedJobs.map((data) => (
             <div
               key={data.job.jobId}
-              onClick={() => setSelectedJob(data)}
-              className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-md transition cursor-pointer group flex justify-between items-center"
+              onClick={() => navigate(`/job/${data.job.jobId}`)}
+              className={`border rounded-xl p-6 hover:shadow-md transition cursor-pointer group flex justify-between items-center ${data.job.status === 'completed' ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-slate-200'
+                }`}
             >
               <div>
-                <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary-600 transition">{data.job.title}</h3>
+                <div className="flex items-center space-x-2 mb-1">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary-600 transition">{data.job.title}</h3>
+                  {data.job.status === 'completed' && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
+                      TAMAMLANDI
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center text-slate-500 text-sm mt-1 space-x-3">
                   <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" /> {data.job.city}</span>
                   <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" /> {data.job.date}</span>

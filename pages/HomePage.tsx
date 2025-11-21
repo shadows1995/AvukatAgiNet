@@ -331,7 +331,11 @@ const HomePage = ({ user }: { user: User }) => {
                      {loading ? (
                         <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-300" /></div>
                      ) : recentActivity.map((job) => (
-                        <div key={job.jobId} className="flex items-start relative z-10 group">
+                        <div
+                           key={job.jobId}
+                           onClick={() => navigate(`/job/${job.jobId}`)}
+                           className="flex items-start relative z-10 group cursor-pointer"
+                        >
                            <div className={`w-10 h-10 rounded-full border-4 border-white flex items-center justify-center flex-shrink-0 shadow-sm z-10 transition-transform duration-300 group-hover:scale-110 ${job.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-emerald-500 text-white'}`}>
                               {job.status === 'in_progress' ? <Users className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
                            </div>
@@ -372,7 +376,11 @@ const HomePage = ({ user }: { user: User }) => {
                   ) : (
                      <div className="space-y-4">
                         {archive.map(job => (
-                           <div key={job.jobId} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 group">
+                           <div
+                              key={job.jobId}
+                              onClick={() => navigate(`/job/${job.jobId}`)}
+                              className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 group cursor-pointer"
+                           >
                               <div className="flex items-center">
                                  <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-white group-hover:shadow-sm transition-all duration-300">
                                     <Check className="w-6 h-6" />

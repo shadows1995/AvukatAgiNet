@@ -263,8 +263,8 @@ const MyJobs = () => {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${job.status === 'open' ? 'bg-green-100 text-green-700' :
-                        job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                          'bg-gray-100 text-gray-700'
+                      job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
                       }`}>
                       {job.status === 'open' ? 'Başvuruya Açık' : job.status === 'in_progress' ? 'Atandı' : job.status}
                     </span>
@@ -307,6 +307,14 @@ const MyJobs = () => {
                       )}
                     </div>
                   )}
+
+                  <button
+                    onClick={() => navigate(`/job/${job.jobId}`)}
+                    className="flex items-center text-slate-600 font-medium hover:bg-slate-50 px-4 py-2 rounded-lg transition border border-transparent hover:border-slate-200"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Görevi Görüntüle
+                  </button>
 
                   <button
                     onClick={() => fetchApplications(job.jobId!)}
@@ -357,8 +365,8 @@ const MyJobs = () => {
                                 onClick={() => handleSelectClick(job, app)}
                                 disabled={isSelectionLocked}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ${isSelectionLocked
-                                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                    : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md'
+                                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                  : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md'
                                   }`}
                               >
                                 {isSelectionLocked ? 'Süre' : 'Görevi Ver'}

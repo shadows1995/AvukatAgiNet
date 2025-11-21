@@ -19,6 +19,7 @@ import { LandingPage, LoginPage, RegisterPage } from './pages/AuthPages';
 import PremiumPage from './pages/Premium';
 import PaymentPage from './pages/Payment';
 import AcceptedJobs from './pages/AcceptedJobs';
+import JobDetails from './pages/JobDetails';
 
 const AppContent = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -72,6 +73,7 @@ const AppContent = () => {
           <Route path="/settings" element={user ? <SettingsPage user={user} /> : <Navigate to="/login" />} />
           <Route path="/my-jobs" element={user ? <MyJobs /> : <Navigate to="/login" />} />
           <Route path="/accepted-jobs" element={user ? <AcceptedJobs /> : <Navigate to="/login" />} />
+          <Route path="/job/:jobId" element={user ? <JobDetails user={user} /> : <Navigate to="/login" />} />
           <Route path="/profile/:userId" element={user ? <ProfilePage currentUser={user} /> : <Navigate to="/login" />} />
         </Routes>
       </div>
