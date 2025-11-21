@@ -256,34 +256,28 @@ const HomePage = ({ user }: { user: User }) => {
                   {/* Pie Chart */}
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
                      <h3 className="text-lg font-bold text-slate-800 mb-4">Adliye Dağılımı</h3>
-                     <div className={`h-64 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
+                     <div className={`h-80 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
                         <ResponsiveContainer width="100%" height="100%">
                            <PieChart>
                               <Pie
                                  data={user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]}
                                  cx="50%"
-                                 cy="50%"
+                                 cy="45%"
                                  innerRadius={60}
                                  outerRadius={80}
                                  fill="#8884d8"
                                  paddingAngle={5}
                                  dataKey="value"
+                                 label={({ name, value }) => `${name} (${value})`}
+                                 labelLine={true}
                               >
                                  {(user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]).map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                  ))}
                               </Pie>
-                              <Tooltip />
+                              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                            </PieChart>
                         </ResponsiveContainer>
-                        <div className="flex flex-wrap justify-center gap-4 mt-4">
-                           {(user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]).map((entry, index) => (
-                              <div key={index} className="flex items-center text-xs text-slate-600">
-                                 <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                                 {entry.name} ({entry.value})
-                              </div>
-                           ))}
-                        </div>
                      </div>
                      {!user.isPremium && (
                         <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
