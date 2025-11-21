@@ -15,10 +15,10 @@ const Footer = () => {
     const sectionTitle = "text-lg font-semibold text-white";
 
     const socialStyle =
-        "w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 text-slate-300 hover:text-slate-900 hover:bg-primary-400 transition-all duration-300 cursor-pointer";
+        "w-9 h-9 flex items-center justify-center rounded-full border border-slate-700 text-slate-300 hover:text-white hover:bg-primary-600 transition-all duration-300 cursor-pointer";
 
     return (
-        <footer className="bg-slate-900 border-t border-slate-800">
+        <footer className="bg-primary-900 border-t border-primary-800">
             {/* Top Section */}
             <div className="max-w-6xl w-11/12 mx-auto flex flex-wrap justify-between py-16 gap-10">
                 {/* Logo + About */}
@@ -83,7 +83,7 @@ const Footer = () => {
             </div>
 
             {/* Bottom Section */}
-            <div className="bg-slate-950 py-8">
+            <div className="bg-primary-950 py-8">
                 <div className="max-w-6xl w-11/12 mx-auto flex flex-col sm:flex-row justify-between items-center gap-6">
                     <p className="text-xs text-slate-500 text-center sm:text-left">
                         © {new Date().getFullYear()}{" "}

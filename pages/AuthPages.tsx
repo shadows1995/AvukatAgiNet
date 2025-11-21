@@ -58,19 +58,19 @@ export const LandingPage = () => (
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-purple-600 mb-2">595</div>
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-600 mb-2">595</div>
             <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Toplam Adliye</div>
           </div>
           <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-emerald-500 mb-2">49.881</div>
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-500 mb-2">49.881</div>
             <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Kayıtlı Avukat</div>
           </div>
           <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-blue-600 mb-2">12.543</div>
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2">12.543</div>
             <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Tamamlanan Görev</div>
           </div>
           <div className="p-4 transition duration-300 hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl font-extrabold text-amber-600 mb-2">2.847</div>
+            <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2">2.847</div>
             <div className="text-sm font-medium text-slate-500 uppercase tracking-wide">Aktif Premium Üye</div>
           </div>
         </div>
@@ -97,8 +97,8 @@ export const LandingPage = () => (
           </div>
 
           <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
-            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
-              <ShieldCheck className="h-7 w-7 text-green-600" />
+            <div className="w-14 h-14 bg-primary-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
+              <ShieldCheck className="h-7 w-7 text-primary-500" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">%100 Avukat Ağı</h3>
             <p className="text-slate-600 leading-relaxed">
@@ -107,8 +107,8 @@ export const LandingPage = () => (
           </div>
 
           <div className="p-8 bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl transition duration-300 border border-slate-100 group">
-            <div className="w-14 h-14 bg-secondary-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
-              <Star className="h-7 w-7 text-secondary-600" />
+            <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
+              <Star className="h-7 w-7 text-primary-700" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Puanlama Sistemi</h3>
             <p className="text-slate-600 leading-relaxed">
@@ -337,7 +337,7 @@ export const LoginPage = () => {
       {/* Right Side */}
       <div className="hidden lg:flex lg:w-1/2 bg-slate-50 relative overflow-hidden items-center justify-center p-12">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         <div className="relative z-10 w-full max-w-lg">
           <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8 animate-float">
             <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
@@ -346,7 +346,7 @@ export const LoginPage = () => {
             </div>
             <div className="space-y-4">
               <div className="flex items-start p-3 rounded-lg bg-slate-50 border border-slate-100">
-                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3 flex-shrink-0">AK</div>
+                <div className="h-8 w-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 font-bold text-xs mr-3 flex-shrink-0">AK</div>
                 <div>
                   <p className="text-sm font-medium text-slate-800">Av. Ahmet K. <span className="text-slate-400 font-normal">İstanbul</span></p>
                   <p className="text-xs text-slate-500 mt-0.5">Duruşma Yetki Belgesi • 1.500₺</p>
@@ -354,7 +354,7 @@ export const LoginPage = () => {
                 </div>
               </div>
               <div className="flex items-start p-3 rounded-lg bg-slate-50 border border-slate-100">
-                <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs mr-3 flex-shrink-0">ZD</div>
+                <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xs mr-3 flex-shrink-0">ZD</div>
                 <div>
                   <p className="text-sm font-medium text-slate-800">Av. Zeynep D. <span className="text-slate-400 font-normal">Ankara</span></p>
                   <p className="text-xs text-slate-500 mt-0.5">Dosya İnceleme • 750₺</p>

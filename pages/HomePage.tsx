@@ -98,7 +98,7 @@ const HomePage = ({ user }: { user: User }) => {
       value: courthouseStats[key]
    }));
 
-   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+   const COLORS = ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'];
 
    // Chart Data: Earnings over time
    const earningsByMonth = completedJobs.reduce((acc, job) => {
@@ -178,10 +178,10 @@ const HomePage = ({ user }: { user: User }) => {
 
                {/* KPI Cards */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                  <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-lg">
                      <div className="flex justify-between items-start">
                         <div>
-                           <p className="text-blue-100 font-medium mb-1">Toplam Kazanç</p>
+                           <p className="text-primary-100 font-medium mb-1">Toplam Kazanç</p>
                            <h3 className="text-3xl font-bold">{totalEarnings.toLocaleString('tr-TR')} TL</h3>
                         </div>
                         <div className="bg-white/20 p-3 rounded-xl">
@@ -196,8 +196,8 @@ const HomePage = ({ user }: { user: User }) => {
                            <p className="text-slate-500 font-medium mb-1">Tamamlanan Görevler</p>
                            <h3 className="text-3xl font-bold text-slate-900">{completedCount}</h3>
                         </div>
-                        <div className="bg-green-100 p-3 rounded-xl">
-                           <CheckCircle className="w-6 h-6 text-green-600" />
+                        <div className="bg-primary-50 p-3 rounded-xl">
+                           <CheckCircle className="w-6 h-6 text-primary-600" />
                         </div>
                      </div>
                   </div>
@@ -208,8 +208,8 @@ const HomePage = ({ user }: { user: User }) => {
                            <p className="text-slate-500 font-medium mb-1">Çalışılan Adliyeler</p>
                            <h3 className="text-3xl font-bold text-slate-900">{Object.keys(courthouseStats).length}</h3>
                         </div>
-                        <div className="bg-purple-100 p-3 rounded-xl">
-                           <Briefcase className="w-6 h-6 text-purple-600" />
+                        <div className="bg-primary-100 p-3 rounded-xl">
+                           <Briefcase className="w-6 h-6 text-primary-700" />
                         </div>
                      </div>
                   </div>
@@ -225,8 +225,8 @@ const HomePage = ({ user }: { user: User }) => {
                            <AreaChart data={areaData}>
                               <defs>
                                  <linearGradient id="colorKazanc" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
                                  </linearGradient>
                               </defs>
                               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -235,7 +235,7 @@ const HomePage = ({ user }: { user: User }) => {
                               <Tooltip
                                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                               />
-                              <Area type="monotone" dataKey="kazanc" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
+                              <Area type="monotone" dataKey="kazanc" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
                            </AreaChart>
                         </ResponsiveContainer>
                      </div>

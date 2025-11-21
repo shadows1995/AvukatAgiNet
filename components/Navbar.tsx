@@ -127,8 +127,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                   <button
                     onClick={() => setShowPremiumModal(true)}
                     className={`px-3 py-1 text-xs font-bold text-white rounded-full flex items-center shadow-sm hover:shadow-md transition transform hover:-translate-y-0.5 ${user.membershipType === 'premium_plus'
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                      : 'bg-gradient-to-r from-amber-500 to-orange-600'
+                      ? 'bg-primary-800'
+                      : 'bg-primary-500'
                       }`}
                   >
                     {user.membershipType === 'premium_plus' ? <Sparkles className="w-3 h-3 mr-1" /> : <Crown className="w-3 h-3 mr-1" />}
@@ -223,8 +223,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className={`p-6 text-white relative ${user.membershipType === 'premium_plus'
-              ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-              : 'bg-gradient-to-r from-amber-500 to-orange-600'
+              ? 'bg-primary-800'
+              : 'bg-primary-600'
               }`}>
               <button
                 onClick={() => setShowPremiumModal(false)}
@@ -244,9 +244,9 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             </div>
 
             <div className="p-6 space-y-6">
-              <div className="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-100">
+              <div className="flex items-center justify-between p-4 bg-primary-50 rounded-xl border border-primary-100">
                 <div className="flex items-center">
-                  <CreditCard className="w-5 h-5 text-amber-600 mr-3" />
+                  <CreditCard className="w-5 h-5 text-primary-600 mr-3" />
                   <div>
                     <p className="text-sm text-slate-500 font-medium">Mevcut Plan</p>
                     <p className="text-slate-900 font-bold">
@@ -286,7 +286,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     <Sparkles className="w-4 h-4 mr-2 text-slate-400" />
                     <span className="text-sm">Kalan Süre</span>
                   </div>
-                  <span className="text-sm font-bold text-amber-600">
+                  <span className="text-sm font-bold text-primary-600">
                     {user.premiumUntil ? Math.ceil((user.premiumUntil - Date.now()) / (1000 * 60 * 60 * 24)) : 0} Gün
                   </span>
                 </div>
