@@ -82,6 +82,15 @@ export const LandingPage = () => (
     {/* Feature Cards */}
     <div className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
+        {/* Process Infographic */}
+        <div className="mb-20">
+          <img
+            src="C:/Users/Talha/.gemini/antigravity/brain/ae9e3884-51c8-4821-8b8f-048a6217227b/uploaded_image_1763722517397.jpg"
+            alt="Avukat Görevlendirme Süreci"
+            className="w-full max-w-5xl mx-auto rounded-2xl shadow-xl border border-slate-200"
+          />
+        </div>
+
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-slate-900">Neden AvukatNet?</h2>
           <p className="mt-4 text-lg text-slate-600">Tek platformda güvenli ve hızlı hukuki işbirliği</p>

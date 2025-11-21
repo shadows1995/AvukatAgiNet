@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle } from 'lucide-react';
+import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle, Sparkles } from 'lucide-react';
 import { User, Job } from '../types';
 import { db } from '../firebaseConfig';
 import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
@@ -219,11 +219,11 @@ const HomePage = ({ user }: { user: User }) => {
                {/* Charts */}
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Area Chart */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
                      <h3 className="text-lg font-bold text-slate-800 mb-4">Kazanç Grafiği</h3>
-                     <div className="h-64">
+                     <div className={`h-64 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
                         <ResponsiveContainer width="100%" height="100%">
-                           <AreaChart data={areaData}>
+                           <AreaChart data={user.isPremium ? areaData : [{ name: 'Ocak', kazanc: 5000 }, { name: 'Şubat', kazanc: 7000 }, { name: 'Mart', kazanc: 3000 }, { name: 'Nisan', kazanc: 8500 }]}>
                               <defs>
                                  <linearGradient id="colorKazanc" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8} />
@@ -240,16 +240,27 @@ const HomePage = ({ user }: { user: User }) => {
                            </AreaChart>
                         </ResponsiveContainer>
                      </div>
+                     {!user.isPremium && (
+                        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
+                           <button
+                              onClick={() => navigate('/premium')}
+                              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center"
+                           >
+                              <Sparkles className="w-5 h-5 mr-2" />
+                              Premium ile Kazancınızı Takip Edin
+                           </button>
+                        </div>
+                     )}
                   </div>
 
                   {/* Pie Chart */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
                      <h3 className="text-lg font-bold text-slate-800 mb-4">Adliye Dağılımı</h3>
-                     <div className="h-64">
+                     <div className={`h-64 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
                         <ResponsiveContainer width="100%" height="100%">
                            <PieChart>
                               <Pie
-                                 data={pieData}
+                                 data={user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]}
                                  cx="50%"
                                  cy="50%"
                                  innerRadius={60}
@@ -258,7 +269,7 @@ const HomePage = ({ user }: { user: User }) => {
                                  paddingAngle={5}
                                  dataKey="value"
                               >
-                                 {pieData.map((entry, index) => (
+                                 {(user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]).map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                  ))}
                               </Pie>
@@ -266,7 +277,7 @@ const HomePage = ({ user }: { user: User }) => {
                            </PieChart>
                         </ResponsiveContainer>
                         <div className="flex flex-wrap justify-center gap-4 mt-4">
-                           {pieData.map((entry, index) => (
+                           {(user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]).map((entry, index) => (
                               <div key={index} className="flex items-center text-xs text-slate-600">
                                  <div className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                                  {entry.name} ({entry.value})
@@ -274,6 +285,17 @@ const HomePage = ({ user }: { user: User }) => {
                            ))}
                         </div>
                      </div>
+                     {!user.isPremium && (
+                        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
+                           <button
+                              onClick={() => navigate('/premium')}
+                              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center"
+                           >
+                              <Sparkles className="w-5 h-5 mr-2" />
+                              Premium'a Geç
+                           </button>
+                        </div>
+                     )}
                   </div>
                </div>
             </div>
