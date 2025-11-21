@@ -65,15 +65,28 @@ const Dashboard = ({ user }: { user: User }) => {
     if (filterType !== 'ALL' && job.jobType !== filterType) return false;
     if (!userCourthouses.includes(job.courthouse)) return false;
 
-    // Filter expired jobs: hide if deadline passed AND user is not involved
-    if (job.deadline) {
-      const deadlineDate = new Date(job.deadline.seconds * 1000);
-      const now = new Date();
-      const isExpired = deadlineDate < now;
-      const isInvolved = job.createdBy === user.uid || job.assignedTo === user.uid;
+    // Filter expired jobs: hide if job date/time passed AND user is not involved
+    if (job.date) {
+      try {
+        // Parse date (YYYY-MM-DD) and time (HH:MM)
+        const jobDate = new Date(job.date);
+        if (job.time) {
+          const [hours, minutes] = job.time.split(':').map(Number);
+          jobDate.setHours(hours, minutes);
+        } else {
+          // If no time, assume end of day
+          jobDate.setHours(23, 59, 59);
+        }
 
-      if (isExpired && !isInvolved) {
-        return false;
+        const now = new Date();
+        const isExpired = jobDate < now;
+        const isInvolved = job.createdBy === user.uid || job.assignedTo === user.uid;
+
+        if (isExpired && !isInvolved) {
+          return false;
+        }
+      } catch (e) {
+        console.warn("Date parsing error for job:", job.jobId, e);
       }
     }
 
