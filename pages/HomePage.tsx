@@ -141,12 +141,26 @@ const HomePage = ({ user }: { user: User }) => {
                      <p className="text-primary-100 text-xl mb-10 max-w-lg leading-relaxed">
                         Türkiye'nin lider tevkil uygulaması ile iş ağınızı genişletin, zaman kazanın.
                      </p>
-                     <button
-                        onClick={() => navigate('/create-job')}
-                        className="bg-white text-primary-900 px-10 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-blue-50 transition transform hover:-translate-y-1 flex items-center"
-                     >
-                        <PlusCircle className="w-6 h-6 mr-3" /> Yeni Görev Ver
-                     </button>
+                     <div className="flex flex-wrap gap-4">
+                        <button
+                           onClick={() => navigate('/create-job')}
+                           className="bg-white text-primary-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-blue-50 transition transform hover:-translate-y-1 flex items-center"
+                        >
+                           <PlusCircle className="w-6 h-6 mr-3" /> Yeni Görev Ver
+                        </button>
+                        <button
+                           onClick={() => {
+                              if (user.membershipType === 'premium' || user.membershipType === 'premium_plus') {
+                                 navigate('/dashboard');
+                              } else {
+                                 navigate('/premium');
+                              }
+                           }}
+                           className="bg-primary-800/50 backdrop-blur-md border border-primary-400/30 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-primary-800/70 transition transform hover:-translate-y-1 flex items-center"
+                        >
+                           <Briefcase className="w-6 h-6 mr-3" /> Görevlere Başvur
+                        </button>
+                     </div>
                   </div>
                </div>
 
