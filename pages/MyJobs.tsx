@@ -95,8 +95,24 @@ const MyJobs = () => {
     }
   };
 
+  const isJobExpired = (job: Job) => {
+    if (!job.date || !job.time) return false;
+    try {
+      const [day, month, year] = job.date.split('.').map(Number);
+      const [hour, minute] = job.time.split(':').map(Number);
+      const jobDate = new Date(year, month - 1, day, hour, minute);
+      return new Date() > jobDate;
+    } catch (e) {
+      return false;
+    }
+  };
+
   // 1. Step: Open Confirm Modal
   const handleSelectClick = (job: Job, app: Application) => {
+    if (isJobExpired(job)) {
+      alert("Görevin süresi geçti! Artık bu göreve atama yapamazsınız.");
+      return;
+    }
     setConfirmData({ isOpen: true, job, app });
   };
 

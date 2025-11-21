@@ -124,7 +124,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             {user && (
               <div className="hidden md:flex ml-6 space-x-2">
                 <Link to="/home" className={isActive('/home')}>Anasayfa</Link>
-                <Link to="/dashboard" className={isActive('/dashboard')}>Görevler</Link>
+                <Link to="/dashboard" className={isActive('/dashboard')}>Açık Görevler</Link>
                 <Link to="/my-jobs" className={isActive('/my-jobs')}>Görevlerim</Link>
                 <Link to="/accepted-jobs" className={isActive('/accepted-jobs')}>Aldığım Görevler</Link>
                 <Link to="/create-job" className={isActive('/create-job')}>Görev Ver</Link>
@@ -226,7 +226,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
       {isOpen && user && (
         <div className="md:hidden bg-white border-t border-slate-100 px-2 pt-2 pb-3 space-y-1">
           <Link to="/home" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Anasayfa</Link>
-          <Link to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevler</Link>
+          <Link to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Açık Görevler</Link>
           <Link to="/create-job" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
           <Link to="/my-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
           <Link to="/accepted-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>

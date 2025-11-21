@@ -93,7 +93,7 @@ const SettingsPage = ({ user }: { user: UserType }) => {
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Ad Soyad</label>
-            <input type="text" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} className="w-full bg-slate-50 p-3 rounded-lg border border-slate-200 focus:ring-primary-500 focus:border-primary-500 text-slate-700 font-medium" />
+            <input type="text" value={formData.fullName} disabled className="w-full bg-slate-100 p-3 rounded-lg border border-slate-200 text-slate-500 font-medium cursor-not-allowed" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">E-Posta</label>
