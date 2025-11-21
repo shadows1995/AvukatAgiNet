@@ -1,30 +1,46 @@
 import React, { useState } from 'react';
-import { Check, X, Crown, Star, Shield, Zap, Bell, MapPin, ArrowRight, Loader2, User as UserIcon } from 'lucide-react';
+import { CheckCircle, Rocket, Zap, Crown, Shield, Loader2 } from 'lucide-react';
 import { User } from '../types';
 import { db } from '../firebaseConfig';
 import { doc, updateDoc } from 'firebase/firestore';
 
+const styles = {
+    section: "relative py-20 bg-slate-50 min-h-screen",
+    container: "px-4 mx-auto max-w-7xl sm:px-6 lg:px-8",
+    header: "max-w-2xl mx-auto text-center mb-16",
+    heading: "text-4xl font-bold text-slate-900 sm:text-5xl lg:text-6xl tracking-tight",
+    subheading: "mt-6 text-lg text-slate-600",
+    grid: "grid gap-10 mt-16 md:grid-cols-3 max-w-6xl mx-auto items-start",
+    card: "relative flex flex-col p-8 bg-white rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-2xl",
+
+    badge: "absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 text-xs font-semibold text-white rounded-full shadow-md",
+    cardHeader: "text-center",
+    iconWrapper: "flex justify-center mb-4",
+    cardTitle: "mt-6 text-2xl font-semibold text-slate-900",
+    cardDescription: "mt-2 text-base text-slate-600",
+    cardPrice: "flex items-end justify-center mt-6",
+    priceSign: "text-xl font-semibold text-slate-400 mb-2",
+    priceValue: "text-5xl font-bold text-slate-900",
+    pricePeriod: "text-lg font-normal text-slate-500 ml-1 mb-2",
+    featureList: "mt-8 space-y-4 flex-grow",
+    featureItem: "flex items-start text-slate-700",
+    featureIcon: "w-5 h-5 mr-3 text-green-500 flex-shrink-0 mt-0.5",
+    buttonBase: "inline-flex items-center justify-center w-full px-6 py-3 mt-10 text-base font-semibold rounded-xl shadow-md transition-all duration-300",
+    buttonPrimary: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:scale-105",
+    buttonSecondary: "border border-slate-300 text-slate-800 hover:border-indigo-500 hover:text-indigo-600 bg-white",
+    buttonDisabled: "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none",
+    noCredit: "mt-4 text-sm text-slate-500",
+    footer: "mt-20 max-w-xl mx-auto text-base text-center text-slate-500 border-t border-slate-200 pt-8",
+};
+
 const PremiumPage = ({ user }: { user: User }) => {
     const [loading, setLoading] = useState<string | null>(null);
-
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
 
     const handleUpgrade = async (plan: 'premium' | 'premium_plus') => {
         setLoading(`${plan}-${billingCycle}`);
 
-        // Payment Links (Replace with actual links provided by user)
-        const PAYMENT_LINKS = {
-            premium: {
-                monthly: "https://iyzico.com/...", // Placeholder
-                yearly: "https://iyzico.com/..."   // Placeholder
-            },
-            premium_plus: {
-                monthly: "https://iyzico.com/...", // Placeholder
-                yearly: "https://iyzico.com/..."   // Placeholder
-            }
-        };
-
-        // Simulate payment processing for now
+        // Simulate payment processing
         setTimeout(async () => {
             try {
                 const now = Date.now();
@@ -42,7 +58,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                 });
 
                 alert(`Tebrikler! ${plan === 'premium' ? 'Premium' : 'Premium +'} üyeliğiniz başarıyla aktif edildi.`);
-                window.location.reload(); // Simple reload to refresh state
+                window.location.reload();
             } catch (error) {
                 console.error("Upgrade error:", error);
                 alert("Bir hata oluştu. Lütfen tekrar deneyin.");
@@ -52,251 +68,161 @@ const PremiumPage = ({ user }: { user: User }) => {
         }, 1500);
     };
 
-    const PlanCard = ({
-        type,
-        title,
-        priceMonthly,
-        priceYearly,
-        features,
-        recommended = false,
-        color
-    }: {
-        type: 'free' | 'premium' | 'premium_plus',
-        title: string,
-        priceMonthly: number,
-        priceYearly: number,
-        features: { text: string, included: boolean }[],
-        recommended?: boolean,
-        color: string
-    }) => {
-        const isCurrent = user.membershipType === type || (type === 'free' && !user.isPremium);
-
-        return (
-            <div className={`relative bg-white rounded-2xl shadow-xl border-2 flex flex-col ${recommended ? 'border-amber-500 scale-105 z-10' : 'border-slate-100'} p-6 transition hover:shadow-2xl`}>
-                {recommended && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-md flex items-center">
-                        <Star className="w-4 h-4 mr-1 fill-current" /> EN POPÜLER
-                    </div>
-                )}
-
-                <div className={`w-16 h-16 rounded-2xl ${color} flex items-center justify-center mb-4 mx-auto`}>
-                    {type === 'free' && <UserIcon className="w-8 h-8 text-white" />}
-                    {type === 'premium' && <Crown className="w-8 h-8 text-white" />}
-                    {type === 'premium_plus' && <Zap className="w-8 h-8 text-white" />}
-                </div>
-
-                <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-slate-900">{title}</h3>
-
-                    <div className="mt-4 h-16 flex items-center justify-center flex-col">
-                        {type === 'free' ? (
-                            <span className="text-4xl font-bold text-slate-900">Ücretsiz</span>
-                        ) : (
-                            <>
-                                <div className="flex items-baseline justify-center">
-                                    <span className="text-4xl font-bold text-slate-900">
-                                        {billingCycle === 'monthly' ? priceMonthly : Math.round(priceYearly / 12)}
-                                    </span>
-                                    <span className="text-xl text-slate-500 font-medium ml-1">TL</span>
-                                    <span className="text-slate-400 text-sm ml-1">/ay</span>
-                                </div>
-                                {billingCycle === 'yearly' && (
-                                    <span className="text-xs text-green-600 font-bold mt-1">
-                                        Yıllık {priceYearly} TL (5 Ay Bedava!)
-                                    </span>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                <div className="space-y-4 mb-8 flex-grow">
-                    {features.map((feature, idx) => (
-                        <div key={idx} className="flex items-start">
-                            {feature.included ? (
-                                <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                            ) : (
-                                <X className="w-5 h-5 text-slate-300 mr-3 flex-shrink-0" />
-                            )}
-                            <span className={`text-sm ${feature.included ? 'text-slate-700' : 'text-slate-400'}`}>
-                                {feature.text}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-
-                <button
-                    disabled={isCurrent || (loading !== null)}
-                    onClick={() => type !== 'free' && handleUpgrade(type)}
-                    className={`w-full py-3 rounded-xl font-bold transition flex items-center justify-center ${isCurrent
-                        ? 'bg-slate-100 text-slate-400 cursor-default'
-                        : recommended
-                            ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:shadow-lg hover:-translate-y-1'
-                            : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg hover:-translate-y-1'
-                        }`}
-                >
-                    {loading === `${type}-${billingCycle}` ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : isCurrent ? (
-                        'Mevcut Plan'
-                    ) : type === 'free' ? (
-                        'Varsayılan'
-                    ) : (
-                        'Hemen Yükselt'
-                    )}
-                </button>
-            </div>
-        );
-    };
+    const pricingPlans = [
+        {
+            type: 'free',
+            title: "Başlangıç",
+            description: "Yeni başlayan avukatlar için ideal",
+            price: 0,
+            features: [
+                "Sınırsız İlan Açabilme",
+                "Profil Oluşturma",
+                "Başvuruları Görüntüleme",
+                "Mesajlaşma"
+            ],
+            icon: <Rocket className="w-12 h-12 text-cyan-500" />,
+            buttonStyle: styles.buttonSecondary,
+            buttonText: "Mevcut Plan",
+            isCurrent: user.membershipType === 'free' || !user.isPremium
+        },
+        {
+            type: 'premium',
+            title: "Premium",
+            description: "İşlerini büyütmek isteyenler için",
+            price: billingCycle === 'monthly' ? 300 : 125, // 1500/12 = 125
+            originalPriceYearly: 1500,
+            features: [
+                "Her Şey Dahil (Başlangıç)",
+                "15 dk Erken Başvuru Hakkı",
+                "Başvurudan Gelir Kazanma",
+                "Acil İlan Açabilme",
+                "Bölgesel E-posta Bildirimleri"
+            ],
+            icon: <Zap className="w-12 h-12 text-indigo-500" />,
+            buttonStyle: styles.buttonPrimary,
+            badge: "En Popüler",
+            badgeColor: "bg-gradient-to-r from-indigo-500 to-purple-600",
+            buttonText: "Hemen Yükselt",
+            isCurrent: user.membershipType === 'premium'
+        },
+        {
+            type: 'premium_plus',
+            title: "Premium +",
+            description: "Profesyoneller için tam paket",
+            price: billingCycle === 'monthly' ? 500 : 208, // 2500/12 ~= 208
+            originalPriceYearly: 2500,
+            features: [
+                "Tüm Premium Özellikleri",
+                "10 sn Öncelikli Bildirim",
+                "Başvurularda Üstte Çıkma",
+                "Adliye Filtreli E-posta",
+                "Para İadesi Garantisi"
+            ],
+            icon: <Crown className="w-12 h-12 text-pink-500" />,
+            buttonStyle: styles.buttonSecondary,
+            buttonText: "Hemen Yükselt",
+            isCurrent: user.membershipType === 'premium_plus'
+        }
+    ];
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
-                        Mesleğinizi <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Zirveye Taşıyın</span>
-                    </h1>
-                    <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
-                        Size en uygun paketi seçin, Türkiye'nin en büyük avukat ağında yerinizi alın ve kazanmaya başlayın.
+        <section className={styles.section}>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h2 className={styles.heading}>
+                        İhtiyacınıza uygun planı seçin
+                    </h2>
+                    <p className={styles.subheading}>
+                        İşletmenize en uygun planı seçin ve Avukat Ağı'nın premium özelliklerinin keyfini çıkarın.
                     </p>
 
-                    {/* Global Billing Toggle */}
-                    <div className="flex justify-center items-center space-x-4 mb-8">
+                    {/* Billing Toggle */}
+                    <div className="flex justify-center items-center space-x-4 mt-8">
                         <span className={`text-sm font-bold ${billingCycle === 'monthly' ? 'text-slate-900' : 'text-slate-500'}`}>Aylık</span>
                         <button
                             onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-                            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${billingCycle === 'yearly' ? 'bg-primary-600' : 'bg-slate-300'}`}
+                            className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${billingCycle === 'yearly' ? 'bg-indigo-600' : 'bg-slate-300'}`}
                         >
                             <div className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${billingCycle === 'yearly' ? 'translate-x-6' : ''}`}></div>
                         </button>
                         <span className={`text-sm font-bold ${billingCycle === 'yearly' ? 'text-slate-900' : 'text-slate-500'}`}>
-                            Yıllık <span className="text-green-600 text-xs ml-1">(%60 İndirim)</span>
+                            Yıllık <span className="text-green-600 text-xs ml-1 bg-green-100 px-2 py-0.5 rounded-full">5 Ay Bedava!</span>
                         </span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start mb-20">
-                    {/* FREE PLAN */}
-                    <PlanCard
-                        type="free"
-                        title="Ücretsiz Üyelik"
-                        priceMonthly={0}
-                        priceYearly={0}
-                        color="bg-slate-400"
-                        features={[
-                            { text: "İlan Açabilme (Sınırsız)", included: true },
-                            { text: "Profil Oluşturma", included: true },
-                            { text: "Başvuruları Görüntüleme", included: true },
-                            { text: "Mesajlaşma", included: true },
-                            { text: "İlanlara Başvuru Yapma", included: false },
-                            { text: "Acil İlan Açabilme", included: false },
-                            { text: "Bölgesel E-posta Bildirimleri", included: false },
-                            { text: "Çoklu İl Seçimi", included: false },
-                        ]}
-                    />
+                <div className={styles.grid}>
+                    {pricingPlans.map((plan, index) => (
+                        <div
+                            key={index}
+                            className={`${styles.card} ${plan.title === "Premium"
+                                    ? "border-indigo-500 border-t-4 scale-105 z-10 shadow-xl"
+                                    : "border-slate-200 border-t-4 hover:border-indigo-300"
+                                }`}
+                        >
+                            {plan.badge && (
+                                <div className={`${styles.badge} ${plan.badgeColor}`}>
+                                    {plan.badge}
+                                </div>
+                            )}
+                            <div className={styles.cardHeader}>
+                                <div className={styles.iconWrapper}>
+                                    {plan.icon}
+                                </div>
+                                <h3 className={styles.cardTitle}>{plan.title}</h3>
+                                <p className={styles.cardDescription}>{plan.description}</p>
+                                <div className={styles.cardPrice}>
+                                    <span className={styles.priceSign}>₺</span>
+                                    <span className={styles.priceValue}>{Math.round(plan.price)}</span>
+                                    <span className={styles.pricePeriod}>/ay</span>
+                                </div>
+                                {billingCycle === 'yearly' && plan.price > 0 && (
+                                    <p className="text-xs text-slate-400 mt-1">
+                                        Yıllık {plan.originalPriceYearly} TL olarak faturalandırılır
+                                    </p>
+                                )}
+                            </div>
 
-                    {/* PREMIUM PLAN */}
-                    <PlanCard
-                        type="premium"
-                        title="Premium"
-                        priceMonthly={300}
-                        priceYearly={1500}
-                        color="bg-gradient-to-br from-amber-400 to-orange-500"
-                        recommended={true}
-                        features={[
-                            { text: "15 dk Başvuru Penceresi", included: true },
-                            { text: "Başvurudan Gelir Kazanma", included: true },
-                            { text: "Acil İlan Açabilme", included: true },
-                            { text: "Bölgesel E-posta Bildirimleri", included: true },
-                            { text: "Para İadesi Garantisi", included: false },
-                            { text: "Öncelikli Bildirim (10 sn erken)", included: false },
-                            { text: "Başvurularda Üstte Çıkma", included: false },
-                            { text: "Adliye Filtreli E-posta", included: false },
-                            { text: "Çoklu İl Seçimi", included: false },
-                        ]}
-                    />
+                            <ul className={styles.featureList}>
+                                {plan.features.map((feature, idx) => (
+                                    <li key={idx} className={styles.featureItem}>
+                                        <CheckCircle className={styles.featureIcon} />
+                                        <span className="text-sm">{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
 
-                    {/* PREMIUM + PLAN */}
-                    <PlanCard
-                        type="premium_plus"
-                        title="Premium +"
-                        priceMonthly={500}
-                        priceYearly={2500}
-                        color="bg-gradient-to-br from-indigo-500 to-purple-600"
-                        features={[
-                            { text: "Tüm Premium Özellikleri", included: true },
-                            { text: "Öncelikli Bildirim (10 sn erken)", included: true },
-                            { text: "Başvurularda Üstte Çıkma", included: true },
-                            { text: "Acil İlan Açabilme", included: true },
-                            { text: "Adliye Filtreli E-posta", included: true },
-                            { text: "Çoklu İl Seçimi (Tüm Türkiye)", included: true },
-                            { text: "Yılda 5 Görev Alamazsa İade", included: true },
-                        ]}
-                    />
+                            <div className="mt-auto flex flex-col items-center w-full">
+                                <button
+                                    disabled={plan.isCurrent || (loading !== null)}
+                                    onClick={() => plan.type !== 'free' && handleUpgrade(plan.type as 'premium' | 'premium_plus')}
+                                    className={`${styles.buttonBase} ${plan.isCurrent
+                                            ? styles.buttonDisabled
+                                            : plan.buttonStyle
+                                        }`}
+                                >
+                                    {loading === `${plan.type}-${billingCycle}` ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : plan.isCurrent ? (
+                                        'Mevcut Plan'
+                                    ) : (
+                                        plan.buttonText
+                                    )}
+                                </button>
+                                <p className={`${styles.noCredit} text-center`}>
+                                    {plan.price > 0 ? 'Kredi kartı gerekmez' : 'Süresiz ücretsiz'}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
-                {/* Feature Details Section */}
-                <div className="max-w-5xl mx-auto mb-20">
-                    <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">Neden Premium?</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
-                            <div className="bg-amber-100 p-3 rounded-lg mr-4">
-                                <Crown className="w-6 h-6 text-amber-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-2">15 Dakika Avantajı</h3>
-                                <p className="text-slate-600">
-                                    Yeni açılan görevlere ilk 15 dakika sadece Premium üyeler başvurabilir. Bu sayede rekabet avantajı elde edersiniz.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
-                            <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                                <Zap className="w-6 h-6 text-indigo-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-2">Öncelikli Bildirim (Premium+)</h3>
-                                <p className="text-slate-600">
-                                    Premium+ üyeler, yeni görev bildirimlerini diğer kullanıcılardan 10 saniye daha erken alır.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
-                            <div className="bg-green-100 p-3 rounded-lg mr-4">
-                                <MapPin className="w-6 h-6 text-green-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-2">Bölgesel ve Filtreli Bildirimler</h3>
-                                <p className="text-slate-600">
-                                    Sadece ilgilendiğiniz şehir veya adliyelerdeki görevler için bildirim alın. Gereksiz e-postalarla uğraşmayın.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-start">
-                            <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                                <Shield className="w-6 h-6 text-purple-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-2">Para İadesi Garantisi (Premium+)</h3>
-                                <p className="text-slate-600">
-                                    Premium+ üyeliğiniz boyunca yılda en az 5 görev alamazsanız, üyelik ücretiniz iade edilir.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-16 text-center">
-                    <div className="inline-flex items-center bg-white px-6 py-3 rounded-full shadow-sm border border-slate-200 text-slate-600">
-                        <Shield className="w-5 h-5 mr-2 text-green-500" />
-                        <span className="font-medium">Tüm ödemeler 256-bit SSL ile korunmaktadır ve güvenlidir.</span>
-                    </div>
-                </div>
+                <p className={styles.footer}>
+                    <Shield className="w-4 h-4 inline mr-1" />
+                    Şeffaf fiyatlandırma, gizli ücret yok. Tüm ödemeler 256-bit SSL ile korunmaktadır.
+                </p>
             </div>
-        </div>
+        </section>
     );
 };
 

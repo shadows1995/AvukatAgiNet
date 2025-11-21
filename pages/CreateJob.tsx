@@ -36,6 +36,17 @@ const CreateJob = ({ user }: { user: User }) => {
     const deadlineDate = new Date();
     deadlineDate.setMinutes(deadlineDate.getMinutes() + deadlineMinutes);
 
+    // Date Validation
+    const [year, month, day] = formData.date.split('-').map(Number);
+    const [hour, minute] = formData.time.split(':').map(Number);
+    const jobDate = new Date(year, month - 1, day, hour, minute);
+
+    if (jobDate < new Date()) {
+      alert("Geçmiş bir tarihe görev oluşturamazsınız. Lütfen ileri bir tarih ve saat seçiniz.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await addDoc(collection(db, "jobs"), {
         title: formData.title,

@@ -13,9 +13,10 @@ const InteractiveSphere: React.FC = () => {
         let width = canvas.width = canvas.offsetWidth;
         let height = canvas.height = canvas.offsetHeight;
 
-        const particles: Particle[] = [];
-        const particleCount = 600;
-        const radius = Math.min(width, height) / 3;
+        // Configuration
+        const particleCount = 250; // Adjusted for performance with lines
+        const connectionDistance = 100; // Max distance to draw a line
+        const baseRadius = Math.min(width, height) / 2.8;
 
         let mouseX = 0;
         let mouseY = 0;
@@ -23,6 +24,12 @@ const InteractiveSphere: React.FC = () => {
         let targetRotationY = 0;
         let rotationX = 0;
         let rotationY = 0;
+
+        interface Point3D {
+            x: number;
+            y: number;
+            z: number;
+        }
 
         class Particle {
             x: number;
@@ -34,17 +41,28 @@ const InteractiveSphere: React.FC = () => {
             size: number;
 
             constructor() {
-                const theta = Math.random() * 2 * Math.PI;
-                const phi = Math.acos((Math.random() * 2) - 1);
+                // Distribute points evenly on a sphere using Fibonacci sphere algorithm
+                // This gives a much better "network" look than random distribution
+                this.x = 0;
+                this.y = 0;
+                this.z = 0;
+                this.baseX = 0;
+                this.baseY = 0;
+                this.baseZ = 0;
+                this.size = 1.5;
+            }
 
-                this.baseX = radius * Math.sin(phi) * Math.cos(theta);
-                this.baseY = radius * Math.sin(phi) * Math.sin(theta);
+            setPosition(i: number, total: number, radius: number) {
+                const phi = Math.acos(1 - 2 * (i + 0.5) / total);
+                const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
+
+                this.baseX = radius * Math.cos(theta) * Math.sin(phi);
+                this.baseY = radius * Math.sin(theta) * Math.sin(phi);
                 this.baseZ = radius * Math.cos(phi);
 
                 this.x = this.baseX;
                 this.y = this.baseY;
                 this.z = this.baseZ;
-                this.size = 1.5;
             }
 
             rotate(rotX: number, rotY: number) {
@@ -70,46 +88,79 @@ const InteractiveSphere: React.FC = () => {
                 this.y = y2;
                 this.z = z3;
             }
-
-            draw(ctx: CanvasRenderingContext2D, centerX: number, centerY: number) {
-                // Perspective projection
-                const scale = 400 / (400 + this.z);
-                const x2d = this.x * scale + centerX;
-                const y2d = this.y * scale + centerY;
-
-                // Fade out particles at the back
-                const alpha = Math.max(0.1, (this.z + radius) / (2 * radius));
-
-                ctx.fillStyle = `rgba(66, 153, 225, ${alpha})`; // Blue-400 color
-                ctx.beginPath();
-                ctx.arc(x2d, y2d, this.size * scale, 0, Math.PI * 2);
-                ctx.fill();
-            }
         }
 
         // Initialize particles
+        const particles: Particle[] = [];
         for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+            const p = new Particle();
+            p.setPosition(i, particleCount, baseRadius);
+            particles.push(p);
         }
 
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
 
-            // Smooth rotation
+            // Smooth rotation physics
             rotationX += (targetRotationX - rotationX) * 0.05;
             rotationY += (targetRotationY - rotationY) * 0.05;
 
-            // Auto rotation if no mouse interaction
-            if (Math.abs(targetRotationX) < 0.01 && Math.abs(targetRotationY) < 0.01) {
+            // Auto rotation
+            if (Math.abs(targetRotationX) < 0.001 && Math.abs(targetRotationY) < 0.001) {
                 rotationY += 0.002;
+                rotationX += 0.001;
             }
 
             const centerX = width / 2;
             const centerY = height / 2;
 
-            particles.forEach(p => {
-                p.rotate(rotationX, rotationY);
-                p.draw(ctx, centerX, centerY);
+            // Update positions
+            particles.forEach(p => p.rotate(rotationX, rotationY));
+
+            // Sort particles by Z depth for correct drawing order (back to front)
+            particles.sort((a, b) => a.z - b.z);
+
+            // Draw connections and particles
+            particles.forEach((p, i) => {
+                // Perspective projection
+                const scale = 400 / (400 + p.z);
+                const x2d = p.x * scale + centerX;
+                const y2d = p.y * scale + centerY;
+                const alpha = Math.max(0.1, (p.z + baseRadius) / (2 * baseRadius)); // Fade back particles
+
+                // Draw connections
+                // Only connect to particles that come AFTER this one in the sorted list
+                // This prevents double drawing and saves performance
+                // Also limit to a subset to avoid O(n^2) on every frame if count is high
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dz = p.z - p2.z;
+                    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    if (dist < connectionDistance) {
+                        const scale2 = 400 / (400 + p2.z);
+                        const x2d2 = p2.x * scale2 + centerX;
+                        const y2d2 = p2.y * scale2 + centerY;
+
+                        // Line opacity based on distance and depth
+                        const lineAlpha = (1 - dist / connectionDistance) * alpha * 0.5;
+
+                        ctx.beginPath();
+                        ctx.moveTo(x2d, y2d);
+                        ctx.lineTo(x2d2, y2d2);
+                        ctx.strokeStyle = `rgba(99, 102, 241, ${lineAlpha})`; // Indigo-500
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+
+                // Draw particle
+                ctx.fillStyle = `rgba(66, 153, 225, ${alpha})`; // Blue-400
+                ctx.beginPath();
+                ctx.arc(x2d, y2d, p.size * scale, 0, Math.PI * 2);
+                ctx.fill();
             });
 
             requestAnimationFrame(animate);
@@ -120,15 +171,17 @@ const InteractiveSphere: React.FC = () => {
         const handleResize = () => {
             width = canvas.width = canvas.offsetWidth;
             height = canvas.height = canvas.offsetHeight;
+            // Recalculate radius if needed, or just let it scale naturally
         };
 
         const handleMouseMove = (e: MouseEvent) => {
             const rect = canvas.getBoundingClientRect();
-            mouseX = e.clientX - rect.left - width / 2;
-            mouseY = e.clientY - rect.top - height / 2;
+            const x = e.clientX - rect.left - width / 2;
+            const y = e.clientY - rect.top - height / 2;
 
-            targetRotationY = mouseX * 0.001;
-            targetRotationX = -mouseY * 0.001;
+            // Map mouse position to rotation speed
+            targetRotationY = x * 0.0005;
+            targetRotationX = -y * 0.0005;
         };
 
         window.addEventListener('resize', handleResize);
