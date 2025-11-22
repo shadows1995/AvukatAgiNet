@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2, MapPin, Calendar, Clock, User as UserIcon, ArrowLeft, MessageCircle, Phone, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Job, User, Application } from '../types';
-import { db } from '../firebaseConfig';
-import { doc, getDoc, updateDoc, serverTimestamp, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 import ApplyModal from '../components/ApplyModal';
+import { useAlert } from '../contexts/AlertContext';
 
 const JobDetails = ({ user }: { user: User }) => {
     const { jobId } = useParams();
@@ -22,30 +22,97 @@ const JobDetails = ({ user }: { user: User }) => {
             setLoading(true);
             try {
                 // 1. Fetch Job
-                const jobRef = doc(db, "jobs", jobId);
-                const jobSnap = await getDoc(jobRef);
+                const { data: jobData, error: jobError } = await supabase
+                    .from('jobs')
+                    .select('*')
+                    .eq('job_id', jobId)
+                    .single();
 
-                if (jobSnap.exists()) {
-                    const jobData = { jobId: jobSnap.id, ...jobSnap.data() } as Job;
-                    setJob(jobData);
+                if (jobError) throw jobError;
+
+                if (jobData) {
+                    const mappedJob: Job = {
+                        jobId: jobData.job_id,
+                        title: jobData.title,
+                        createdBy: jobData.created_by,
+                        ownerName: jobData.owner_name,
+                        ownerPhone: jobData.owner_phone,
+                        city: jobData.city,
+                        courthouse: jobData.courthouse,
+                        date: jobData.date,
+                        time: jobData.time,
+                        jobType: jobData.job_type,
+                        description: jobData.description,
+                        offeredFee: jobData.offered_fee,
+                        status: jobData.status,
+                        applicationsCount: jobData.applications_count,
+                        selectedApplicant: jobData.selected_applicant,
+                        createdAt: jobData.created_at,
+                        updatedAt: jobData.updated_at,
+                        isUrgent: jobData.is_urgent,
+                        applicationDeadline: jobData.application_deadline
+                    };
+                    setJob(mappedJob);
 
                     // 2. Fetch Owner
-                    const ownerRef = doc(db, "users", jobData.createdBy);
-                    const ownerSnap = await getDoc(ownerRef);
-                    if (ownerSnap.exists()) {
-                        setOwner({ uid: ownerSnap.id, ...ownerSnap.data() } as User);
+                    const { data: ownerData, error: ownerError } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('uid', mappedJob.createdBy)
+                        .single();
+
+                    if (ownerData) {
+                        const mappedOwner: User = {
+                            uid: ownerData.uid,
+                            email: ownerData.email,
+                            fullName: ownerData.full_name,
+                            baroNumber: ownerData.baro_number,
+                            baroCity: ownerData.baro_city,
+                            phone: ownerData.phone,
+                            specializations: ownerData.specializations,
+                            city: ownerData.city,
+                            preferredCourthouses: ownerData.preferred_courthouses,
+                            isPremium: ownerData.is_premium,
+                            membershipType: ownerData.membership_type,
+                            premiumUntil: ownerData.premium_until,
+                            premiumSince: ownerData.premium_since,
+                            premiumPlan: ownerData.premium_plan,
+                            premiumPrice: ownerData.premium_price,
+                            role: ownerData.role,
+                            rating: ownerData.rating,
+                            completedJobs: ownerData.completed_jobs,
+                            avatarUrl: ownerData.avatar_url,
+                            createdAt: ownerData.created_at,
+                            updatedAt: ownerData.updated_at,
+                            jobStatus: ownerData.job_status,
+                            aboutMe: ownerData.about_me,
+                            title: ownerData.title
+                        };
+                        setOwner(mappedOwner);
                     }
 
                     // 3. Check if I have an application
                     if (user) {
-                        const q = query(
-                            collection(db, "applications"),
-                            where("jobId", "==", jobId),
-                            where("applicantId", "==", user.uid)
-                        );
-                        const appSnap = await getDocs(q);
-                        if (!appSnap.empty) {
-                            setMyApplication({ applicationId: appSnap.docs[0].id, ...appSnap.docs[0].data() } as Application);
+                        const { data: appData } = await supabase
+                            .from('applications')
+                            .select('*')
+                            .eq('job_id', jobId)
+                            .eq('applicant_id', user.uid)
+                            .single();
+
+                        if (appData) {
+                            setMyApplication({
+                                applicationId: appData.application_id,
+                                jobId: appData.job_id,
+                                applicantId: appData.applicant_id,
+                                applicantName: appData.applicant_name,
+                                message: appData.message,
+                                proposedFee: appData.proposed_fee,
+                                status: appData.status,
+                                createdAt: appData.created_at,
+                                applicantPhone: appData.applicant_phone,
+                                applicantRating: appData.applicant_rating
+                            });
                         }
                     }
                 }
@@ -59,39 +126,63 @@ const JobDetails = ({ user }: { user: User }) => {
         fetchJobDetails();
     }, [jobId, user]);
 
+    const { showAlert } = useAlert();
+
     const handleCompleteTask = async () => {
         if (!job || !user || !owner) return;
-        if (!confirm("Bu görevi tamamladığınızı onaylıyor musunuz?")) return;
 
-        setCompleting(true);
-        try {
-            // 1. Update Job Status
-            await updateDoc(doc(db, "jobs", job.jobId!), {
-                status: 'completed',
-                completedAt: serverTimestamp()
-            });
+        showAlert({
+            title: "Görevi Tamamla",
+            message: "Bu görevi tamamladığınızı onaylıyor musunuz?",
+            type: "confirm",
+            confirmText: "Evet, Tamamla",
+            cancelText: "Vazgeç",
+            onConfirm: async () => {
+                setCompleting(true);
+                try {
+                    // 1. Update Job Status
+                    const { error: updateError } = await supabase
+                        .from('jobs')
+                        .update({
+                            status: 'completed',
+                            completed_at: new Date().toISOString()
+                        })
+                        .eq('job_id', job.jobId);
 
-            // 2. Notify Owner
-            await addDoc(collection(db, "notifications"), {
-                userId: owner.uid,
-                title: "Görev Tamamlandı! 🎉",
-                message: `"${job.title}" görevi Av. ${user.fullName} tarafından tamamlandı.`,
-                type: "success",
-                read: false,
-                createdAt: serverTimestamp()
-            });
+                    if (updateError) throw updateError;
 
-            alert("Görev başarıyla tamamlandı olarak işaretlendi.");
+                    // 2. Notify Owner
+                    await supabase.from('notifications').insert({
+                        user_id: owner.uid,
+                        title: "Görev Tamamlandı! 🎉",
+                        message: `"${job.title}" görevi Av. ${user.fullName} tarafından tamamlandı.`,
+                        type: "success",
+                        read: false
+                    });
 
-            // Refresh job data
-            setJob(prev => prev ? { ...prev, status: 'completed' } : null);
+                    showAlert({
+                        title: "Başarılı",
+                        message: "Görev başarıyla tamamlandı olarak işaretlendi.",
+                        type: "success",
+                        confirmText: "Tamam"
+                    });
 
-        } catch (error) {
-            console.error("Error completing task:", error);
-            alert("Bir hata oluştu.");
-        } finally {
-            setCompleting(false);
-        }
+                    // Refresh job data
+                    setJob(prev => prev ? { ...prev, status: 'completed' } : null);
+
+                } catch (error) {
+                    console.error("Error completing task:", error);
+                    showAlert({
+                        title: "Hata",
+                        message: "Bir hata oluştu.",
+                        type: "error",
+                        confirmText: "Tamam"
+                    });
+                } finally {
+                    setCompleting(false);
+                }
+            }
+        });
     };
 
     const handleWhatsApp = (phone: string) => {

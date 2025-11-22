@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { auth, db } from '../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 import { Loader2 } from 'lucide-react';
 
 const RequireAdmin = () => {
@@ -9,16 +8,20 @@ const RequireAdmin = () => {
 
     useEffect(() => {
         const checkAdmin = async () => {
-            const user = auth.currentUser;
+            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 setIsAdmin(false);
                 return;
             }
 
             try {
-                // Check Firestore document for role
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('role')
+                    .eq('uid', user.id)
+                    .single();
+
+                if (data && data.role === 'admin') {
                     setIsAdmin(true);
                 } else {
                     setIsAdmin(false);

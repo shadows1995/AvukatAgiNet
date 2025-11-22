@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle, Sparkles } from 'lucide-react';
 import { User, Job } from '../types';
-import { db } from '../firebaseConfig';
-import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
 import InteractiveSphere from '../components/InteractiveSphere';
@@ -18,55 +17,101 @@ const HomePage = ({ user }: { user: User }) => {
    const [completedJobs, setCompletedJobs] = useState<Job[]>([]);
    const [statsLoading, setStatsLoading] = useState(true);
 
+   // Chart filter state
+   const [chartView, setChartView] = useState<'month' | 'day'>('month');
+   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // 0-11
+   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
    useEffect(() => {
-      const q = query(collection(db, "jobs"));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-         const jobsData: Job[] = [];
-         snapshot.forEach((doc) => {
-            jobsData.push({ jobId: doc.id, ...doc.data() } as Job);
-         });
+      const fetchFeed = async () => {
+         const { data: jobsData, error } = await supabase
+            .from('jobs')
+            .select('*')
+            .order('updated_at', { ascending: false });
 
-         // Sort by date desc
-         jobsData.sort((a, b) => {
-            const timeA = a.updatedAt?.seconds || 0;
-            const timeB = b.updatedAt?.seconds || 0;
-            return timeB - timeA;
-         });
+         if (!error && jobsData) {
+            const mappedJobs = jobsData.map((d: any) => ({
+               jobId: d.job_id,
+               title: d.title,
+               createdBy: d.created_by,
+               ownerName: d.owner_name,
+               ownerPhone: d.owner_phone,
+               city: d.city,
+               courthouse: d.courthouse,
+               date: d.date,
+               time: d.time,
+               jobType: d.job_type,
+               description: d.description,
+               offeredFee: d.offered_fee,
+               status: d.status,
+               applicationsCount: d.applications_count,
+               selectedApplicant: d.selected_applicant,
+               createdAt: d.created_at,
+               updatedAt: d.updated_at,
+               isUrgent: d.is_urgent,
+               applicationDeadline: d.application_deadline
+            })) as Job[];
 
-         setRecentActivity(jobsData.slice(0, 6));
-         setArchive(jobsData.filter(j => j.status === 'completed').slice(0, 5));
+            setRecentActivity(mappedJobs.slice(0, 6));
+            setArchive(mappedJobs.filter(j => j.status === 'completed').slice(0, 5));
+         }
          setLoading(false);
-      }, (error) => {
-         console.error("Error fetching feed:", error);
-         setLoading(false);
-      });
-      return () => unsubscribe();
+      };
+
+      fetchFeed();
+
+      // Realtime subscription for Jobs
+      const subscription = supabase
+         .channel('public:jobs')
+         .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, (payload) => {
+            // Simple re-fetch or optimistic update. Re-fetch is safer for lists.
+            fetchFeed();
+         })
+         .subscribe();
+
+      return () => {
+         subscription.unsubscribe();
+      };
    }, []);
 
    // Fetch Completed Jobs for Stats
    useEffect(() => {
       if (!user) return;
+
       const fetchStats = async () => {
          try {
-            const appsQuery = query(
-               collection(db, "applications"),
-               where("applicantId", "==", user.uid),
-               where("status", "==", "accepted")
-            );
-            const appsSnap = await getDocs(appsQuery);
-            const jobIds = appsSnap.docs.map(d => d.data().jobId);
+            // Direct query to jobs table is more reliable
+            const { data: jobs } = await supabase
+               .from('jobs')
+               .select('*')
+               .eq('selected_applicant', user.uid)
+               .eq('status', 'completed');
 
-            if (jobIds.length > 0) {
-               const jobsQuery = query(collection(db, "jobs"), where("status", "==", "completed"));
-               const jobsSnap = await getDocs(jobsQuery);
+            if (jobs) {
+               const mappedJobs = jobs.map((d: any) => ({
+                  jobId: d.job_id,
+                  title: d.title,
+                  createdBy: d.created_by,
+                  ownerName: d.owner_name,
+                  ownerPhone: d.owner_phone,
+                  city: d.city,
+                  courthouse: d.courthouse,
+                  date: d.date,
+                  time: d.time,
+                  jobType: d.job_type,
+                  description: d.description,
+                  offeredFee: d.offered_fee,
+                  status: d.status,
+                  applicationsCount: d.applications_count,
+                  selectedApplicant: d.selected_applicant,
+                  createdAt: d.created_at,
+                  updatedAt: d.updated_at,
+                  isUrgent: d.is_urgent,
+                  applicationDeadline: d.application_deadline,
+                  completedAt: d.completed_at // Ensure this is mapped
+               })) as Job[];
 
-               const myCompletedJobs: Job[] = [];
-               jobsSnap.forEach(doc => {
-                  if (jobIds.includes(doc.id)) {
-                     myCompletedJobs.push({ jobId: doc.id, ...doc.data() } as Job);
-                  }
-               });
-               setCompletedJobs(myCompletedJobs);
+               setCompletedJobs(mappedJobs);
             } else {
                setCompletedJobs([]);
             }
@@ -76,7 +121,28 @@ const HomePage = ({ user }: { user: User }) => {
             setStatsLoading(false);
          }
       };
+
       fetchStats();
+
+      // Realtime subscription for Stats (listen for updates to my jobs)
+      const statsSubscription = supabase
+         .channel('public:jobs:stats')
+         .on('postgres_changes',
+            {
+               event: 'UPDATE',
+               schema: 'public',
+               table: 'jobs',
+               filter: `selected_applicant=eq.${user.uid}`
+            },
+            () => {
+               fetchStats();
+            }
+         )
+         .subscribe();
+
+      return () => {
+         statsSubscription.unsubscribe();
+      };
    }, [user]);
 
    // --- STATS CALCULATIONS ---
@@ -100,24 +166,47 @@ const HomePage = ({ user }: { user: User }) => {
 
    const COLORS = ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe'];
 
-   // Chart Data: Earnings over time
-   const earningsByMonth = completedJobs.reduce((acc, job) => {
-      if (!job.completedAt) return acc;
-      const date = new Date(job.completedAt.seconds * 1000);
-      const key = `${date.getMonth() + 1}/${date.getFullYear()}`;
-      acc[key] = (acc[key] || 0) + (Number(job.offeredFee) || 0);
-      return acc;
-   }, {} as Record<string, number>);
+   // Generate chart data based on view mode
+   const generateMonthlyData = () => {
+      const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+      return months.map((month, idx) => {
+         const monthJobs = completedJobs.filter(job => {
+            // Supabase returns ISO string for timestamps usually, or we might have mapped it.
+            // Assuming job.completedAt is ISO string or timestamp.
+            // If it's from Firestore migration, it might be different, but new data is ISO.
+            // Let's handle both if possible, or assume ISO for Supabase.
+            if (!job.completedAt) return false;
+            const completedDate = new Date(job.completedAt);
+            return completedDate.getMonth() === idx && completedDate.getFullYear() === selectedYear;
+         });
+         const kazanc = monthJobs.reduce((sum, job) => sum + (job.offeredFee || 0), 0);
+         return { name: month, kazanc };
+      });
+   };
 
-   const areaData = Object.keys(earningsByMonth).map(key => ({
-      name: key,
-      kazanc: earningsByMonth[key]
-   }));
+   const generateDailyData = () => {
+      const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+      return Array.from({ length: daysInMonth }, (_, i) => {
+         const day = i + 1;
+         const dayJobs = completedJobs.filter(job => {
+            if (!job.completedAt) return false;
+            const completedDate = new Date(job.completedAt);
+            return completedDate.getDate() === day &&
+               completedDate.getMonth() === selectedMonth &&
+               completedDate.getFullYear() === selectedYear;
+         });
+         const kazanc = dayJobs.reduce((sum, job) => sum + (job.offeredFee || 0), 0);
+         return { name: `${day}`, kazanc };
+      });
+   };
+
+   const areaData = chartView === 'month' ? generateMonthlyData() : generateDailyData();
 
    const maskName = (name?: string) => {
       if (!name) return "Av. Kullanıcı";
-      const parts = name.split(' ');
-      return parts[0] + (parts.length > 1 ? ' ' + parts[1].charAt(0) + '****' : '');
+      const parts = name.trim().split(/\s+/);
+      if (parts.length === 1) return `${parts[0].charAt(0)}.`;
+      return `${parts[0].charAt(0)}. ${parts[parts.length - 1].charAt(0)}.`;
    };
 
    return (
@@ -220,14 +309,46 @@ const HomePage = ({ user }: { user: User }) => {
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Area Chart */}
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-                     <h3 className="text-lg font-bold text-slate-800 mb-4">Kazanç Grafiği</h3>
+                     <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold text-slate-800">Kazanç Grafiği</h3>
+                        <div className="flex gap-2">
+                           <select
+                              value={chartView}
+                              onChange={(e) => setChartView(e.target.value as 'month' | 'day')}
+                              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                           >
+                              <option value="month">Aylık</option>
+                              <option value="day">Günlük</option>
+                           </select>
+                           {chartView === 'day' && (
+                              <select
+                                 value={selectedMonth}
+                                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                                 className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                 {['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'].map((m, i) => (
+                                    <option key={i} value={i}>{m}</option>
+                                 ))}
+                              </select>
+                           )}
+                           <select
+                              value={selectedYear}
+                              onChange={(e) => setSelectedYear(Number(e.target.value))}
+                              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                           >
+                              {[2023, 2024, 2025].map(year => (
+                                 <option key={year} value={year}>{year}</option>
+                              ))}
+                           </select>
+                        </div>
+                     </div>
                      <div className={`h-64 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
                         <ResponsiveContainer width="100%" height="100%">
                            <AreaChart data={user.isPremium ? areaData : [{ name: 'Ocak', kazanc: 5000 }, { name: 'Şubat', kazanc: 7000 }, { name: 'Mart', kazanc: 3000 }, { name: 'Nisan', kazanc: 8500 }]}>
                               <defs>
                                  <linearGradient id="colorKazanc" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#323485" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#323485" stopOpacity={0} />
                                  </linearGradient>
                               </defs>
                               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -236,7 +357,7 @@ const HomePage = ({ user }: { user: User }) => {
                               <Tooltip
                                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                               />
-                              <Area type="monotone" dataKey="kazanc" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
+                              <Area type="monotone" dataKey="kazanc" stroke="#323485" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
                            </AreaChart>
                         </ResponsiveContainer>
                      </div>
@@ -300,14 +421,14 @@ const HomePage = ({ user }: { user: User }) => {
                <div className="space-y-3">
                   <div
                      onClick={() => navigate('/dashboard')}
-                     className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg cursor-pointer flex justify-between items-center shadow-md hover:shadow-lg transition group"
+                     className="bg-[#323485] hover:bg-[#2a2b6e] text-white p-4 rounded-lg cursor-pointer flex justify-between items-center shadow-md hover:shadow-lg transition group"
                   >
                      <span className="font-semibold">Bekleyen / Başvurduğum Görevler</span>
                      <ArrowRight className="w-5 h-5 opacity-80 group-hover:translate-x-1 transition" />
                   </div>
                   <div
                      onClick={() => navigate('/my-jobs')}
-                     className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg cursor-pointer flex justify-between items-center shadow-md hover:shadow-lg transition group"
+                     className="bg-[#323485] hover:bg-[#2a2b6e] text-white p-4 rounded-lg cursor-pointer flex justify-between items-center shadow-md hover:shadow-lg transition group"
                   >
                      <span className="font-semibold">Oluşturduğum Görevler</span>
                      <ArrowRight className="w-5 h-5 opacity-80 group-hover:translate-x-1 transition" />
@@ -333,8 +454,7 @@ const HomePage = ({ user }: { user: User }) => {
                      ) : recentActivity.map((job) => (
                         <div
                            key={job.jobId}
-                           onClick={() => navigate(`/job/${job.jobId}`)}
-                           className="flex items-start relative z-10 group cursor-pointer"
+                           className="flex items-start relative z-10 group"
                         >
                            <div className={`w-10 h-10 rounded-full border-4 border-white flex items-center justify-center flex-shrink-0 shadow-sm z-10 transition-transform duration-300 group-hover:scale-110 ${job.status === 'in_progress' ? 'bg-blue-500 text-white' : 'bg-emerald-500 text-white'}`}>
                               {job.status === 'in_progress' ? <Users className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
@@ -349,7 +469,7 @@ const HomePage = ({ user }: { user: User }) => {
                               <p className="text-xs text-slate-600 font-medium">{job.city} • {job.courthouse}</p>
                               <p className="text-[10px] text-slate-400 mt-2 flex items-center">
                                  <Activity className="w-3 h-3 mr-1" />
-                                 {job.updatedAt?.seconds ? new Date(job.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Az önce'}
+                                 {job.updatedAt ? new Date(job.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Az önce'}
                               </p>
                            </div>
                         </div>

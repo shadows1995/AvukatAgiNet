@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Gavel, Bell, Settings, LogOut, Sparkles, Menu, X, Crown, Calendar, CreditCard, CheckCircle, Shield } from 'lucide-react';
 import { User, Notification } from '../types';
-import { db } from '../firebaseConfig';
-import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-2 ${className}`}>
@@ -46,37 +45,41 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
 
   useEffect(() => {
     if (!user) return;
-    let unsubscribe: () => void;
 
-    try {
-      const q = query(
-        collection(db, "notifications"),
-        where("userId", "==", user.uid)
-      );
+    // Initial fetch
+    const fetchNotifications = async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.uid)
+        .order('created_at', { ascending: false });
 
-      unsubscribe = onSnapshot(q, (snapshot) => {
-        const notifs: Notification[] = [];
-        snapshot.forEach(doc => {
-          notifs.push({ id: doc.id, ...doc.data() } as Notification);
-        });
+      if (!error && data) {
+        setNotifications(data as any);
+      }
+    };
 
-        notifs.sort((a, b) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
-          return timeB - timeA;
-        });
+    fetchNotifications();
 
-        setNotifications(notifs);
-      }, (error) => {
-        // Permission denied can happen on initial load or slow auth
-        console.warn("Notification listener warning:", error);
-      });
-    } catch (e) {
-      console.error("Notification setup error:", e);
-    }
+    // Realtime subscription
+    const subscription = supabase
+      .channel('notifications_channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.uid}`
+        },
+        (payload) => {
+          setNotifications(prev => [payload.new as any, ...prev]);
+        }
+      )
+      .subscribe();
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      subscription.unsubscribe();
     }
   }, [user]);
 
@@ -99,13 +102,18 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const handleReadNotifications = async () => {
     setShowNotifs(!showNotifs);
     if (!showNotifs && unreadCount > 0) {
-      notifications.forEach(async (n) => {
-        if (!n.read && n.id) {
-          try {
-            await updateDoc(doc(db, "notifications", n.id), { read: true });
-          } catch (e) { console.error("Err marking read:", e); }
-        }
-      });
+      // Optimistic update
+      const updatedNotifs = notifications.map(n => ({ ...n, read: true }));
+      setNotifications(updatedNotifs);
+
+      // Batch update in Supabase
+      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+      if (unreadIds.length > 0) {
+        await supabase
+          .from('notifications')
+          .update({ read: true })
+          .in('id', unreadIds);
+      }
     }
   };
 

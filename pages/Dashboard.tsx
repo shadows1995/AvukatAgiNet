@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusCircle, AlertCircle, Briefcase, MapPin, Search, Loader2, BarChart3, Search as SearchIcon, TrendingUp, CheckCircle, Wallet, X } from 'lucide-react';
 import { User, Job, JobType } from '../types';
-import { db } from '../firebaseConfig';
-import { collection, query, onSnapshot, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 import JobCard from '../components/JobCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
@@ -18,41 +17,86 @@ const Dashboard = ({ user }: { user: User }) => {
 
   // Fetch Jobs for Search
   useEffect(() => {
-    const q = query(collection(db, "jobs"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const jobsData: Job[] = [];
-      querySnapshot.forEach((doc) => {
-        jobsData.push({ jobId: doc.id, ...doc.data() } as Job);
-      });
+    const fetchJobs = async () => {
+      const { data, error } = await supabase.from('jobs').select('*');
+      if (error) {
+        console.error("Dashboard job fetch error:", error);
+        setErrorMsg("Görevler yüklenirken bir sorun oluştu.");
+        setLoading(false);
+        return;
+      }
+
+      const jobsData = (data || []).map((d: any) => ({
+        jobId: d.job_id,
+        title: d.title,
+        createdBy: d.created_by,
+        ownerName: d.owner_name,
+        ownerPhone: d.owner_phone,
+        city: d.city,
+        courthouse: d.courthouse,
+        date: d.date,
+        time: d.time,
+        jobType: d.job_type,
+        description: d.description,
+        offeredFee: d.offered_fee,
+        status: d.status,
+        applicationsCount: d.applications_count,
+        selectedApplicant: d.selected_applicant,
+        createdAt: d.created_at,
+        updatedAt: d.updated_at,
+        isUrgent: d.is_urgent,
+        applicationDeadline: d.application_deadline
+      })) as Job[];
 
       jobsData.sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
+        const timeA = new Date(a.createdAt).getTime();
+        const timeB = new Date(b.createdAt).getTime();
         return timeB - timeA;
       });
 
       setJobs(jobsData);
       setLoading(false);
-    }, (error) => {
-      console.error("Dashboard job listener error:", error);
-      setErrorMsg("Görevler yüklenirken bir sorun oluştu.");
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchJobs();
+
+    const subscription = supabase
+      .channel('public:jobs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, () => {
+        fetchJobs();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Fetch Applied Jobs
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, "applications"), where("applicantId", "==", user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const ids = snapshot.docs.map(doc => doc.data().jobId);
-      setAppliedJobIds(ids);
-    }, (error) => {
-      console.warn("App listener warning:", error);
-    });
-    return () => unsubscribe();
+    const fetchApplied = async () => {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('job_id')
+        .eq('applicant_id', user.uid);
+
+      if (data) {
+        setAppliedJobIds(data.map((d: any) => d.job_id));
+      }
+    };
+    fetchApplied();
+
+    const subscription = supabase
+      .channel('public:applications')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'applications', filter: `applicant_id=eq.${user.uid}` }, () => {
+        fetchApplied();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [user]);
 
 

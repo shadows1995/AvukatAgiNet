@@ -1,23 +1,18 @@
-import {
-    collection, getDocs, doc, getDoc, updateDoc, deleteDoc,
-    query, where, orderBy, limit, addDoc, serverTimestamp
-} from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
+import { supabase } from '../supabaseClient';
 
-// Helper to create audit logs directly in Firestore
+// Helper to create audit logs directly in Supabase
 const createAuditLog = async (action: string, targetType: string, targetId: string, details: any = {}) => {
     try {
-        const user = auth.currentUser;
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        await addDoc(collection(db, 'admin_audit_logs'), {
-            timestamp: serverTimestamp(),
-            adminId: user.uid,
-            adminEmail: user.email,
+        await supabase.from('admin_audit_logs').insert({
+            admin_id: user.id,
+            admin_email: user.email,
             action,
-            targetType,
-            targetId,
-            ...details
+            target_type: targetType,
+            target_id: targetId,
+            details
         });
     } catch (error) {
         console.error('Error creating audit log:', error);
@@ -26,169 +21,236 @@ const createAuditLog = async (action: string, targetType: string, targetId: stri
 
 export const adminApi = {
     async getUsers(filters: any) {
-        let q = collection(db, 'users');
-        const snapshot = await getDocs(q);
-        let users = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+        let query = supabase.from('users').select('*', { count: 'exact' });
 
-        // Client-side filtering
+        // Client-side filtering (moved to server-side where possible for efficiency)
         if (filters.role) {
-            users = users.filter((u: any) => u.role === filters.role);
+            query = query.eq('role', filters.role);
         }
         if (filters.accountStatus) {
-            users = users.filter((u: any) => u.accountStatus === filters.accountStatus);
+            query = query.eq('account_status', filters.accountStatus);
         }
         if (filters.searchQuery) {
-            const search = filters.searchQuery.toLowerCase();
-            users = users.filter((u: any) =>
-                u.email?.toLowerCase().includes(search) ||
-                u.fullName?.toLowerCase().includes(search)
-            );
+            // Supabase ILIKE for case-insensitive search
+            const search = `%${filters.searchQuery}%`;
+            query = query.or(`email.ilike.${search},full_name.ilike.${search}`);
         }
 
         // Pagination logic
         const page = Number(filters.page) || 1;
         const limitVal = Number(filters.limit) || 20;
-        const startIndex = (page - 1) * limitVal;
-        const paginatedUsers = users.slice(startIndex, startIndex + limitVal);
+        const from = (page - 1) * limitVal;
+        const to = from + limitVal - 1;
+
+        const { data: users, count, error } = await query.range(from, to);
+
+        if (error) throw error;
+
+        // Map database fields to camelCase
+        const mappedUsers = (users || []).map((user: any) => ({
+            uid: user.uid,
+            fullName: user.full_name,
+            email: user.email,
+            role: user.role,
+            accountStatus: user.account_status,
+            createdAt: user.created_at
+        }));
 
         return {
-            users: paginatedUsers,
-            total: users.length,
+            users: mappedUsers,
+            total: count || 0,
             page,
-            totalPages: Math.ceil(users.length / limitVal)
+            totalPages: Math.ceil((count || 0) / limitVal)
         };
     },
 
     async getUserDetail(userId: string) {
-        const userDoc = await getDoc(doc(db, 'users', userId));
-        if (!userDoc.exists()) throw new Error('User not found');
-        const user = { uid: userDoc.id, ...userDoc.data() };
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('uid', userId)
+            .single();
+
+        if (error || !user) throw new Error('User not found');
 
         // Stats
-        const jobsRef = collection(db, 'jobs');
-        const createdSnap = await getDocs(query(jobsRef, where('createdBy', '==', userId)));
-        const completedSnap = await getDocs(query(jobsRef, where('assignedTo', '==', userId), where('status', '==', 'completed')));
-        const inProgressSnap = await getDocs(query(jobsRef, where('assignedTo', '==', userId), where('status', '==', 'in_progress')));
+        const { count: jobsCreated } = await supabase
+            .from('jobs')
+            .select('*', { count: 'exact', head: true })
+            .eq('created_by', userId);
+
+        const { count: jobsCompleted } = await supabase
+            .from('jobs')
+            .select('*', { count: 'exact', head: true })
+            .eq('assigned_to', userId)
+            .eq('status', 'completed');
+
+        const { count: jobsInProgress } = await supabase
+            .from('jobs')
+            .select('*', { count: 'exact', head: true })
+            .eq('assigned_to', userId)
+            .eq('status', 'in_progress');
 
         // Active bans
-        const bansSnap = await getDocs(query(collection(db, 'user_bans'), where('userId', '==', userId), where('isActive', '==', true)));
-        const activeBans = bansSnap.docs.map(d => ({ banId: d.id, ...d.data() }));
+        const { data: activeBans } = await supabase
+            .from('user_bans')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('is_active', true);
 
         return {
             user,
             stats: {
-                jobsCreated: createdSnap.size,
-                jobsCompleted: completedSnap.size,
-                jobsInProgress: inProgressSnap.size,
-                totalEarnings: 0
+                jobsCreated: jobsCreated || 0,
+                jobsCompleted: jobsCompleted || 0,
+                jobsInProgress: jobsInProgress || 0,
+                totalEarnings: 0 // Needs a separate calculation if needed
             },
-            recentLogins: [],
-            activeBans
+            recentLogins: [], // Supabase auth logs are not directly accessible this way usually
+            activeBans: activeBans || []
         };
     },
 
     async banUser(userId: string, data: any) {
-        await updateDoc(doc(db, 'users', userId), { accountStatus: 'banned' });
+        const { data: { user } } = await supabase.auth.getUser();
 
-        const banRef = await addDoc(collection(db, 'user_bans'), {
-            userId,
-            bannedBy: auth.currentUser?.uid,
-            bannedAt: serverTimestamp(),
-            isActive: true,
-            ...data
-        });
+        await supabase.from('users').update({ account_status: 'banned' }).eq('uid', userId);
+
+        const { data: banRef, error } = await supabase.from('user_bans').insert({
+            user_id: userId,
+            banned_by: user?.id,
+            is_active: true,
+            reason: data.reason,
+            // banned_at defaults to now()
+        }).select().single();
+
+        if (error) throw error;
 
         await createAuditLog('USER_BANNED', 'user', userId, { reason: data.reason });
-        return { success: true, banId: banRef.id };
+        return { success: true, banId: banRef.ban_id };
     },
 
     async unbanUser(userId: string, reason: string) {
-        await updateDoc(doc(db, 'users', userId), { accountStatus: 'active' });
+        await supabase.from('users').update({ account_status: 'active' }).eq('uid', userId);
 
-        const bansSnap = await getDocs(query(collection(db, 'user_bans'), where('userId', '==', userId), where('isActive', '==', true)));
-        bansSnap.forEach(async (d) => {
-            await updateDoc(doc(db, 'user_bans', d.id), { isActive: false, unbannedAt: serverTimestamp() });
-        });
+        // Deactivate active bans
+        await supabase.from('user_bans')
+            .update({ is_active: false, unbanned_at: new Date().toISOString() })
+            .eq('user_id', userId)
+            .eq('is_active', true);
 
         await createAuditLog('USER_UNBANNED', 'user', userId, { reason });
         return { success: true };
     },
 
     async changeUserRole(userId: string, newRole: string, reason: string) {
-        await updateDoc(doc(db, 'users', userId), {
+        await supabase.from('users').update({
             role: newRole,
-            membershipType: newRole,
-            isPremium: newRole !== 'free'
-        });
+            membership_type: newRole,
+            is_premium: newRole !== 'free'
+        }).eq('uid', userId);
 
         await createAuditLog('USER_ROLE_CHANGED', 'user', userId, { newRole, reason });
         return { success: true };
     },
 
     async getJobs(filters: any) {
-        let q = collection(db, 'jobs');
-        const snapshot = await getDocs(q);
-        let jobs = snapshot.docs.map(doc => ({ jobId: doc.id, ...doc.data() }));
+        let query = supabase.from('jobs').select('*', { count: 'exact' });
 
-        jobs.sort((a: any, b: any) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        // Sort by created_at desc
+        query = query.order('created_at', { ascending: false });
 
         if (filters.status) {
-            jobs = jobs.filter((j: any) => j.status === filters.status);
+            query = query.eq('status', filters.status);
         }
         if (filters.city) {
-            jobs = jobs.filter((j: any) => j.city === filters.city);
+            query = query.eq('city', filters.city);
         }
 
         const page = Number(filters.page) || 1;
         const limitVal = Number(filters.limit) || 20;
-        const startIndex = (page - 1) * limitVal;
-        const paginatedJobs = jobs.slice(startIndex, startIndex + limitVal);
+        const from = (page - 1) * limitVal;
+        const to = from + limitVal - 1;
+
+        const { data: jobs, count, error } = await query.range(from, to);
+
+        if (error) throw error;
+
+        // Map database fields to camelCase
+        const mappedJobs = (jobs || []).map((job: any) => ({
+            jobId: job.job_id,
+            title: job.title,
+            status: job.status,
+            city: job.city,
+            courthouse: job.courthouse,
+            createdAt: job.created_at,
+            createdBy: job.created_by,
+            assignedTo: job.assigned_to
+        }));
 
         return {
-            jobs: paginatedJobs,
-            total: jobs.length,
+            jobs: mappedJobs,
+            total: count || 0,
             page,
-            totalPages: Math.ceil(jobs.length / limitVal)
+            totalPages: Math.ceil((count || 0) / limitVal)
         };
     },
 
     async getJobDetail(jobId: string) {
-        const jobDoc = await getDoc(doc(db, 'jobs', jobId));
-        if (!jobDoc.exists()) throw new Error('Job not found');
-        const job = { jobId: jobDoc.id, ...jobDoc.data() } as any;
+        if (!jobId) throw new Error('Job ID is required');
+        const cleanId = jobId.trim();
+        console.log(`[AdminAPI] Fetching job: '${cleanId}'`);
+
+        const { data: job, error } = await supabase
+            .from('jobs')
+            .select('*')
+            .eq('job_id', cleanId)
+            .single();
+
+        if (error || !job) {
+            console.error(`[AdminAPI] Job not found: '${cleanId}'`);
+            throw new Error(`Job not found (ID: ${cleanId})`);
+        }
 
         let owner = null;
-        if (job.createdBy) {
-            const ownerDoc = await getDoc(doc(db, 'users', job.createdBy));
-            if (ownerDoc.exists()) owner = { uid: ownerDoc.id, ...ownerDoc.data() };
+        if (job.created_by) {
+            const { data: ownerDoc } = await supabase.from('users').select('*').eq('uid', job.created_by).single();
+            if (ownerDoc) owner = ownerDoc;
         }
 
         let assignedLawyer = null;
-        if (job.assignedTo) {
-            const lawyerDoc = await getDoc(doc(db, 'users', job.assignedTo));
-            if (lawyerDoc.exists()) assignedLawyer = { uid: lawyerDoc.id, ...lawyerDoc.data() };
+        if (job.assigned_to) {
+            const { data: lawyerDoc } = await supabase.from('users').select('*').eq('uid', job.assigned_to).single();
+            if (lawyerDoc) assignedLawyer = lawyerDoc;
         }
 
-        const appsSnap = await getDocs(query(collection(db, 'applications'), where('jobId', '==', jobId)));
-        const applications = appsSnap.docs.map(d => d.data());
+        const { data: applications } = await supabase
+            .from('applications')
+            .select('*')
+            .eq('job_id', cleanId);
 
-        const historySnap = await getDocs(query(collection(db, 'admin_audit_logs'), where('targetId', '==', jobId), orderBy('timestamp', 'desc'), limit(20)));
-        const history = historySnap.docs.map(d => d.data());
+        const { data: history } = await supabase
+            .from('admin_audit_logs')
+            .select('*')
+            .eq('target_id', cleanId)
+            .order('timestamp', { ascending: false })
+            .limit(20);
 
-        return { job, owner, assignedLawyer, applications, history };
+        return { job, owner, assignedLawyer, applications: applications || [], history: history || [] };
     },
 
     async updateJobStatus(jobId: string, newStatus: string, reason: string) {
-        await updateDoc(doc(db, 'jobs', jobId), {
+        await supabase.from('jobs').update({
             status: newStatus,
-            updatedAt: serverTimestamp()
-        });
+            updated_at: new Date().toISOString()
+        }).eq('job_id', jobId);
+
         await createAuditLog('JOB_STATUS_CHANGED', 'job', jobId, { newStatus, reason });
         return { success: true };
     },
 
     async deleteJob(jobId: string, reason: string) {
-        await deleteDoc(doc(db, 'jobs', jobId));
+        await supabase.from('jobs').delete().eq('job_id', jobId);
         await createAuditLog('JOB_DELETED', 'job', jobId, { reason });
         return { success: true };
     },
@@ -196,33 +258,34 @@ export const adminApi = {
     async getDashboardStats() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const todayTimestamp = today.getTime() / 1000;
+        const todayIso = today.toISOString();
 
-        const jobsSnap = await getDocs(collection(db, 'jobs'));
-        const usersSnap = await getDocs(collection(db, 'users'));
+        // This might be heavy if we fetch all. Better to use count queries.
+        // But for now, let's replicate the existing logic but optimized with count.
 
-        const jobs = jobsSnap.docs.map(d => d.data());
-        const users = usersSnap.docs.map(d => d.data());
+        const { count: totalUsers } = await supabase.from('users').select('*', { count: 'exact', head: true });
+        const { count: totalJobs } = await supabase.from('jobs').select('*', { count: 'exact', head: true });
+        const { count: activeJobs } = await supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'open');
+        const { count: premiumUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_premium', true);
 
-        const todayJobs = jobs.filter((j: any) => j.createdAt?.seconds >= todayTimestamp);
-        const todayCompleted = jobs.filter((j: any) => j.status === 'completed' && j.completedAt?.seconds >= todayTimestamp);
-        const activeUsers = users.filter((u: any) => u.accountStatus === 'active');
-        const premiumUsers = users.filter((u: any) => u.isPremium === true);
-        const activeJobs = jobs.filter((j: any) => j.status === 'open');
+        const { count: todayJobs } = await supabase.from('jobs').select('*', { count: 'exact', head: true }).gte('created_at', todayIso);
+        const { count: todayCompleted } = await supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'completed').gte('completed_at', todayIso);
+        const { count: activeUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('account_status', 'active');
 
         return {
             today: {
-                jobsCreated: todayJobs.length,
-                jobsCompleted: todayCompleted.length,
-                newUsers: 0,
-                activeUsers: activeUsers.length
+                jobsCreated: todayJobs || 0,
+                jobsCompleted: todayCompleted || 0,
+                newUsers: 0, // Need a query for this if needed
+                activeUsers: activeUsers || 0
             },
             totals: {
-                totalUsers: users.length,
-                totalJobs: jobs.length,
-                activeJobs: activeJobs.length,
-                premiumUsers: premiumUsers.length
+                totalUsers: totalUsers || 0,
+                totalJobs: totalJobs || 0,
+                activeJobs: activeJobs || 0,
+                premiumUsers: premiumUsers || 0
             }
         };
     }
 };
+

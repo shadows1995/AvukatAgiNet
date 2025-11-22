@@ -6,6 +6,7 @@ import {
     Clock, Globe
 } from 'lucide-react';
 import { adminApi } from '../../services/adminApi';
+import { useAlert } from '../../contexts/AlertContext';
 
 interface UserDetailData {
     user: any;
@@ -35,47 +36,92 @@ const AdminUserDetail = () => {
         }
     };
 
-    const handleBan = async () => {
-        const reason = prompt('Ban sebebi:');
-        if (!reason || !userId) return;
+    const { showAlert } = useAlert();
 
-        try {
-            await adminApi.banUser(userId, { reason, banType: 'permanent' });
-            alert('Kullanıcı banlandı');
-            fetchUserDetail(userId);
-        } catch (error) {
-            console.error(error);
-            alert('Hata oluştu');
-        }
+    const handleBan = async () => {
+        if (!userId) return;
+
+        showAlert({
+            title: "Kullanıcıyı Banla",
+            message: "Bu kullanıcıyı banlamak istediğinize emin misiniz? Lütfen sebep belirtin.",
+            type: "warning",
+            inputPlaceholder: "Ban sebebi...",
+            confirmText: "Banla",
+            cancelText: "Vazgeç",
+            onConfirm: async (reason) => {
+                if (!reason) return;
+                try {
+                    await adminApi.banUser(userId, { reason, banType: 'permanent' });
+                    showAlert({ title: "Başarılı", message: "Kullanıcı banlandı.", type: "success" });
+                    fetchUserDetail(userId);
+                } catch (error) {
+                    console.error(error);
+                    showAlert({ title: "Hata", message: "Bir hata oluştu.", type: "error" });
+                }
+            }
+        });
     };
 
     const handleUnban = async () => {
-        const reason = prompt('Unban sebebi:');
-        if (!reason || !userId) return;
+        if (!userId) return;
 
-        try {
-            await adminApi.unbanUser(userId, reason);
-            alert('Ban kaldırıldı');
-            fetchUserDetail(userId);
-        } catch (error) {
-            console.error(error);
-            alert('Hata oluştu');
-        }
+        showAlert({
+            title: "Banı Kaldır",
+            message: "Kullanıcının banını kaldırmak üzeresiniz. Lütfen sebep belirtin.",
+            type: "info",
+            inputPlaceholder: "Unban sebebi...",
+            confirmText: "Banı Kaldır",
+            cancelText: "Vazgeç",
+            onConfirm: async (reason) => {
+                if (!reason) return;
+                try {
+                    await adminApi.unbanUser(userId, reason);
+                    showAlert({ title: "Başarılı", message: "Ban kaldırıldı.", type: "success" });
+                    fetchUserDetail(userId);
+                } catch (error) {
+                    console.error(error);
+                    showAlert({ title: "Hata", message: "Bir hata oluştu.", type: "error" });
+                }
+            }
+        });
     };
 
     const handleRoleChange = async () => {
-        const newRole = prompt('Yeni rol (free, premium, premium_plus, admin):');
-        const reason = prompt('Değişiklik sebebi:');
-        if (!newRole || !reason || !userId) return;
+        if (!userId) return;
 
-        try {
-            await adminApi.changeUserRole(userId, newRole, reason);
-            alert('Rol güncellendi');
-            fetchUserDetail(userId);
-        } catch (error) {
-            console.error(error);
-            alert('Hata oluştu');
-        }
+        showAlert({
+            title: "Rol Değiştir",
+            message: "Yeni rolü giriniz (free, premium, premium_plus, admin):",
+            type: "info",
+            inputPlaceholder: "Yeni rol...",
+            confirmText: "İlerle",
+            cancelText: "Vazgeç",
+            onConfirm: (newRole) => {
+                if (!newRole) return;
+
+                setTimeout(() => {
+                    showAlert({
+                        title: "Rol Değiştirme Sebebi",
+                        message: "Lütfen bu değişiklik için bir sebep belirtin:",
+                        type: "info",
+                        inputPlaceholder: "Değişiklik sebebi...",
+                        confirmText: "Güncelle",
+                        cancelText: "Vazgeç",
+                        onConfirm: async (reason) => {
+                            if (!reason) return;
+                            try {
+                                await adminApi.changeUserRole(userId, newRole, reason);
+                                showAlert({ title: "Başarılı", message: "Rol güncellendi.", type: "success" });
+                                fetchUserDetail(userId);
+                            } catch (error) {
+                                console.error(error);
+                                showAlert({ title: "Hata", message: "Bir hata oluştu.", type: "error" });
+                            }
+                        }
+                    });
+                }, 300); // Wait for previous alert to close
+            }
+        });
     };
 
     if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
@@ -104,6 +150,14 @@ const AdminUserDetail = () => {
                                 </span>
                             </div>
                             <p className="text-gray-500 text-sm mt-1">ID: {user.uid}</p>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Kayıt Tarihi: {(() => {
+                                    if (!user.createdAt) return '-';
+                                    const seconds = user.createdAt.seconds || user.createdAt._seconds;
+                                    if (seconds) return new Date(seconds * 1000).toLocaleDateString('tr-TR');
+                                    return new Date(user.createdAt).toLocaleDateString('tr-TR');
+                                })()}
+                            </p>
                         </div>
                     </div>
 
@@ -164,7 +218,12 @@ const AdminUserDetail = () => {
                                 <tbody>
                                     {recentLogins.map((log, idx) => (
                                         <tr key={idx} className="border-b">
-                                            <td className="px-4 py-2">{new Date(log.timestamp._seconds * 1000).toLocaleString('tr-TR')}</td>
+                                            <td className="px-4 py-2">
+                                                {(() => {
+                                                    const seconds = log.timestamp?.seconds || log.timestamp?._seconds;
+                                                    return seconds ? new Date(seconds * 1000).toLocaleString('tr-TR') : '-';
+                                                })()}
+                                            </td>
                                             <td className="px-4 py-2 font-mono">{log.ipAddress}</td>
                                             <td className="px-4 py-2 truncate max-w-xs">{log.userAgent}</td>
                                         </tr>

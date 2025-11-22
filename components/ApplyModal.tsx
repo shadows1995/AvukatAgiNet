@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { X, Loader2, Send } from 'lucide-react';
 import { Job, User } from '../types';
-import { db } from '../firebaseConfig';
-import { addDoc, collection, updateDoc, doc, increment, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 import Toast from './Toast';
+
+import { useAlert } from '../contexts/AlertContext';
 
 const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () => void }) => {
   const [message, setMessage] = useState('Görevle ilgileniyorum. Müsaitim.');
   const [bid, setBid] = useState(job.offeredFee.toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const { showAlert } = useAlert();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,49 +21,53 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
       if (!job.jobId) throw new Error("Job ID missing");
 
       // 1. Check if already applied
-      const q = query(
-        collection(db, "applications"),
-        where("jobId", "==", job.jobId),
-        where("applicantId", "==", user.uid)
-      );
-      const snapshot = await getDocs(q);
+      const { data: existingApp } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('job_id', job.jobId)
+        .eq('applicant_id', user.uid)
+        .single();
 
-      if (!snapshot.empty) {
+      if (existingApp) {
         setToast({ message: 'Bu göreve zaten başvurdunuz.', type: 'error' });
         setTimeout(() => onClose(), 2000);
         return;
       }
 
       // 2. Create Application
-      await addDoc(collection(db, "applications"), {
-        jobId: job.jobId,
-        applicantId: user.uid,
-        applicantName: user.fullName,
-        applicantPhone: user.phone || "",
-        applicantRating: user.rating || 0,
+      const { error: appError } = await supabase.from('applications').insert({
+        job_id: job.jobId,
+        applicant_id: user.uid,
+        applicant_name: user.fullName,
+        applicant_phone: user.phone || "",
+        applicant_rating: user.rating || 0,
         message: message,
-        proposedFee: Number(bid),
-        status: 'pending',
-        createdAt: serverTimestamp()
+        proposed_fee: Number(bid),
+        status: 'pending'
+        // created_at defaults to now()
       });
+
+      if (appError) throw appError;
 
       // 3. Increment Job Application Count
-      await updateDoc(doc(db, "jobs", job.jobId), {
-        applicationsCount: increment(1)
-      });
+      // Handled by Database Trigger (fix_application_count.sql)
 
       // 4. Notify Job Owner
-      await addDoc(collection(db, "notifications"), {
-        userId: job.createdBy,
+      await supabase.from('notifications').insert({
+        user_id: job.createdBy,
         title: "Yeni Başvuru Geldi 📢",
         message: `${user.fullName}, "${job.title}" görevinize başvurdu.`,
         type: "info",
-        read: false,
-        createdAt: serverTimestamp()
+        read: false
       });
 
-      setToast({ message: 'Başvurunuz başarıyla gönderildi!', type: 'success' });
-      setTimeout(() => onClose(), 2000);
+      showAlert({
+        title: "Başarılı",
+        message: "Başvurunuz başarıyla gönderildi.",
+        type: "success",
+        confirmText: "Tamam",
+        onConfirm: onClose
+      });
 
     } catch (error) {
       console.error("Başvuru hatası:", error);
@@ -136,3 +142,4 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
 };
 
 export default ApplyModal;
+

@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Timer, Users, ChevronDown, Star, DollarSign, CheckCircle, User as UserIcon, AlertTriangle, X } from 'lucide-react';
 import { Job, Application, User } from '../types';
-import { auth, db } from '../firebaseConfig';
-import { collection, query, where, onSnapshot, getDocs, updateDoc, doc, addDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
+import { useNotification } from '../contexts/NotificationContext';
+import { useAlert } from '../contexts/AlertContext';
 
 const MyJobs = () => {
   const [myJobs, setMyJobs] = useState<Job[]>([]);
@@ -13,16 +14,11 @@ const MyJobs = () => {
   const [loading, setLoading] = useState(true);
   const [loadingApps, setLoadingApps] = useState(false);
   const [selectedApplicantData, setSelectedApplicantData] = useState<{ [jobId: string]: User | null }>({});
+  const { showNotification } = useNotification();
 
   // Modal States
-  const [confirmData, setConfirmData] = useState<{ isOpen: boolean, job: Job | null, app: Application | null }>({
-    isOpen: false, job: null, app: null
-  });
-  const [statusModal, setStatusModal] = useState<{ isOpen: boolean, type: 'success' | 'error', message: string }>({
-    isOpen: false, type: 'success', message: ''
-  });
 
-  const user = auth.currentUser;
+
   const navigate = useNavigate();
 
   const [_, setTicker] = useState(0);
@@ -33,49 +29,107 @@ const MyJobs = () => {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    const fetchJobs = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const q = query(collection(db, "jobs"), where("createdBy", "==", user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const jobsData: Job[] = [];
-      snapshot.forEach((doc) => {
-        jobsData.push({ jobId: doc.id, ...doc.data() } as Job);
-      });
+      const { data: jobsData, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
 
-      // Client-side sorting
-      jobsData.sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA;
-      });
+      if (error) {
+        console.error("MyJobs listener error:", error);
+        setLoading(false);
+        return;
+      }
 
-      setMyJobs(jobsData);
-      setLoading(false);
+      if (jobsData) {
+        const mappedJobs: Job[] = jobsData.map(job => ({
+          jobId: job.job_id,
+          title: job.title,
+          description: job.description,
+          city: job.city,
+          courthouse: job.courthouse,
+          date: job.date,
+          time: job.time,
+          jobType: job.job_type,
+          offeredFee: job.offered_fee,
+          createdBy: job.created_by,
+          ownerName: job.owner_name,
+          ownerPhone: job.owner_phone,
+          status: job.status,
+          applicationsCount: job.applications_count,
+          createdAt: job.created_at,
+          updatedAt: job.updated_at,
+          isUrgent: job.is_urgent,
+          applicationDeadline: job.application_deadline,
+          selectedApplicant: job.selected_applicant,
+          completedAt: job.completed_at
+        }));
+        setMyJobs(mappedJobs);
 
-      // Fetch selected applicants data for "In Progress" jobs
-      jobsData.forEach(async (job) => {
-        if (job.selectedApplicant && job.status === 'in_progress' && job.jobId) {
-          try {
-            const userDoc = await getDoc(doc(db, "users", job.selectedApplicant));
-            if (userDoc.exists()) {
-              setSelectedApplicantData(prev => ({
-                ...prev,
-                [job.jobId!]: { uid: userDoc.id, ...userDoc.data() } as User
-              }));
+        // Fetch selected applicants data for "In Progress" jobs
+        mappedJobs.forEach(async (job) => {
+          if (job.selectedApplicant && job.status === 'in_progress' && job.jobId) {
+            try {
+              const { data: userData } = await supabase.from('users').select('*').eq('uid', job.selectedApplicant).single();
+              if (userData) {
+                const mappedUser: User = {
+                  uid: userData.uid,
+                  email: userData.email,
+                  fullName: userData.full_name,
+                  baroNumber: userData.baro_number,
+                  baroCity: userData.baro_city,
+                  phone: userData.phone,
+                  specializations: userData.specializations,
+                  city: userData.city,
+                  preferredCourthouses: userData.preferred_courthouses,
+                  isPremium: userData.is_premium,
+                  membershipType: userData.membership_type,
+                  premiumUntil: userData.premium_until,
+                  premiumSince: userData.premium_since,
+                  premiumPlan: userData.premium_plan,
+                  premiumPrice: userData.premium_price,
+                  role: userData.role,
+                  rating: userData.rating,
+                  completedJobs: userData.completed_jobs,
+                  avatarUrl: userData.avatar_url,
+                  createdAt: userData.created_at,
+                  updatedAt: userData.updated_at,
+                  jobStatus: userData.job_status,
+                  aboutMe: userData.about_me,
+                  title: userData.title,
+                  address: userData.address
+                };
+                setSelectedApplicantData(prev => ({
+                  ...prev,
+                  [job.jobId!]: mappedUser
+                }));
+              }
+            } catch (error) {
+              console.error("Error fetching applicant data:", error);
             }
-          } catch (error) {
-            console.error("Error fetching applicant data:", error);
           }
-        }
-      });
-
-    }, (error) => {
-      console.error("MyJobs listener error:", error);
+        });
+      }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [user]);
+    fetchJobs();
+
+    // Subscribe to realtime changes for jobs
+    const subscription = supabase.channel('my_jobs_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, (payload) => {
+        fetchJobs(); // Re-fetch on change for simplicity
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const fetchApplications = async (jobId: string) => {
     setExpandedJobId(expandedJobId === jobId ? null : jobId);
@@ -83,11 +137,27 @@ const MyJobs = () => {
 
     setLoadingApps(true);
     try {
-      const q = query(collection(db, "applications"), where("jobId", "==", jobId));
-      const snapshot = await getDocs(q);
-      const apps: Application[] = [];
-      snapshot.forEach(doc => apps.push({ applicationId: doc.id, ...doc.data() } as Application));
-      setApplications(apps);
+      const { data: appsData, error } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('job_id', jobId);
+
+      if (error) throw error;
+
+      if (appsData) {
+        const apps: Application[] = appsData.map(app => ({
+          applicationId: app.application_id,
+          jobId: app.job_id,
+          applicantId: app.applicant_id,
+          applicantName: app.applicant_name,
+          applicantRating: app.applicant_rating,
+          message: app.message,
+          proposedFee: app.proposed_fee,
+          status: app.status,
+          createdAt: app.created_at
+        }));
+        setApplications(apps);
+      }
     } catch (error) {
       console.error("Error fetching applications:", error);
     } finally {
@@ -98,93 +168,116 @@ const MyJobs = () => {
   const isJobExpired = (job: Job) => {
     if (!job.date || !job.time) return false;
     try {
-      const [day, month, year] = job.date.split('.').map(Number);
+      let day, month, year;
+      // Handle DD.MM.YYYY format
+      if (job.date.includes('.')) {
+        [day, month, year] = job.date.split('.').map(Number);
+      }
+      // Handle YYYY-MM-DD format (HTML date input standard)
+      else if (job.date.includes('-')) {
+        [year, month, day] = job.date.split('-').map(Number);
+      }
+      else {
+        return false;
+      }
+
       const [hour, minute] = job.time.split(':').map(Number);
       const jobDate = new Date(year, month - 1, day, hour, minute);
-      return new Date() > jobDate;
+
+      // Current time
+      const now = new Date();
+
+      return now > jobDate;
     } catch (e) {
+      console.error("Date parsing error:", e);
       return false;
     }
   };
 
+  const { showAlert } = useAlert();
+
   // 1. Step: Open Confirm Modal
   const handleSelectClick = (job: Job, app: Application) => {
     if (isJobExpired(job)) {
-      alert("Görevin süresi geçti! Artık bu göreve atama yapamazsınız.");
+      showNotification('error', "Görevin süresi geçti! Artık bu göreve atama yapamazsınız.");
       return;
     }
-    setConfirmData({ isOpen: true, job, app });
+
+    showAlert({
+      title: "Emin misiniz?",
+      message: `${app.applicantName} isimli avukata bu görevi vermek üzeresiniz. İletişim bilgileriniz karşılıklı olarak paylaşılacaktır.`,
+      type: "confirm",
+      confirmText: "Görevi Ver",
+      cancelText: "Vazgeç",
+      onConfirm: () => executeAssignment(job, app)
+    });
   };
 
   // 2. Step: Execute Logic
-  const executeAssignment = async () => {
-    const { job, app } = confirmData;
+  const executeAssignment = async (job: Job, app: Application) => {
     if (!job || !app || !job.jobId || !app.applicationId) {
-      setStatusModal({ isOpen: true, type: 'error', message: 'İşlem sırasında veri kaybı oluştu.' });
+      showAlert({ title: "Hata", message: "İşlem sırasında veri kaybı oluştu.", type: "error" });
       return;
     }
 
-    // Close confirm modal immediately to show loading or just result
-    setConfirmData({ ...confirmData, isOpen: false });
-
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+
       // 1. Update Job
-      await updateDoc(doc(db, "jobs", job.jobId), {
-        selectedApplicant: app.applicantId,
+      const { error: jobError } = await supabase.from('jobs').update({
+        selected_applicant: app.applicantId,
         status: 'in_progress'
-      });
+      }).eq('job_id', job.jobId);
+
+      if (jobError) throw jobError;
 
       // 2. Update Application
-      await updateDoc(doc(db, "applications", app.applicationId), {
+      const { error: appError } = await supabase.from('applications').update({
         status: 'accepted'
-      });
+      }).eq('application_id', app.applicationId);
+
+      if (appError) throw appError;
 
       // 3. Notify Applicant
-      await addDoc(collection(db, "notifications"), {
-        userId: app.applicantId,
+      await supabase.from('notifications').insert({
+        user_id: app.applicantId,
         title: "Başvurunuz Kabul Edildi! 🎉",
         message: `Tebrikler! "${job.title}" görevi için seçildiniz. Görev sahibiyle iletişime geçebilirsiniz.`,
         type: "success",
         read: false,
-        createdAt: serverTimestamp()
+        created_at: new Date().toISOString()
       });
 
       // 4. Notify Owner (Self)
       if (user) {
-        await addDoc(collection(db, "notifications"), {
-          userId: user.uid,
+        await supabase.from('notifications').insert({
+          user_id: user.id,
           title: "Görev Atandı ✅",
           message: `"${job.title}" görevi Av. ${app.applicantName}'e atandı.`,
           type: "success",
           read: false,
-          createdAt: serverTimestamp()
+          created_at: new Date().toISOString()
         });
       }
 
       // Show Success Modal
-      setStatusModal({ isOpen: true, type: 'success', message: 'Görev ataması başarıyla yapıldı! İletişim bilgileri açılıyor...' });
-
-      // Redirect logic is handled in the Success Modal "Tamam" button or useEffect
+      showAlert({
+        title: "İşlem Başarılı!",
+        message: "Görev ataması başarıyla yapıldı! İletişim bilgileri açılıyor...",
+        type: "success",
+        confirmText: "Profiline Git",
+        onConfirm: () => navigate(`/profile/${app.applicantId}`)
+      });
 
     } catch (error: any) {
       console.error("Error selecting applicant:", error);
-      setStatusModal({ isOpen: true, type: 'error', message: `Hata: ${error.message || 'Bilinmeyen hata'}` });
-    }
-  };
-
-  const handleStatusClose = () => {
-    const redirectId = confirmData.app?.applicantId;
-    setStatusModal({ ...statusModal, isOpen: false });
-    setConfirmData({ isOpen: false, job: null, app: null });
-
-    if (statusModal.type === 'success' && redirectId) {
-      navigate(`/profile/${redirectId}`);
+      showAlert({ title: "Hata", message: `Hata: ${error.message || 'Bilinmeyen hata'}`, type: "error" });
     }
   };
 
   const getTimeLeft = (deadline: any) => {
     if (!deadline) return 0;
-    const deadlineDate = deadline.toDate ? deadline.toDate() : new Date(deadline);
+    const deadlineDate = new Date(deadline);
     const diff = deadlineDate.getTime() - new Date().getTime();
     return diff > 0 ? diff : 0;
   };
@@ -201,71 +294,7 @@ const MyJobs = () => {
     <div className="max-w-5xl mx-auto px-4 py-8 relative">
       <h2 className="text-2xl font-bold text-slate-900 mb-6">Görevlerim</h2>
 
-      {/* CONFIRMATION MODAL */}
-      {confirmData.isOpen && confirmData.app && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmData({ ...confirmData, isOpen: false })}></div>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative z-10 transform transition-all scale-100">
-            <button
-              onClick={() => setConfirmData({ ...confirmData, isOpen: false })}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
 
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Emin misiniz?</h3>
-              <p className="text-slate-600 mb-6">
-                <span className="font-semibold text-slate-900">{confirmData.app.applicantName}</span> isimli avukata bu görevi vermek üzeresiniz. İletişim bilgileriniz karşılıklı olarak paylaşılacaktır.
-              </p>
-
-              <div className="flex w-full space-x-3">
-                <button
-                  onClick={() => setConfirmData({ ...confirmData, isOpen: false })}
-                  className="flex-1 py-2.5 border border-slate-300 rounded-lg font-semibold text-slate-700 hover:bg-slate-50 transition"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  onClick={executeAssignment}
-                  className="flex-1 py-2.5 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 shadow-md hover:shadow-lg transition"
-                >
-                  Görevi Ver
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* STATUS MODAL (Success / Error) */}
-      {statusModal.isOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative z-10 text-center">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${statusModal.type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
-              {statusModal.type === 'success' ? (
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              ) : (
-                <AlertTriangle className="w-8 h-8 text-red-600" />
-              )}
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
-              {statusModal.type === 'success' ? 'İşlem Başarılı!' : 'Hata Oluştu'}
-            </h3>
-            <p className="text-slate-600 mb-6">{statusModal.message}</p>
-            <button
-              onClick={handleStatusClose}
-              className={`w-full py-3 rounded-xl font-bold text-white shadow-lg transition transform hover:-translate-y-1 ${statusModal.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
-            >
-              {statusModal.type === 'success' ? 'Profiline Git' : 'Tamam'}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="space-y-4">
         {myJobs.length === 0 && <p className="text-slate-500">Henüz görev yayınlamadınız.</p>}
@@ -278,11 +307,16 @@ const MyJobs = () => {
               <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${job.status === 'open' ? 'bg-green-100 text-green-700' :
-                      job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${job.status === 'open' && isJobExpired(job) ? 'bg-red-100 text-red-700' :
+                      job.status === 'open' ? 'bg-green-100 text-green-700' :
+                        job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
                       }`}>
-                      {job.status === 'open' ? 'Başvuruya Açık' : job.status === 'in_progress' ? 'Atandı' : job.status}
+                      {job.status === 'open' && isJobExpired(job) ? 'Süresi Geçmiş' :
+                        job.status === 'open' ? 'Başvuruya Açık' :
+                          job.status === 'in_progress' ? 'Atandı' :
+                            job.status === 'completed' ? 'Tamamlandı' :
+                              job.status === 'cancelled' ? 'İptal Edildi' : job.status}
                     </span>
                     {job.isUrgent && <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold">ACİL</span>}
                   </div>
@@ -299,7 +333,8 @@ const MyJobs = () => {
                         <div>
                           <p className="text-xs font-bold text-green-600 uppercase tracking-wide">Görevi Üstlenen</p>
                           <p className="font-bold text-slate-900">{selectedUser.fullName}</p>
-                          <p className="text-sm text-slate-600">{selectedUser.baroCity} Barosu • {selectedUser.phone}</p>
+                          <p className="text-sm text-slate-600">{selectedUser.baroCity} Barosu • Sicil: {selectedUser.baroNumber} • {selectedUser.phone}</p>
+                          {selectedUser.address && <p className="text-xs text-slate-500 mt-1">{selectedUser.address}</p>}
                         </div>
                       </div>
                       <button
@@ -359,10 +394,14 @@ const MyJobs = () => {
                             <div>
                               <div className="flex items-center space-x-2">
                                 <span
-                                  onClick={() => navigate(`/profile/${app.applicantId}`)}
-                                  className="font-bold text-slate-800 cursor-pointer hover:text-primary-600 hover:underline"
+                                  onClick={() => isSelected && navigate(`/profile/${app.applicantId}`)}
+                                  className={`font-bold transition ${isSelected ? 'text-slate-800 cursor-pointer hover:text-primary-600 hover:underline' : 'text-slate-500 cursor-default'}`}
                                 >
-                                  {app.applicantName}
+                                  {isSelected ? app.applicantName : (() => {
+                                    const parts = app.applicantName.trim().split(/\s+/);
+                                    if (parts.length === 1) return `${parts[0].charAt(0)}.`;
+                                    return `${parts[0].charAt(0)}. ${parts[parts.length - 1].charAt(0)}.`;
+                                  })()}
                                 </span>
                                 <span className="flex items-center text-amber-500 text-xs bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
                                   <Star className="w-3 h-3 fill-current mr-1" />
@@ -379,13 +418,13 @@ const MyJobs = () => {
                             {!isSelected && (
                               <button
                                 onClick={() => handleSelectClick(job, app)}
-                                disabled={isSelectionLocked}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ${isSelectionLocked
+                                disabled={isSelectionLocked || isJobExpired(job)}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ${isSelectionLocked || isJobExpired(job)
                                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                   : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md'
                                   }`}
                               >
-                                {isSelectionLocked ? 'Süre' : 'Görevi Ver'}
+                                {isJobExpired(job) ? 'Süre Doldu' : isSelectionLocked ? 'Süre' : 'Görevi Ver'}
                               </button>
                             )}
                             {isSelected && (

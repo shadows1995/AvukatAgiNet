@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2, Sparkles, MapPin, Star, Phone, Mail, Lock } from 'lucide-react';
 import { User } from '../types';
-import { db } from '../firebaseConfig';
-import { doc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 
 const ProfilePage = ({ currentUser }: { currentUser: User }) => {
   const { userId } = useParams();
@@ -17,35 +16,55 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
       setLoading(true);
       try {
         // 1. Fetch User Profile
-        const docRef = doc(db, "users", userId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfileUser({ uid: docSnap.id, ...docSnap.data() } as User);
+        const { data: userData, error } = await supabase.from('users').select('*').eq('uid', userId).single();
+
+        if (userData) {
+          const mappedUser: User = {
+            uid: userData.uid,
+            email: userData.email,
+            fullName: userData.full_name,
+            baroNumber: userData.baro_number,
+            baroCity: userData.baro_city,
+            phone: userData.phone,
+            specializations: userData.specializations,
+            city: userData.city,
+            preferredCourthouses: userData.preferred_courthouses,
+            isPremium: userData.is_premium,
+            membershipType: userData.membership_type,
+            premiumUntil: userData.premium_until,
+            premiumSince: userData.premium_since,
+            premiumPlan: userData.premium_plan,
+            premiumPrice: userData.premium_price,
+            role: userData.role,
+            rating: userData.rating,
+            completedJobs: userData.completed_jobs,
+            avatarUrl: userData.avatar_url,
+            createdAt: userData.created_at,
+            updatedAt: userData.updated_at,
+            jobStatus: userData.job_status,
+            aboutMe: userData.about_me,
+            title: userData.title,
+            address: userData.address
+          };
+          setProfileUser(mappedUser);
         }
 
         // 2. Check Relationship (for contact info visibility)
-        // Logic: Can view if (Current User is Owner AND Profile User is Selected Applicant) OR (Current User is Selected Applicant AND Profile User is Owner)
-        // We check 'jobs' collection.
-
         // Case A: I am owner, looking at applicant
-        const q1 = query(
-          collection(db, "jobs"),
-          where("createdBy", "==", currentUser.uid),
-          where("selectedApplicant", "==", userId),
-          where("status", "in", ["in_progress", "completed"])
-        );
+        const { data: jobs1 } = await supabase.from('jobs')
+          .select('*')
+          .eq('created_by', currentUser.uid)
+          .eq('selected_applicant', userId)
+          .in('status', ['in_progress', 'completed']);
 
         // Case B: I am applicant, looking at owner
-        const q2 = query(
-          collection(db, "jobs"),
-          where("createdBy", "==", userId),
-          where("selectedApplicant", "==", currentUser.uid),
-          where("status", "in", ["in_progress", "completed"])
-        );
+        const { data: jobs2 } = await supabase.from('jobs')
+          .select('*')
+          .eq('created_by', userId)
+          .eq('selected_applicant', currentUser.uid)
+          .in('status', ['in_progress', 'completed']);
 
-        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-
-        if (!snap1.empty || !snap2.empty || currentUser.uid === userId) {
+        if ((jobs1 && jobs1.length > 0) || (jobs2 && jobs2.length > 0) || currentUser.uid === userId) {
           setCanViewContact(true);
         } else {
           setCanViewContact(false);
@@ -193,6 +212,17 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                   <p className="text-lg font-bold text-slate-800">{profileUser.email}</p>
                 </div>
               </div>
+              {profileUser.address && (
+                <div className="md:col-span-2 flex items-center p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="bg-white p-2 rounded-lg shadow-sm mr-4">
+                    <MapPin className="w-6 h-6 text-slate-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-600 font-bold uppercase tracking-wider">Ofis Adresi</p>
+                    <p className="text-lg font-bold text-slate-800">{profileUser.address}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

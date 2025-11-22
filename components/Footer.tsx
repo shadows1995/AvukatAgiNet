@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
     Facebook,
     Instagram,
@@ -41,43 +42,19 @@ const Footer = () => {
                 <div className="flex flex-col gap-4">
                     <h1 className={sectionTitle}>Kurumsal</h1>
                     <ul className="flex flex-col gap-3">
-                        {["Hakkımızda", "Özellikler", "Kariyer", "İletişim"].map((item, idx) => (
-                            <li key={idx}>
-                                <a href="#" className={linkStyle}>
-                                    {item}
-                                </a>
-                            </li>
-                        ))}
+                        <li><Link to="/" className={linkStyle}>Hakkımızda</Link></li>
+                        <li><Link to="/" className={linkStyle}>Özellikler</Link></li>
+                        <li><Link to="/" className={linkStyle}>İletişim</Link></li>
                     </ul>
                 </div>
 
-                {/* Resources */}
-                <div className="flex flex-col gap-4">
-                    <h1 className={sectionTitle}>Kaynaklar</h1>
-                    <ul className="flex flex-col gap-3">
-                        {["Dokümantasyon", "Blog", "Rehberler", "Topluluk"].map((item, idx) => (
-                            <li key={idx}>
-                                <a href="#" className={linkStyle}>
-                                    {item}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {/* Policies */}
+                {/* Legal */}
                 <div className="flex flex-col gap-4">
                     <h1 className={sectionTitle}>Yasal</h1>
                     <ul className="flex flex-col gap-3">
-                        {["Gizlilik Politikası", "Kullanım Şartları", "Site Haritası", "İptal ve İade"].map(
-                            (item, idx) => (
-                                <li key={idx}>
-                                    <a href="#" className={linkStyle}>
-                                        {item}
-                                    </a>
-                                </li>
-                            ),
-                        )}
+                        <li><Link to="/privacy" className={linkStyle}>Gizlilik Politikası</Link></li>
+                        <li><Link to="/terms" className={linkStyle}>Kullanım Şartları</Link></li>
+                        <li><Link to="/terms" className={linkStyle}>İptal ve İade</Link></li>
                     </ul>
                 </div>
             </div>

@@ -3,10 +3,9 @@ import { User, User as UserIcon } from 'lucide-react';
 import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle } from 'lucide-react';
 import { User as UserType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
-import { db } from '../firebaseConfig';
-import { updateDoc, doc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 
-const SettingsPage = ({ user }: { user: UserType }) => {
+const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpdate: () => void }) => {
   const [activeTab, setActiveTab] = useState('personal');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -43,14 +42,17 @@ const SettingsPage = ({ user }: { user: UserType }) => {
     const handleSavePersonal = async () => {
       setIsSaving(true);
       try {
-        await updateDoc(doc(db, "users", user.uid), {
-          fullName: formData.fullName,
+        const { error } = await supabase.from('users').update({
+          full_name: formData.fullName,
           phone: formData.phone,
           city: formData.city,
-          jobStatus: formData.jobStatus,
+          job_status: formData.jobStatus,
           email: formData.email
-        });
+        }).eq('uid', user.uid);
+
+        if (error) throw error;
         showNotification('success', 'Kişisel bilgileriniz başarıyla güncellendi.');
+        onProfileUpdate();
         setIsDirty(false);
       } catch (error) {
         console.error(error);
@@ -162,8 +164,10 @@ const SettingsPage = ({ user }: { user: UserType }) => {
     const handleSavePreferences = async () => {
       setIsSaving(true);
       try {
-        await updateDoc(doc(db, "users", user.uid), { preferredCourthouses: preferences });
+        const { error } = await supabase.from('users').update({ preferred_courthouses: preferences }).eq('uid', user.uid);
+        if (error) throw error;
         showNotification('success', 'Görev adliyeleriniz kaydedildi.');
+        onProfileUpdate();
       } catch (error) {
         console.error(error);
         showNotification('error', 'Kaydedilirken bir hata oluştu.');
@@ -230,8 +234,10 @@ const SettingsPage = ({ user }: { user: UserType }) => {
     const save = async () => {
       setLoading(true);
       try {
-        await updateDoc(doc(db, "users", user.uid), { aboutMe: about });
+        const { error } = await supabase.from('users').update({ about_me: about }).eq('uid', user.uid);
+        if (error) throw error;
         showNotification('success', 'Hakkımda yazısı güncellendi.');
+        onProfileUpdate();
       } catch (e) {
         showNotification('error', 'Güncellenirken hata oluştu.');
       } finally {
@@ -280,8 +286,10 @@ const SettingsPage = ({ user }: { user: UserType }) => {
     const save = async () => {
       setLoading(true);
       try {
-        await updateDoc(doc(db, "users", user.uid), { specializations: specs });
+        const { error } = await supabase.from('users').update({ specializations: specs }).eq('uid', user.uid);
+        if (error) throw error;
         showNotification('success', 'Uzmanlık alanları güncellendi.');
+        onProfileUpdate();
       } catch (e) {
         showNotification('error', 'Güncellenirken hata oluştu.');
       } finally {
@@ -322,11 +330,91 @@ const SettingsPage = ({ user }: { user: UserType }) => {
     )
   }
 
+  const AuthorizationTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+    const [formData, setFormData] = useState({
+      baroCity: user.baroCity || '',
+      baroNumber: user.baroNumber || '',
+      address: user.address || ''
+    });
+    const [loading, setLoading] = useState(false);
+
+    const save = async () => {
+      setLoading(true);
+      try {
+        const { error } = await supabase.from('users').update({
+          baro_city: formData.baroCity,
+          baro_number: formData.baroNumber,
+          address: formData.address
+        }).eq('uid', user.uid);
+
+        if (error) throw error;
+        showNotification('success', 'Yetki belgesi bilgileri güncellendi.');
+        onProfileUpdate();
+      } catch (e: any) {
+        console.error(e);
+        showNotification('error', `Güncellenirken hata oluştu: ${e.message || 'Bilinmeyen hata'}`);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    return (
+      <div className="space-y-6 animate-in fade-in">
+        <div className="border-b border-slate-100 pb-4">
+          <h3 className="text-lg font-bold text-slate-800">Yetki Belgesi Bilgileri</h3>
+          <p className="text-sm text-slate-500 mt-1">Bu bilgiler, görevi aldığınızda karşı tarafla paylaşılacaktır.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Baro</label>
+            <select
+              value={formData.baroCity}
+              onChange={(e) => setFormData({ ...formData, baroCity: e.target.value })}
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-slate-50 h-11"
+            >
+              <option value="" disabled>Seçiniz</option>
+              {TURKISH_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Baro Sicil No</label>
+            <input
+              type="text"
+              value={formData.baroNumber}
+              onChange={(e) => setFormData({ ...formData, baroNumber: e.target.value })}
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-slate-50 h-11"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Adres</label>
+          <textarea
+            rows={3}
+            className="w-full rounded-lg border-slate-300 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="Ofis adresiniz..."
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <button onClick={save} disabled={loading} className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition flex items-center">
+            {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {loading ? "Kaydediliyor..." : "Kaydet"}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const tabs = [
     { id: 'personal', label: 'Kişisel Bilgiler', icon: UserIcon, component: <PersonalInfoTab showNotification={showNotification} /> },
+    { id: 'authorization', label: 'Yetki Belgesi Bilgileri', icon: FileText, component: <AuthorizationTab showNotification={showNotification} /> },
     { id: 'courthouses', label: 'Görev Adliyeleriniz', icon: Gavel, component: <CourthousesTab showNotification={showNotification} /> },
     { id: 'specialization', label: 'Uzmanlık Alanları', icon: Award, component: <SpecializationTab showNotification={showNotification} /> },
-    { id: 'about', label: 'Hakkımda', icon: FileText, component: <AboutTab showNotification={showNotification} /> },
+    { id: 'about', label: 'Hakkımda', icon: Info, component: <AboutTab showNotification={showNotification} /> },
     { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <div className="text-center py-12 text-slate-500">Profil fotoğrafı yükleme modülü yakında eklenecek.</div> },
   ];
 

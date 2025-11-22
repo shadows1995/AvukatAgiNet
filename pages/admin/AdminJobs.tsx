@@ -136,7 +136,12 @@ const AdminJobs = () => {
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             <div className="flex items-center">
                                                 <Calendar className="w-4 h-4 mr-1" />
-                                                {new Date(job.createdAt._seconds * 1000).toLocaleDateString('tr-TR')}
+                                                {(() => {
+                                                    if (!job.createdAt) return '-';
+                                                    const seconds = job.createdAt.seconds || job.createdAt._seconds;
+                                                    if (seconds) return new Date(seconds * 1000).toLocaleDateString('tr-TR');
+                                                    return new Date(job.createdAt).toLocaleDateString('tr-TR');
+                                                })()}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium">

@@ -4,14 +4,14 @@ import {
     LayoutDashboard, Briefcase, Users, Shield,
     LogOut, Menu, X
 } from 'lucide-react';
-import { auth } from '../../firebaseConfig';
+import { supabase } from '../../supabaseClient';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        await auth.signOut();
+        await supabase.auth.signOut();
         navigate('/login');
     };
 

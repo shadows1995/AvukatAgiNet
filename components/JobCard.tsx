@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { MapPin, Clock, Users, CheckCircle, Phone } from 'lucide-react';
 import { Job, User, UserRole, JobType } from '../types';
 import ApplyModal from './ApplyModal';
+import { useAlert } from '../contexts/AlertContext';
 
 const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job, user, hasApplied }) => {
   const navigate = useNavigate();
@@ -13,17 +14,29 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
   const formattedFee = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(job.offeredFee);
 
+  const { showAlert } = useAlert();
+
   const handleApplyClick = () => {
     if (!user) {
-      alert("Başvuru yapmak için giriş yapmalısınız.");
+      showAlert({
+        title: "Giriş Yapın",
+        message: "Başvuru yapmak için giriş yapmalısınız.",
+        type: "warning",
+        confirmText: "Giriş Yap",
+        onConfirm: () => navigate('/login')
+      });
       return;
     }
 
     if (!user.isPremium) {
-      const confirmUpgrade = window.confirm("Ücretsiz üyeler ilanlara başvuru yapamaz. Premium'a geçmek ister misiniz?");
-      if (confirmUpgrade) {
-        window.location.hash = "#/premium";
-      }
+      showAlert({
+        title: "Premium Üyelik Gerekli",
+        message: "Ücretsiz üyeler ilanlara başvuru yapamaz. Premium'a geçmek ister misiniz?",
+        type: "confirm",
+        confirmText: "Premium'a Geç",
+        cancelText: "Vazgeç",
+        onConfirm: () => window.location.hash = "#/premium"
+      });
       return;
     }
 
@@ -71,17 +84,35 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
           <div className="flex items-center pt-4 border-t border-slate-50">
             <div
-              className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-600 text-xs font-bold ring-2 ring-white cursor-pointer hover:ring-primary-200 transition"
-              onClick={(e) => { e.stopPropagation(); navigate(`/profile/${job.createdBy}`); }}
+              className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ring-2 ring-white transition ${isOwner || isSelected
+                ? 'bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600 cursor-pointer hover:ring-primary-200'
+                : 'bg-slate-100 text-slate-400 cursor-default'
+                }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isOwner || isSelected) navigate(`/profile/${job.createdBy}`);
+              }}
             >
               {job.ownerName ? job.ownerName.charAt(0) : '?'}
             </div>
             <div className="ml-3">
               <p
-                onClick={(e) => { e.stopPropagation(); navigate(`/profile/${job.createdBy}`); }}
-                className="text-sm font-medium text-slate-900 cursor-pointer hover:text-primary-600 hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isOwner || isSelected) navigate(`/profile/${job.createdBy}`);
+                }}
+                className={`text-sm font-medium transition ${isOwner || isSelected
+                  ? 'text-slate-900 cursor-pointer hover:text-primary-600 hover:underline'
+                  : 'text-slate-500 cursor-default'
+                  }`}
               >
-                {job.ownerName || 'Bilinmeyen Kullanıcı'}
+                {(isOwner || isSelected)
+                  ? (job.ownerName || 'Bilinmeyen Kullanıcı')
+                  : (job.ownerName ? (() => {
+                    const parts = job.ownerName.trim().split(/\s+/);
+                    if (parts.length === 1) return `${parts[0].charAt(0)}.`;
+                    return `${parts[0].charAt(0)}. ${parts[parts.length - 1].charAt(0)}.`;
+                  })() : 'Av. Kullanıcı')}
               </p>
               {isOwner && <span className="text-xs text-primary-600 font-semibold">(Sizin Göreviniz)</span>}
             </div>

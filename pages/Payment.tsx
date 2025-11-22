@@ -1,41 +1,52 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CreditCard, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
-import { auth } from '../firebaseConfig';
+import { supabase } from '../supabaseClient';
+import { useAlert } from '../contexts/AlertContext';
 
 const PaymentPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { plan, price, period } = location.state || { plan: 'premium', price: 249, period: 'monthly' };
     const [loading, setLoading] = useState(false);
+    const { showAlert } = useAlert();
 
     const handlePayment = async () => {
         setLoading(true);
-        const user = auth.currentUser;
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         try {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            const userRef = doc(db, "users", user.uid);
-            await updateDoc(userRef, {
-                isPremium: true,
-                membershipType: plan,
-                premiumPlan: period,
-                premiumPrice: price,
-                premiumSince: Date.now(),
-                premiumUntil: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
-                updatedAt: serverTimestamp()
-            });
+            const { error } = await supabase.from('users').update({
+                is_premium: true,
+                membership_type: plan,
+                premium_plan: period,
+                premium_price: price,
+                premium_since: new Date().toISOString(),
+                premium_until: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
+                updated_at: new Date().toISOString()
+            }).eq('uid', user.id);
 
-            alert("Ödeme başarılı! Üyeliğiniz güncellendi.");
-            navigate('/dashboard');
+            if (error) throw error;
+
+            showAlert({
+                title: "Ödeme Başarılı!",
+                message: "Üyeliğiniz başarıyla güncellendi.",
+                type: "success",
+                confirmText: "Tamam",
+                onConfirm: () => navigate('/dashboard')
+            });
         } catch (error) {
             console.error("Payment error:", error);
-            alert("Ödeme sırasında bir hata oluştu.");
+            showAlert({
+                title: "Hata",
+                message: "Ödeme sırasında bir hata oluştu.",
+                type: "error",
+                confirmText: "Tamam"
+            });
         } finally {
             setLoading(false);
         }

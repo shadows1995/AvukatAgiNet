@@ -159,7 +159,12 @@ const AdminUsers = () => {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
-                                            {new Date(user.createdAt._seconds * 1000).toLocaleDateString('tr-TR')}
+                                            {(() => {
+                                                if (!user.createdAt) return '-';
+                                                const seconds = user.createdAt.seconds || user.createdAt._seconds;
+                                                if (seconds) return new Date(seconds * 1000).toLocaleDateString('tr-TR');
+                                                return new Date(user.createdAt).toLocaleDateString('tr-TR');
+                                            })()}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium">
                                             <button

@@ -24,6 +24,7 @@ export interface User {
   phone?: string;
   specializations?: string[];
   city: string;
+  address?: string;
   preferredCourthouses?: string[];
   isPremium: boolean;
   membershipType?: 'free' | 'premium' | 'premium_plus';
@@ -64,6 +65,7 @@ export interface Job {
   // New fields for Application Flow
   isUrgent?: boolean; // Acil İlan (5 dk süre)
   applicationDeadline?: any; // Timestamp when the application period ends
+  completedAt?: any; // Timestamp when the job was completed
 }
 
 export interface Application {

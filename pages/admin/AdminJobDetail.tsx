@@ -5,6 +5,7 @@ import {
     AlertCircle, Edit, Trash2, RefreshCw
 } from 'lucide-react';
 import { adminApi } from '../../services/adminApi';
+import { useAlert } from '../../contexts/AlertContext';
 
 interface JobDetailData {
     job: any;
@@ -22,6 +23,10 @@ const AdminJobDetail = () => {
 
     // Modal states (simplified for this implementation)
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [statusReason, setStatusReason] = useState('');
+
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (jobId) fetchJobDetail(jobId);
@@ -29,51 +34,145 @@ const AdminJobDetail = () => {
 
     const fetchJobDetail = async (id: string) => {
         try {
+            setLoading(true);
+            setError(null);
+            console.log("Fetching job details for ID:", id);
             const result = await adminApi.getJobDetail(id);
             setData(result);
-        } catch (error) {
-            console.error('Error fetching job:', error);
+        } catch (err: any) {
+            console.error('Error fetching job:', err);
+            setError(err.message || 'Görev detayları alınamadı');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleStatusChange = async (newStatus: string) => {
-        const reason = prompt('Durum değişikliği için sebep giriniz:');
-        if (!reason || !jobId) return;
+    const { showAlert } = useAlert();
+
+    const handleStatusUpdate = async () => {
+        if (!selectedStatus || !statusReason || !jobId) {
+            showAlert({ title: "Eksik Bilgi", message: "Lütfen yeni durum ve sebep giriniz.", type: "warning" });
+            return;
+        }
 
         try {
-            await adminApi.updateJobStatus(jobId, newStatus, reason);
-            alert('Görev durumu güncellendi');
+            await adminApi.updateJobStatus(jobId, selectedStatus, statusReason);
+            showAlert({ title: "Başarılı", message: "Görev durumu güncellendi.", type: "success" });
+            setIsStatusModalOpen(false);
+            setStatusReason('');
             fetchJobDetail(jobId);
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Hata oluştu');
+            showAlert({ title: "Hata", message: "Bir hata oluştu.", type: "error" });
         }
     };
 
     const handleDelete = async () => {
-        if (!confirm('Bu görevi silmek istediğinizden emin misiniz?')) return;
-        const reason = prompt('Silme sebebi:');
-        if (!reason || !jobId) return;
+        if (!jobId) return;
 
-        try {
-            await adminApi.deleteJob(jobId, reason);
-            alert('Görev silindi');
-            navigate('/admin/jobs');
-        } catch (error) {
-            console.error('Error deleting job:', error);
-            alert('Hata oluştu');
-        }
+        showAlert({
+            title: "Görevi Sil",
+            message: "Bu görevi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            type: "warning",
+            confirmText: "Evet, Sil",
+            cancelText: "Vazgeç",
+            onConfirm: () => {
+                setTimeout(() => {
+                    showAlert({
+                        title: "Silme Sebebi",
+                        message: "Lütfen silme sebebini belirtin:",
+                        type: "warning",
+                        inputPlaceholder: "Silme sebebi...",
+                        confirmText: "Sil",
+                        cancelText: "Vazgeç",
+                        onConfirm: async (reason) => {
+                            if (!reason) return;
+                            try {
+                                await adminApi.deleteJob(jobId, reason);
+                                showAlert({
+                                    title: "Başarılı",
+                                    message: "Görev silindi.",
+                                    type: "success",
+                                    onConfirm: () => navigate('/admin/jobs')
+                                });
+                            } catch (error) {
+                                console.error('Error deleting job:', error);
+                                showAlert({ title: "Hata", message: "Bir hata oluştu.", type: "error" });
+                            }
+                        }
+                    });
+                }, 300);
+            }
+        });
     };
 
     if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
+    if (error) return (
+        <div className="p-8 text-center">
+            <div className="text-red-500 font-bold mb-2">Hata Oluştu</div>
+            <p className="text-gray-600">{error}</p>
+            <p className="text-xs text-gray-400 mt-2">Job ID: {jobId}</p>
+            <button onClick={() => navigate('/admin/jobs')} className="mt-4 text-indigo-600 hover:underline">
+                Listeye Dön
+            </button>
+        </div>
+    );
     if (!data) return <div className="p-8 text-center">Görev bulunamadı</div>;
 
     const { job, owner, assignedLawyer, applications, history } = data;
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6 relative">
+            {/* Status Modal */}
+            {isStatusModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold mb-4">Görev Durumunu Değiştir</h3>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Yeni Durum</label>
+                            <select
+                                value={selectedStatus}
+                                onChange={(e) => setSelectedStatus(e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 border"
+                            >
+                                <option value="">Seçiniz...</option>
+                                <option value="open">Açık (Open)</option>
+                                <option value="in_progress">Devam Ediyor (In Progress)</option>
+                                <option value="completed">Tamamlandı (Completed)</option>
+                                <option value="cancelled">İptal Edildi (Cancelled)</option>
+                            </select>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Değişiklik Sebebi</label>
+                            <textarea
+                                value={statusReason}
+                                onChange={(e) => setStatusReason(e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-2 border"
+                                rows={3}
+                                placeholder="Bu değişikliği neden yapıyorsunuz?"
+                            ></textarea>
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setIsStatusModalOpen(false)}
+                                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                                İptal
+                            </button>
+                            <button
+                                onClick={handleStatusUpdate}
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                            >
+                                Güncelle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                 <div className="flex justify-between items-start">
@@ -81,7 +180,10 @@ const AdminJobDetail = () => {
                         <div className="flex items-center gap-3 mb-2">
                             <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
                             <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-800">
-                                {job.status.toUpperCase()}
+                                {job.status === 'open' ? 'AÇIK' :
+                                    job.status === 'in_progress' ? 'DEVAM EDİYOR' :
+                                        job.status === 'completed' ? 'TAMAMLANDI' :
+                                            job.status === 'cancelled' ? 'İPTAL' : job.status}
                             </span>
                         </div>
                         <p className="text-gray-500">Görev ID: {job.jobId}</p>
@@ -89,7 +191,10 @@ const AdminJobDetail = () => {
 
                     <div className="flex gap-2">
                         <button
-                            onClick={() => handleStatusChange(job.status === 'open' ? 'cancelled' : 'completed')}
+                            onClick={() => {
+                                setSelectedStatus(job.status);
+                                setIsStatusModalOpen(true);
+                            }}
                             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                         >
                             <Edit className="w-4 h-4" />
@@ -130,8 +235,15 @@ const AdminJobDetail = () => {
                                 <p className="font-medium">{job.city} - {job.courthouse}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Tarih</p>
-                                <p className="font-medium">{job.date} {job.time}</p>
+                                <p className="text-sm text-gray-500">Oluşturulma Tarihi</p>
+                                <p className="font-medium">
+                                    {(() => {
+                                        if (!job.createdAt) return '-';
+                                        const seconds = job.createdAt.seconds || job.createdAt._seconds;
+                                        if (seconds) return new Date(seconds * 1000).toLocaleDateString('tr-TR');
+                                        return new Date(job.createdAt).toLocaleDateString('tr-TR');
+                                    })()}
+                                </p>
                             </div>
                         </div>
 
@@ -183,7 +295,10 @@ const AdminJobDetail = () => {
                                     <div className="flex-1">
                                         <p className="font-medium text-gray-900">{item.action}</p>
                                         <p className="text-sm text-gray-600">
-                                            {item.adminEmail} • {new Date(item.timestamp._seconds * 1000).toLocaleString('tr-TR')}
+                                            {item.adminEmail} • {(() => {
+                                                const seconds = item.timestamp?.seconds || item.timestamp?._seconds;
+                                                return seconds ? new Date(seconds * 1000).toLocaleString('tr-TR') : '-';
+                                            })()}
                                         </p>
                                         {item.reason && (
                                             <p className="text-xs text-gray-500 mt-1">Sebep: {item.reason}</p>

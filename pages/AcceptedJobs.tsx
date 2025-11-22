@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, MapPin, Phone, MessageCircle, User as UserIcon, Calendar, Clock, CheckCircle, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Loader2, MapPin, Phone, MessageCircle, User as UserIcon, Calendar, Clock, CheckCircle, ArrowLeft, ChevronRight, Star } from 'lucide-react';
 import { Job, Application, User } from '../types';
-import { auth, db } from '../firebaseConfig';
-import { collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp, addDoc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
+import { useAlert } from '../contexts/AlertContext';
+import RatingModal from '../components/RatingModal';
 
 interface AcceptedJobData {
   job: Job;
@@ -16,74 +17,159 @@ const AcceptedJobs = () => {
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<AcceptedJobData | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [canRate, setCanRate] = useState(false);
   const navigate = useNavigate();
-  const user = auth.currentUser;
+  const { showAlert } = useAlert();
 
   useEffect(() => {
-    const fetchAcceptedJobs = async () => {
-      if (!user) return;
+    fetchAcceptedJobs();
+  }, []);
 
-      try {
-        // 1. Get my accepted applications
-        const appsQuery = query(
-          collection(db, "applications"),
-          where("applicantId", "==", user.uid),
-          where("status", "==", "accepted")
-        );
-        const appsSnap = await getDocs(appsQuery);
+  const fetchAcceptedJobs = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-        const jobsData: AcceptedJobData[] = [];
+    try {
+      const { data: jobsData, error: jobsError } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('selected_applicant', user.id)
+        .order('created_at', { ascending: false });
 
-        // 2. For each application, get Job and Owner details
-        await Promise.all(appsSnap.docs.map(async (appDoc) => {
-          const appData = { applicationId: appDoc.id, ...appDoc.data() } as Application;
+      if (jobsError) throw jobsError;
 
-          // Get Job
-          const jobRef = doc(db, "jobs", appData.jobId);
-          const jobSnap = await getDoc(jobRef);
+      const acceptedJobsData: AcceptedJobData[] = [];
 
-          if (jobSnap.exists()) {
-            const jobData = { jobId: jobSnap.id, ...jobSnap.data() } as Job;
+      if (jobsData) {
+        await Promise.all(jobsData.map(async (jobData) => {
+          const mappedJob: Job = {
+            jobId: jobData.job_id,
+            title: jobData.title,
+            description: jobData.description,
+            city: jobData.city,
+            courthouse: jobData.courthouse,
+            date: jobData.date,
+            time: jobData.time,
+            jobType: jobData.job_type,
+            offeredFee: jobData.offered_fee,
+            createdBy: jobData.created_by,
+            ownerName: jobData.owner_name,
+            ownerPhone: jobData.owner_phone,
+            status: jobData.status,
+            applicationsCount: jobData.applications_count,
+            createdAt: jobData.created_at,
+            updatedAt: jobData.updated_at,
+            isUrgent: jobData.is_urgent,
+            applicationDeadline: jobData.application_deadline,
+            selectedApplicant: jobData.selected_applicant,
+            completedAt: jobData.completed_at
+          };
 
-            // Only show if NOT completed (or if we want to show history, maybe filter differently)
-            // For now, let's show all, but visually distinguish or filter out completed if desired.
-            // User request implies "active" accepted jobs here, but let's keep all for now or filter?
-            // "Tamamladığı görevler Anasayfada arşiv kısmında görünmeli" -> So maybe remove from here if completed?
-            // Let's keep them here but marked as completed, or remove. 
-            // Let's filter out 'completed' ones to keep this list for "Active" tasks.
-            // Get Owner
-            const ownerRef = doc(db, "users", jobData.createdBy);
-            const ownerSnap = await getDoc(ownerRef);
+          const { data: appData } = await supabase
+            .from('applications')
+            .select('*')
+            .eq('job_id', jobData.job_id)
+            .eq('applicant_id', user.id)
+            .single();
 
-            if (ownerSnap.exists()) {
-              const ownerData = { uid: ownerSnap.id, ...ownerSnap.data() } as User;
-              jobsData.push({
-                job: jobData,
-                application: appData,
-                owner: ownerData
-              });
-            }
+          const mappedApp: Application = appData ? {
+            applicationId: appData.application_id,
+            jobId: appData.job_id,
+            applicantId: appData.applicant_id,
+            applicantName: appData.applicant_name,
+            applicantRating: appData.applicant_rating,
+            message: appData.message,
+            proposedFee: appData.proposed_fee,
+            status: appData.status,
+            createdAt: appData.created_at
+          } : {
+            jobId: jobData.job_id,
+            applicantId: user.id,
+            applicantName: user.user_metadata?.full_name || '',
+            message: '',
+            proposedFee: jobData.offered_fee,
+            status: 'accepted',
+            createdAt: new Date().toISOString()
+          };
+
+          const { data: ownerData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('uid', jobData.created_by)
+            .single();
+
+          if (ownerData) {
+            const mappedOwner: User = {
+              uid: ownerData.uid,
+              email: ownerData.email,
+              fullName: ownerData.full_name,
+              baroNumber: ownerData.baro_number,
+              baroCity: ownerData.baro_city,
+              phone: ownerData.phone,
+              specializations: ownerData.specializations,
+              city: ownerData.city,
+              preferredCourthouses: ownerData.preferred_courthouses,
+              isPremium: ownerData.is_premium,
+              membershipType: ownerData.membership_type,
+              premiumUntil: ownerData.premium_until,
+              premiumSince: ownerData.premium_since,
+              premiumPlan: ownerData.premium_plan,
+              premiumPrice: ownerData.premium_price,
+              role: ownerData.role,
+              rating: ownerData.rating,
+              completedJobs: ownerData.completed_jobs,
+              avatarUrl: ownerData.avatar_url,
+              createdAt: ownerData.created_at,
+              updatedAt: ownerData.updated_at,
+              jobStatus: ownerData.job_status,
+              aboutMe: ownerData.about_me,
+              title: ownerData.title,
+              address: ownerData.address
+            };
+
+            acceptedJobsData.push({
+              job: mappedJob,
+              application: mappedApp,
+              owner: mappedOwner
+            });
           }
         }));
-
-        // Sort by date (newest first)
-        jobsData.sort((a, b) => {
-          const dateA = a.job.createdAt?.seconds || 0;
-          const dateB = b.job.createdAt?.seconds || 0;
-          return dateB - dateA;
-        });
-
-        setAcceptedJobs(jobsData);
-
-      } catch (error) {
-        console.error("Error fetching accepted jobs:", error);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchAcceptedJobs();
-  }, [user]);
+      setAcceptedJobs(acceptedJobsData);
+    } catch (error) {
+      console.error("Error fetching accepted jobs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkCanRate = async (jobId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const { data: job } = await supabase
+      .from('jobs')
+      .select('lawyer_rated')
+      .eq('job_id', jobId)
+      .single();
+
+    return job && !job.lawyer_rated;
+  };
+
+  useEffect(() => {
+    if (selectedJob && selectedJob.job.status === 'completed') {
+      checkCanRate(selectedJob.job.jobId).then(setCanRate);
+    } else {
+      setCanRate(false);
+    }
+  }, [selectedJob]);
+
+  const handleRatingSuccess = () => {
+    setShowRatingModal(false);
+    setCanRate(false);
+  };
 
   const handleWhatsApp = (phone: string) => {
     const cleanPhone = phone.replace(/\D/g, '');
@@ -94,44 +180,66 @@ const AcceptedJobs = () => {
   };
 
   const handleCompleteTask = async () => {
-    if (!selectedJob || !user) return;
-    if (!confirm("Bu görevi tamamladığınızı onaylıyor musunuz?")) return;
+    if (!selectedJob) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    setCompleting(true);
-    try {
-      // 1. Update Job Status
-      await updateDoc(doc(db, "jobs", selectedJob.job.jobId!), {
-        status: 'completed',
-        completedAt: serverTimestamp()
-      });
+    showAlert({
+      title: "Görevi Tamamla",
+      message: "Bu görevi tamamladığınızı onaylıyor musunuz?",
+      type: "confirm",
+      confirmText: "Evet, Tamamla",
+      cancelText: "Vazgeç",
+      onConfirm: async () => {
+        setCompleting(true);
+        try {
+          const { error: jobError } = await supabase.from('jobs').update({
+            status: 'completed',
+            completed_at: new Date().toISOString()
+          }).eq('job_id', selectedJob.job.jobId);
 
-      // 2. Notify Owner
-      await addDoc(collection(db, "notifications"), {
-        userId: selectedJob.owner.uid,
-        title: "Görev Tamamlandı! 🎉",
-        message: `"${selectedJob.job.title}" görevi Av. ${user.displayName || 'Meslektaşınız'} tarafından tamamlandı.`,
-        type: "success",
-        read: false,
-        createdAt: serverTimestamp()
-      });
+          if (jobError) throw jobError;
 
-      alert("Görev başarıyla tamamlandı olarak işaretlendi.");
+          await supabase.from('notifications').insert({
+            user_id: selectedJob.owner.uid,
+            title: "Görev Tamamlandı! 🎉",
+            message: `"${selectedJob.job.title}" görevi Av. ${user.user_metadata?.full_name || 'Meslektaşınız'} tarafından tamamlandı.`,
+            type: "success",
+            read: false,
+            created_at: new Date().toISOString()
+          });
 
-      // Remove from list
-      setAcceptedJobs(prev => prev.filter(j => j.job.jobId !== selectedJob.job.jobId));
-      setSelectedJob(null);
+          showAlert({
+            title: "Başarılı",
+            message: "Görev başarıyla tamamlandı olarak işaretlendi.",
+            type: "success",
+            confirmText: "Tamam"
+          });
 
-    } catch (error) {
-      console.error("Error completing task:", error);
-      alert("Bir hata oluştu.");
-    } finally {
-      setCompleting(false);
-    }
+          setAcceptedJobs(prev => prev.map(j =>
+            j.job.jobId === selectedJob.job.jobId
+              ? { ...j, job: { ...j.job, status: 'completed' } }
+              : j
+          ));
+
+          setSelectedJob(prev => prev ? { ...prev, job: { ...prev.job, status: 'completed' } } : null);
+        } catch (error) {
+          console.error("Error completing task:", error);
+          showAlert({
+            title: "Hata",
+            message: "Bir hata oluştu.",
+            type: "error",
+            confirmText: "Tamam"
+          });
+        } finally {
+          setCompleting(false);
+        }
+      }
+    });
   };
 
   if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>;
 
-  // DETAIL VIEW
   if (selectedJob) {
     const { job, owner, application } = selectedJob;
     return (
@@ -180,7 +288,7 @@ const AcceptedJobs = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {owner.phone && (
                 <>
                   <button
@@ -199,26 +307,60 @@ const AcceptedJobs = () => {
               )}
             </div>
 
-            <div className="mt-8 pt-8 border-t border-slate-100">
+            <div className="pt-8 border-t border-slate-100">
               <button
                 onClick={handleCompleteTask}
-                disabled={completing}
-                className="w-full flex items-center justify-center px-6 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={completing || job.status === 'completed'}
+                className={`w-full flex items-center justify-center px-6 py-4 rounded-xl font-bold transition shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${job.status === 'completed'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-slate-900 text-white hover:bg-slate-800'
+                  }`}
               >
-                {completing ? <Loader2 className="animate-spin w-5 h-5 mr-2" /> : <CheckCircle className="w-5 h-5 mr-2" />}
-                Görevi Tamamla
+                {completing ? (
+                  <Loader2 className="animate-spin w-5 h-5 mr-2" />
+                ) : job.status === 'completed' ? (
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                ) : (
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                )}
+                {job.status === 'completed' ? 'Görevi Tamamladınız' : 'Görevi Tamamla'}
               </button>
+
+              {job.status === 'completed' && canRate && (
+                <button
+                  onClick={() => setShowRatingModal(true)}
+                  className="w-full flex items-center justify-center px-6 py-4 rounded-xl font-bold transition shadow-lg hover:shadow-xl bg-yellow-500 text-white hover:bg-yellow-600 mt-3"
+                >
+                  <Star className="w-5 h-5 mr-2" />
+                  Görev Sahibini Değerlendir
+                </button>
+              )}
+
+              {job.status === 'completed' && !canRate && (
+                <p className="text-center text-xs text-slate-500 mt-3">
+                  ✓ Görev sahibini değerlendirdiniz
+                </p>
+              )}
+
               <p className="text-center text-xs text-slate-400 mt-3">
                 Görevi tamamladığınızda görev sahibine bildirim gönderilecektir.
               </p>
             </div>
           </div>
         </div>
+
+        <RatingModal
+          isOpen={showRatingModal}
+          onClose={() => setShowRatingModal(false)}
+          jobId={job.jobId}
+          revieweeId={owner.uid}
+          revieweeName={owner.fullName}
+          onSuccess={handleRatingSuccess}
+        />
       </div>
     );
   }
 
-  // LIST VIEW
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-slate-900 mb-6">Aldığım Görevler</h2>
@@ -242,7 +384,7 @@ const AcceptedJobs = () => {
           {acceptedJobs.map((data) => (
             <div
               key={data.job.jobId}
-              onClick={() => navigate(`/job/${data.job.jobId}`)}
+              onClick={() => setSelectedJob(data)}
               className={`border rounded-xl p-6 hover:shadow-md transition cursor-pointer group flex justify-between items-center ${data.job.status === 'completed' ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-slate-200'
                 }`}
             >

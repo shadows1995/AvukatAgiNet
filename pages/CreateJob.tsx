@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Loader2, Briefcase, Send, AlertCircle } from 'lucide-react';
 import { User, JobType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
-import { db } from '../firebaseConfig';
-import { addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
+import { useNotification } from '../contexts/NotificationContext';
+import { useAlert } from '../contexts/AlertContext';
 
 const CreateJob = ({ user }: { user: User }) => {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
+  const { showAlert } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -42,36 +45,44 @@ const CreateJob = ({ user }: { user: User }) => {
     const jobDate = new Date(year, month - 1, day, hour, minute);
 
     if (jobDate < new Date()) {
-      alert("Geçmiş bir tarihe görev oluşturamazsınız. Lütfen ileri bir tarih ve saat seçiniz.");
+      showNotification('error', "Geçmiş bir tarihe görev oluşturamazsınız. Lütfen ileri bir tarih ve saat seçiniz.");
       setIsLoading(false);
       return;
     }
 
     try {
-      await addDoc(collection(db, "jobs"), {
+      const { error } = await supabase.from('jobs').insert({
         title: formData.title,
-        jobType: formData.type,
+        job_type: formData.type,
         city: formData.city,
         courthouse: formData.courthouse,
         date: formData.date,
         time: formData.time,
-        offeredFee: Number(formData.fee),
+        offered_fee: Number(formData.fee),
         description: formData.description,
-        createdBy: user.uid,
-        ownerName: user.fullName,
-        ownerPhone: user.phone || '',
+        created_by: user.uid,
+        owner_name: user.fullName,
+        owner_phone: user.phone || '',
         status: 'open',
-        applicationsCount: 0,
-        isUrgent: formData.isUrgent,
-        applicationDeadline: Timestamp.fromDate(deadlineDate),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        applications_count: 0,
+        is_urgent: formData.isUrgent,
+        application_deadline: deadlineDate.toISOString(),
+        // created_at and updated_at are handled by default
       });
 
-      navigate('/my-jobs');
+      if (error) throw error;
+
+      showAlert({
+        title: "Başarılı!",
+        message: "Göreviniz Başarıyla Yayımlanmıştır",
+        type: "success",
+        confirmText: "Tamam",
+        onConfirm: () => navigate('/my-jobs')
+      });
+
     } catch (error) {
       console.error("Error creating job: ", error);
-      alert("Görev oluşturulurken bir hata oluştu.");
+      showNotification('error', "Görev oluşturulurken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -221,8 +232,14 @@ const CreateJob = ({ user }: { user: User }) => {
                     checked={formData.isUrgent}
                     onChange={(e) => {
                       if (!user.isPremium && e.target.checked) {
-                        const confirm = window.confirm("Acil görev oluşturmak Premium özelliklerden biridir. Yükseltmek ister misiniz?");
-                        if (confirm) window.location.hash = "#/premium";
+                        showAlert({
+                          title: "Premium Özellik",
+                          message: "Acil görev oluşturmak Premium özelliklerden biridir. Yükseltmek ister misiniz?",
+                          type: "confirm",
+                          confirmText: "Premium'a Geç",
+                          cancelText: "Vazgeç",
+                          onConfirm: () => window.location.hash = "#/premium"
+                        });
                         return;
                       }
                       setFormData({ ...formData, isUrgent: e.target.checked });

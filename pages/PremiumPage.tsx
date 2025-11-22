@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { CheckCircle, Rocket, Zap, Crown, Shield, Loader2 } from 'lucide-react';
 import { User } from '../types';
-import { db } from '../firebaseConfig';
-import { doc, updateDoc } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
+import { useAlert } from '../contexts/AlertContext';
 
 const styles = {
     section: "relative py-20 bg-slate-50 min-h-screen",
@@ -36,6 +36,7 @@ const styles = {
 const PremiumPage = ({ user }: { user: User }) => {
     const [loading, setLoading] = useState<string | null>(null);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+    const { showAlert } = useAlert();
 
     const handleUpgrade = async (plan: 'premium' | 'premium_plus') => {
         setLoading(`${plan}-${billingCycle}`);
@@ -43,29 +44,98 @@ const PremiumPage = ({ user }: { user: User }) => {
         // Simulate payment processing
         setTimeout(async () => {
             try {
-                const now = Date.now();
+                const now = new Date();
                 const durationMs = billingCycle === 'monthly' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000;
+                const until = new Date(now.getTime() + durationMs);
 
-                await updateDoc(doc(db, "users", user.uid), {
-                    isPremium: true,
-                    membershipType: plan,
-                    premiumPlan: billingCycle,
-                    premiumSince: now,
-                    premiumUntil: now + durationMs,
-                    premiumPrice: plan === 'premium'
+                const { error } = await supabase.from('users').update({
+                    is_premium: true,
+                    membership_type: plan,
+                    premium_plan: billingCycle,
+                    premium_since: now.toISOString(),
+                    premium_until: until.toISOString(),
+                    premium_price: plan === 'premium'
                         ? (billingCycle === 'monthly' ? 300 : 1500)
                         : (billingCycle === 'monthly' ? 500 : 2500)
-                });
+                }).eq('uid', user.uid);
 
-                alert(`Tebrikler! ${plan === 'premium' ? 'Premium' : 'Premium +'} üyeliğiniz başarıyla aktif edildi.`);
-                window.location.reload();
+                if (error) throw error;
+
+                showAlert({
+                    title: "Tebrikler!",
+                    message: `${plan === 'premium' ? 'Premium' : 'Premium +'} üyeliğiniz başarıyla aktif edildi.`,
+                    type: "success",
+                    confirmText: "Tamam",
+                    onConfirm: () => window.location.reload()
+                });
             } catch (error) {
                 console.error("Upgrade error:", error);
-                alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+                showAlert({
+                    title: "Hata",
+                    message: "Bir hata oluştu. Lütfen tekrar deneyin.",
+                    type: "error",
+                    confirmText: "Tamam"
+                });
             } finally {
                 setLoading(null);
             }
         }, 1500);
+    };
+
+    const getPlanStatus = (planType: string) => {
+        const currentType = user.membershipType || 'free';
+
+        // 1. Is this the current plan?
+        if (planType === currentType) {
+            return {
+                text: "Mevcut Plan",
+                disabled: true,
+                style: styles.buttonDisabled,
+                isCurrent: true
+            };
+        }
+
+        // 2. Logic based on current user level
+        if (currentType === 'premium_plus') {
+            // User is top tier, everything else is included/lower
+            return {
+                text: "Pakete Dahil",
+                disabled: true,
+                style: styles.buttonDisabled,
+                isCurrent: false
+            };
+        }
+
+        if (currentType === 'premium') {
+            if (planType === 'free') {
+                return {
+                    text: "Pakete Dahil",
+                    disabled: true,
+                    style: styles.buttonDisabled,
+                    isCurrent: false
+                };
+            }
+            if (planType === 'premium_plus') {
+                return {
+                    text: "Hemen Yükselt",
+                    disabled: false,
+                    style: styles.buttonSecondary, // Premium+ uses secondary style in original, but maybe primary is better? Original used secondary.
+                    isCurrent: false
+                };
+            }
+        }
+
+        // User is free
+        if (currentType === 'free') {
+            return {
+                text: "Hemen Yükselt",
+                disabled: false,
+                style: planType === 'premium' ? styles.buttonPrimary : styles.buttonSecondary,
+                isCurrent: false
+            };
+        }
+
+        return { text: "Seç", disabled: false, style: styles.buttonSecondary, isCurrent: false };
     };
 
     const pricingPlans = [
@@ -81,15 +151,13 @@ const PremiumPage = ({ user }: { user: User }) => {
                 "Mesajlaşma"
             ],
             icon: <Rocket className="w-12 h-12 text-cyan-500" />,
-            buttonStyle: styles.buttonSecondary,
-            buttonText: "Mevcut Plan",
-            isCurrent: user.membershipType === 'free' || !user.isPremium
+            ...getPlanStatus('free')
         },
         {
             type: 'premium',
             title: "Premium",
             description: "İşlerini büyütmek isteyenler için",
-            price: billingCycle === 'monthly' ? 300 : 125, // 1500/12 = 125
+            price: billingCycle === 'monthly' ? 300 : 125,
             originalPriceYearly: 1500,
             features: [
                 "Her Şey Dahil (Başlangıç)",
@@ -99,17 +167,15 @@ const PremiumPage = ({ user }: { user: User }) => {
                 "Bölgesel E-posta Bildirimleri"
             ],
             icon: <Zap className="w-12 h-12 text-indigo-500" />,
-            buttonStyle: styles.buttonPrimary,
             badge: "En Popüler",
             badgeColor: "bg-gradient-to-r from-indigo-500 to-purple-600",
-            buttonText: "Hemen Yükselt",
-            isCurrent: user.membershipType === 'premium'
+            ...getPlanStatus('premium')
         },
         {
             type: 'premium_plus',
             title: "Premium +",
             description: "Profesyoneller için tam paket",
-            price: billingCycle === 'monthly' ? 500 : 208, // 2500/12 ~= 208
+            price: billingCycle === 'monthly' ? 500 : 208,
             originalPriceYearly: 2500,
             features: [
                 "Tüm Premium Özellikleri",
@@ -119,9 +185,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                 "Para İadesi Garantisi"
             ],
             icon: <Crown className="w-12 h-12 text-pink-500" />,
-            buttonStyle: styles.buttonSecondary,
-            buttonText: "Hemen Yükselt",
-            isCurrent: user.membershipType === 'premium_plus'
+            ...getPlanStatus('premium_plus')
         }
     ];
 
@@ -156,8 +220,8 @@ const PremiumPage = ({ user }: { user: User }) => {
                         <div
                             key={index}
                             className={`${styles.card} ${plan.title === "Premium"
-                                    ? "border-indigo-500 border-t-4 scale-105 z-10 shadow-xl"
-                                    : "border-slate-200 border-t-4 hover:border-indigo-300"
+                                ? "border-indigo-500 border-t-4 scale-105 z-10 shadow-xl"
+                                : "border-slate-200 border-t-4 hover:border-indigo-300"
                                 }`}
                         >
                             {plan.badge && (
@@ -194,19 +258,14 @@ const PremiumPage = ({ user }: { user: User }) => {
 
                             <div className="mt-auto flex flex-col items-center w-full">
                                 <button
-                                    disabled={plan.isCurrent || (loading !== null)}
-                                    onClick={() => plan.type !== 'free' && handleUpgrade(plan.type as 'premium' | 'premium_plus')}
-                                    className={`${styles.buttonBase} ${plan.isCurrent
-                                            ? styles.buttonDisabled
-                                            : plan.buttonStyle
-                                        }`}
+                                    disabled={plan.disabled || (loading !== null)}
+                                    onClick={() => !plan.disabled && handleUpgrade(plan.type as 'premium' | 'premium_plus')}
+                                    className={`${styles.buttonBase} ${plan.style}`}
                                 >
                                     {loading === `${plan.type}-${billingCycle}` ? (
                                         <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : plan.isCurrent ? (
-                                        'Mevcut Plan'
                                     ) : (
-                                        plan.buttonText
+                                        plan.text
                                     )}
                                 </button>
                                 <p className={`${styles.noCredit} text-center`}>

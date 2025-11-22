@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Gavel, ArrowRight, Activity, CheckCircle, X, Star, ShieldCheck, Briefcase, Loader2, AlertCircle, User as UserIcon } from 'lucide-react';
 import { User, UserRole } from '../types';
-import { auth, db } from '../firebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '../supabaseClient';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
+import { useNotification } from '../contexts/NotificationContext';
+import { useAlert } from '../contexts/AlertContext';
 
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-2 ${className}`}>
@@ -103,7 +103,7 @@ export const LandingPage = () => (
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Kolay Görev Oluşturma</h3>
             <p className="text-slate-600 leading-relaxed">
-              Yapay zeka desteği ile saniyeler içinde detaylı görev oluşturun. Şehir, adliye ve ücret bilgisini girin, gerisini bize bırakın.
+              Kolay arayüz ile saniyeler içinde detaylı görev oluşturun. Şehir, adliye ve ücret bilgisini girin, gerisini bize bırakın.
             </p>
           </div>
 
@@ -136,6 +136,8 @@ export const LandingPage = () => (
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
+  const { showAlert } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -146,6 +148,7 @@ export const RegisterPage = () => {
     barCity: 'İstanbul',
     preferredCourthouses: [] as string[]
   });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleCourthouseToggle = (courthouse: string) => {
     setFormData(prev => {
@@ -164,32 +167,55 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!agreedToTerms) {
+      showNotification('warning', "Lütfen Kullanıcı Sözleşmesi ve Gizlilik Politikasını onaylayın.");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      const user = userCredential.user;
-
-      const userData: User = {
-        uid: user.uid,
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
-        fullName: `${formData.firstName} ${formData.lastName}`,
-        baroNumber: formData.barNo,
-        baroCity: formData.barCity,
-        city: formData.barCity,
-        preferredCourthouses: formData.preferredCourthouses,
-        isPremium: false,
-        role: UserRole.FREE,
-        rating: 0,
-        completedJobs: 0,
-        createdAt: serverTimestamp(),
-        jobStatus: 'active'
-      };
+        password: formData.password,
+        options: {
+          data: {
+            full_name: `${formData.firstName} ${formData.lastName}`,
+          }
+        }
+      });
 
-      await setDoc(doc(db, "users", user.uid), userData);
-      navigate('/dashboard');
+      if (error) throw error;
+
+      if (data.user) {
+        // Update additional fields that might not be handled by trigger or need explicit setting
+        const { error: updateError } = await supabase.from('users').update({
+          baro_number: formData.barNo,
+          baro_city: formData.barCity,
+          city: formData.barCity,
+          preferred_courthouses: formData.preferredCourthouses,
+          role: UserRole.FREE,
+          rating: 0,
+          completed_jobs: 0,
+          job_status: 'active'
+        }).eq('uid', data.user.id);
+
+        if (updateError) {
+          console.error("Error updating user profile:", updateError);
+          // Continue anyway as the user is created
+        }
+
+        showAlert({
+          title: "Kayıt Başarılı",
+          message: "E-mail adresinize Doğrulama maili gönderildi. Lütfen kutunuzu kontrol ediniz.",
+          type: "success",
+          confirmText: "Giriş Yap",
+          onConfirm: () => navigate('/login')
+        });
+      }
     } catch (error: any) {
       console.error("Error signing up:", error);
-      alert("Kayıt hatası: " + error.message);
+      showNotification('error', "Kayıt hatası: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -264,6 +290,25 @@ export const RegisterPage = () => {
             <label className="block text-sm font-medium text-slate-700 mb-1">Şifre</label>
             <input type="password" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
           </div>
+
+          <div className="flex items-start mt-4">
+            <div className="flex items-center h-5">
+              <input
+                id="terms"
+                name="terms"
+                type="checkbox"
+                required
+                className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="terms" className="font-medium text-slate-700">
+                <Link to="/terms" className="text-primary-600 hover:underline" target="_blank">Kullanıcı Sözleşmesi</Link>'ni ve <Link to="/privacy" className="text-primary-600 hover:underline" target="_blank">Gizlilik Politikası</Link>'nı okudum ve kabul ediyorum.
+              </label>
+            </div>
+          </div>
           <button type="submit" disabled={isLoading} className="w-full bg-primary-600 text-white py-3 rounded-lg font-bold mt-6 hover:bg-primary-700 transition shadow-lg hover:shadow-primary-500/30 disabled:opacity-70">
             {isLoading ? <Loader2 className="animate-spin inline h-5 w-5" /> : 'Kayıt Ol'}
           </button>
@@ -287,7 +332,11 @@ export const LoginPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) throw error;
     } catch (err: any) {
       console.error(err);
       setError('Giriş yapılamadı. E-posta veya şifre hatalı.');
