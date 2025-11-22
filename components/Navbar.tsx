@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Gavel, Bell, Settings, LogOut, Sparkles, Menu, X, Crown, Calendar, CreditCard, CheckCircle } from 'lucide-react';
+import { Gavel, Bell, Settings, LogOut, Sparkles, Menu, X, Crown, Calendar, CreditCard, CheckCircle, Shield } from 'lucide-react';
 import { User, Notification } from '../types';
 import { db } from '../firebaseConfig';
 import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
@@ -128,6 +128,11 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 <Link to="/my-jobs" className={isActive('/my-jobs')}>Görevlerim</Link>
                 <Link to="/accepted-jobs" className={isActive('/accepted-jobs')}>Aldığım Görevler</Link>
                 <Link to="/create-job" className={isActive('/create-job')}>Görev Ver</Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin" className={`${isActive('/admin')} text-red-600 hover:text-red-700 hover:bg-red-50`}>
+                    <Shield className="w-4 h-4 mr-1 inline-block" /> Admin
+                  </Link>
+                )}
                 {!user.isPremium && (
                   <Link to="/premium" className="flex items-center text-secondary-600 font-medium bg-secondary-50 px-3 py-2 rounded-md hover:bg-secondary-100 transition whitespace-nowrap text-sm">
                     <Sparkles className="w-4 h-4 mr-1" /> Premium
@@ -230,6 +235,11 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <Link to="/create-job" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
           <Link to="/my-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
           <Link to="/accepted-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>
+          {user.role === 'admin' && (
+            <Link to="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">
+              <Shield className="w-4 h-4 mr-2 inline-block" /> Admin Paneli
+            </Link>
+          )}
           <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Ayarlar</Link>
           <Link to={`/profile/${user.uid}`} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Profilim</Link>
           <button onClick={onLogout} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
