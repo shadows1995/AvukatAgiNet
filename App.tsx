@@ -16,10 +16,20 @@ import CreateJob from './pages/CreateJob';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import { LandingPage, LoginPage, RegisterPage } from './pages/AuthPages';
-import PremiumPage from './pages/Premium';
+import PremiumPage from './pages/PremiumPage';
 import PaymentPage from './pages/Payment';
 import AcceptedJobs from './pages/AcceptedJobs';
 import JobDetails from './pages/JobDetails';
+
+// Admin Imports
+import RequireAdmin from './components/RequireAdmin';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminJobs from './pages/admin/AdminJobs';
+import AdminJobDetail from './pages/admin/AdminJobDetail';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminUserDetail from './pages/admin/AdminUserDetail';
+import AdminSecurity from './pages/admin/AdminSecurity';
 
 const AppContent = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -75,6 +85,20 @@ const AppContent = () => {
           <Route path="/accepted-jobs" element={user ? <AcceptedJobs /> : <Navigate to="/login" />} />
           <Route path="/job/:jobId" element={user ? <JobDetails user={user} /> : <Navigate to="/login" />} />
           <Route path="/profile/:userId" element={user ? <ProfilePage currentUser={user} /> : <Navigate to="/login" />} />
+          {/* Admin Routes */}
+          <Route element={<RequireAdmin />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="jobs" element={<AdminJobs />} />
+              <Route path="jobs/:jobId" element={<AdminJobDetail />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="users/:userId" element={<AdminUserDetail />} />
+              <Route path="security" element={<AdminSecurity />} />
+            </Route>
+          </Route>
+
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
       {showFooter && <Footer />}
