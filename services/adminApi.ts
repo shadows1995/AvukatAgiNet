@@ -98,6 +98,22 @@ export const adminApi = {
             .eq('user_id', userId)
             .eq('is_active', true);
 
+
+
+        // Fetch assigned jobs (jobs where this user is the assigned lawyer)
+        const { data: assignedJobs } = await supabase
+            .from('jobs')
+            .select('*')
+            .eq('assigned_to', userId)
+            .order('created_at', { ascending: false });
+
+        // Fetch applications (jobs this user has applied to)
+        const { data: applications } = await supabase
+            .from('applications')
+            .select('*, jobs(*)') // Join with jobs to get job details
+            .eq('applicant_id', userId)
+            .order('created_at', { ascending: false });
+
         return {
             user,
             stats: {
@@ -107,7 +123,9 @@ export const adminApi = {
                 totalEarnings: 0 // Needs a separate calculation if needed
             },
             recentLogins: [], // Supabase auth logs are not directly accessible this way usually
-            activeBans: activeBans || []
+            activeBans: activeBans || [],
+            assignedJobs: assignedJobs || [],
+            applications: applications || []
         };
     },
 

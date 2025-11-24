@@ -15,7 +15,7 @@ const TermsOfUse = () => {
                 <div className="prose prose-slate max-w-none">
                     <h3>1. Taraflar</h3>
                     <p>
-                        İşbu Kullanım Sözleşmesi ("Sözleşme"), AvukatNet platformu ("Platform") ile Platform'a üye olan kullanıcı ("Kullanıcı") arasında akdedilmiştir.
+                        İşbu Kullanım Sözleşmesi ("Sözleşme"), AvukatAğı platformu ("Platform") ile Platform'a üye olan kullanıcı ("Kullanıcı") arasında akdedilmiştir.
                     </p>
 
                     <h3>2. Konu</h3>
@@ -37,12 +37,12 @@ const TermsOfUse = () => {
 
                     <h3>5. Fikri Mülkiyet</h3>
                     <p>
-                        Platform'un tasarımı, yazılımı ve içeriği AvukatNet'in mülkiyetindedir. İzinsiz kopyalanamaz ve kullanılamaz.
+                        Platform'un tasarımı, yazılımı ve içeriği AvukatAğı'nın mülkiyetindedir. İzinsiz kopyalanamaz ve kullanılamaz.
                     </p>
 
                     <h3>6. Değişiklikler</h3>
                     <p>
-                        AvukatNet, işbu Sözleşme'yi dilediği zaman güncelleme hakkını saklı tutar. Güncel sözleşme Platform'da yayınlandığı tarihte yürürlüğe girer.
+                        AvukatAğı, işbu Sözleşme'yi dilediği zaman güncelleme hakkını saklı tutar. Güncel sözleşme Platform'da yayınlandığı tarihte yürürlüğe girer.
                     </p>
 
                     <div className="mt-8 pt-8 border-t border-slate-100 text-sm text-slate-500">

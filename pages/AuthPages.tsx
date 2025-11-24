@@ -13,7 +13,7 @@ const Logo = ({ className = "" }: { className?: string }) => (
       <Gavel className="h-6 w-6" />
     </div>
     <span className="font-bold text-xl tracking-tight text-slate-800">
-      Avukat<span className="text-primary-600">Net</span>
+      Avukat<span className="text-primary-600">Ağı</span>
     </span>
   </div>
 );
@@ -92,7 +92,7 @@ export const LandingPage = () => (
         </div>
 
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-slate-900">Neden AvukatNet?</h2>
+          <h2 className="text-3xl font-bold text-slate-900">Neden AvukatAğı?</h2>
           <p className="mt-4 text-lg text-slate-600">Tek platformda güvenli ve hızlı hukuki işbirliği</p>
         </div>
 
@@ -143,27 +143,12 @@ export const RegisterPage = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     barNo: '',
-    barCity: 'İstanbul',
-    preferredCourthouses: [] as string[]
+    barCity: 'İstanbul'
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-
-  const handleCourthouseToggle = (courthouse: string) => {
-    setFormData(prev => {
-      const current = prev.preferredCourthouses;
-      if (current.includes(courthouse)) {
-        return { ...prev, preferredCourthouses: current.filter(c => c !== courthouse) };
-      } else {
-        return { ...prev, preferredCourthouses: [...current, courthouse] };
-      }
-    });
-  };
-
-  useEffect(() => {
-    setFormData(prev => ({ ...prev, preferredCourthouses: [] }));
-  }, [formData.barCity]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,7 +178,7 @@ export const RegisterPage = () => {
           baro_number: formData.barNo,
           baro_city: formData.barCity,
           city: formData.barCity,
-          preferred_courthouses: formData.preferredCourthouses,
+          phone: formData.phone,
           role: UserRole.FREE,
           rating: 0,
           completed_jobs: 0,
@@ -220,8 +205,6 @@ export const RegisterPage = () => {
       setIsLoading(false);
     }
   };
-
-  const currentCourthouses = COURTHOUSES[formData.barCity] || [];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
@@ -250,6 +233,10 @@ export const RegisterPage = () => {
             <label className="block text-sm font-medium text-slate-700 mb-1">E-posta</label>
             <input type="email" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Telefon Numarası</label>
+            <input type="tel" required placeholder="0555 555 55 55" className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Baro / Şehir</label>
@@ -260,29 +247,6 @@ export const RegisterPage = () => {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Sicil No</label>
               <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barNo} onChange={e => setFormData({ ...formData, barNo: e.target.value })} />
-            </div>
-          </div>
-
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-            <label className="block text-sm font-semibold text-slate-800 mb-2">
-              Görev Almak İstediğiniz Adliyeler ({formData.barCity})
-            </label>
-            <p className="text-xs text-slate-500 mb-3">
-              Sadece ulaşım sağlayabileceğiniz ve göreve hazır olduğunuz adliyeleri seçiniz.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-              {currentCourthouses.length > 0 ? (
-                currentCourthouses.map(ch => (
-                  <label key={ch} className="flex items-center space-x-2 p-2 hover:bg-white rounded cursor-pointer">
-                    <input type="checkbox" checked={formData.preferredCourthouses.includes(ch)} onChange={() => handleCourthouseToggle(ch)} className="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
-                    <span className="text-sm text-slate-700">{ch}</span>
-                  </label>
-                ))
-              ) : (
-                <div className="col-span-2 text-center text-sm text-slate-400 italic py-2">
-                  Bu şehir için kayıtlı adliye bulunamadı.
-                </div>
-              )}
             </div>
           </div>
 
@@ -376,7 +340,7 @@ export const LoginPage = () => {
           <div>
             <div className="flex justify-between mb-1">
               <label className="block text-sm font-medium text-slate-700">Şifre</label>
-              <a href="#" className="text-xs text-primary-600 hover:underline font-medium">Şifremi Unuttum?</a>
+              <Link to="/forgot-password" class="text-xs text-primary-600 hover:underline font-medium">Şifremi Unuttum?</Link>
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -434,6 +398,198 @@ export const LoginPage = () => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+export const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+
+      if (error) throw error;
+
+      setMessage({
+        text: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
+        type: 'success'
+      });
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      setMessage({
+        text: 'Bir hata oluştu: ' + error.message,
+        type: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-primary-100 p-3 rounded-full">
+              <ShieldCheck className="h-8 w-8 text-primary-600" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Şifremi Unuttum</h2>
+          <p className="text-slate-500 mt-2">E-posta adresinizi girerek şifrenizi sıfırlayabilirsiniz.</p>
+        </div>
+
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg text-sm flex items-center ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+            {message.type === 'success' ? <CheckCircle className="h-5 w-5 mr-2" /> : <AlertCircle className="h-5 w-5 mr-2" />}
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">E-posta</label>
+            <input
+              type="email"
+              required
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="ornek@avukat.com"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition shadow-lg hover:shadow-primary-500/30 disabled:opacity-70 flex justify-center items-center"
+          >
+            {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Sıfırlama Bağlantısı Gönder'}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-sm text-slate-500">
+          <Link to="/login" className="text-primary-600 font-semibold hover:underline flex items-center justify-center gap-1">
+            <ArrowRight className="w-4 h-4 rotate-180" /> Giriş sayfasına dön
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const ResetPasswordPage = () => {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if we have a session (which happens after clicking the email link)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setMessage({
+          text: 'Geçersiz veya süresi dolmuş bağlantı. Lütfen tekrar deneyin.',
+          type: 'error'
+        });
+      }
+    });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setMessage({ text: 'Şifreler eşleşmiyor.', type: 'error' });
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: password });
+
+      if (error) throw error;
+
+      setMessage({
+        text: 'Şifreniz başarıyla güncellendi. Giriş sayfasına yönlendiriliyorsunuz...',
+        type: 'success'
+      });
+
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (error: any) {
+      console.error("Update password error:", error);
+      setMessage({
+        text: 'Bir hata oluştu: ' + error.message,
+        type: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-primary-100 p-3 rounded-full">
+              <ShieldCheck className="h-8 w-8 text-primary-600" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">Yeni Şifre Belirle</h2>
+          <p className="text-slate-500 mt-2">Lütfen hesabınız için yeni bir şifre girin.</p>
+        </div>
+
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg text-sm flex items-center ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+            {message.type === 'success' ? <CheckCircle className="h-5 w-5 mr-2" /> : <AlertCircle className="h-5 w-5 mr-2" />}
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Yeni Şifre</label>
+            <input
+              type="password"
+              required
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Yeni Şifre (Tekrar)</label>
+            <input
+              type="password"
+              required
+              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition shadow-lg hover:shadow-primary-500/30 disabled:opacity-70 flex justify-center items-center"
+          >
+            {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Şifreyi Güncelle'}
+          </button>
+        </form>
       </div>
     </div>
   );

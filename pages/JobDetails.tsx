@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import ApplyModal from '../components/ApplyModal';
 import { useAlert } from '../contexts/AlertContext';
 
+
 const JobDetails = ({ user }: { user: User }) => {
     const { jobId } = useParams();
     const navigate = useNavigate();
@@ -328,14 +329,30 @@ const JobDetails = ({ user }: { user: User }) => {
                                     <CheckCircle className="w-5 h-5 mr-2" />
                                     Bu göreve başvurdunuz ({myApplication.status === 'pending' ? 'Beklemede' : myApplication.status === 'accepted' ? 'Kabul Edildi' : 'Reddedildi'})
                                 </div>
-                            ) : (
-                                <button
-                                    onClick={() => setIsApplyModalOpen(true)}
-                                    className="w-full py-4 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                                >
-                                    Göreve Başvur
-                                </button>
-                            )}
+                            ) : (() => {
+                                // Calculate application deadline
+                                const lockDuration = job.isUrgent ? 5 : 15;
+                                const applicationDeadline = new Date(job.createdAt).getTime() + lockDuration * 60000;
+                                const isApplicationClosed = Date.now() > applicationDeadline;
+
+                                if (isApplicationClosed) {
+                                    return (
+                                        <div className="bg-slate-100 text-slate-500 p-4 rounded-xl border border-slate-200 flex items-center justify-center font-bold">
+                                            <Clock className="w-5 h-5 mr-2" />
+                                            Başvuru süresi doldu
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <button
+                                        onClick={() => setIsApplyModalOpen(true)}
+                                        className="w-full py-4 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                    >
+                                        Göreve Başvur
+                                    </button>
+                                );
+                            })()}
                         </div>
                     )}
                 </div>

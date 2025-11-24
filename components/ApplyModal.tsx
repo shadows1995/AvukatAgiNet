@@ -6,6 +6,7 @@ import Toast from './Toast';
 
 import { useAlert } from '../contexts/AlertContext';
 
+
 const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () => void }) => {
   const [message, setMessage] = useState('Görevle ilgileniyorum. Müsaitim.');
   const [bid, setBid] = useState(job.offeredFee.toString());

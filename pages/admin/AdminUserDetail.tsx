@@ -13,6 +13,8 @@ interface UserDetailData {
     stats: any;
     recentLogins: any[];
     activeBans: any[];
+    assignedJobs: any[];
+    applications: any[];
 }
 
 const AdminUserDetail = () => {
@@ -127,7 +129,31 @@ const AdminUserDetail = () => {
     if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
     if (!data) return <div className="p-8 text-center">Kullanıcı bulunamadı</div>;
 
-    const { user, stats, recentLogins, activeBans } = data;
+    const { user, stats, recentLogins, activeBans, assignedJobs, applications } = data;
+
+    // Premium Calculations
+    const getPremiumDuration = () => {
+        if (!user.premium_since) return null;
+        const start = new Date(user.premium_since);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    };
+
+    const getPremiumRemaining = () => {
+        if (!user.premium_until) return null;
+        const end = new Date(user.premium_until);
+        const now = new Date();
+        if (end < now) return 0;
+        const diffTime = Math.abs(end.getTime() - now.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    };
+
+    const premiumDays = getPremiumDuration();
+    const remainingDays = getPremiumRemaining();
+
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
@@ -139,30 +165,31 @@ const AdminUserDetail = () => {
                             <User className="w-8 h-8 text-indigo-600" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{user.fullName}</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">{user.full_name || user.fullName}</h1>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="px-2 py-0.5 rounded bg-gray-100 text-xs font-semibold uppercase text-gray-600">
                                     {user.role}
                                 </span>
-                                <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${user.accountStatus === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${user.account_status === 'active' || user.accountStatus === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
-                                    {user.accountStatus}
+                                    {user.account_status || user.accountStatus}
                                 </span>
                             </div>
                             <p className="text-gray-500 text-sm mt-1">ID: {user.uid}</p>
                             <p className="text-gray-500 text-sm mt-1">
                                 Kayıt Tarihi: {(() => {
-                                    if (!user.createdAt) return '-';
-                                    const seconds = user.createdAt.seconds || user.createdAt._seconds;
+                                    if (!user.created_at && !user.createdAt) return '-';
+                                    const dateVal = user.created_at || user.createdAt;
+                                    const seconds = dateVal.seconds || dateVal._seconds;
                                     if (seconds) return new Date(seconds * 1000).toLocaleDateString('tr-TR');
-                                    return new Date(user.createdAt).toLocaleDateString('tr-TR');
+                                    return new Date(dateVal).toLocaleDateString('tr-TR');
                                 })()}
                             </p>
                         </div>
                     </div>
 
                     <div className="flex gap-2">
-                        {user.accountStatus === 'banned' ? (
+                        {(user.account_status === 'banned' || user.accountStatus === 'banned') ? (
                             <button onClick={handleUnban} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                                 <CheckCircle className="w-4 h-4" /> Banı Kaldır
                             </button>
@@ -232,10 +259,144 @@ const AdminUserDetail = () => {
                             </table>
                         )}
                     </div>
+
+                    {/* Assigned Jobs */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <h2 className="text-lg font-semibold mb-4">Aldığı Görevler ({assignedJobs?.length || 0})</h2>
+                        {assignedJobs?.length === 0 ? (
+                            <p className="text-gray-500">Henüz görev almadı.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-gray-50 text-gray-500">
+                                        <tr>
+                                            <th className="px-4 py-2">Başlık</th>
+                                            <th className="px-4 py-2">Şehir/Adliye</th>
+                                            <th className="px-4 py-2">Durum</th>
+                                            <th className="px-4 py-2">Tarih</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {assignedJobs?.map((job: any) => (
+                                            <tr key={job.job_id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/admin/jobs/${job.job_id}`)}>
+                                                <td className="px-4 py-2 font-medium text-indigo-600">{job.title}</td>
+                                                <td className="px-4 py-2">{job.city} / {job.courthouse}</td>
+                                                <td className="px-4 py-2">
+                                                    <span className={`px-2 py-1 rounded text-xs font-semibold uppercase ${job.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                                            job.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                                                                'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {job.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    {new Date(job.created_at).toLocaleDateString('tr-TR')}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Applications */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <h2 className="text-lg font-semibold mb-4">Başvurular ({applications?.length || 0})</h2>
+                        {applications?.length === 0 ? (
+                            <p className="text-gray-500">Henüz başvuru yapmadı.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-gray-50 text-gray-500">
+                                        <tr>
+                                            <th className="px-4 py-2">Görev</th>
+                                            <th className="px-4 py-2">Teklif</th>
+                                            <th className="px-4 py-2">Durum</th>
+                                            <th className="px-4 py-2">Tarih</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {applications?.map((app: any) => (
+                                            <tr key={app.application_id} className="border-b">
+                                                <td className="px-4 py-2 font-medium">
+                                                    {app.jobs?.title || 'Silinmiş Görev'}
+                                                </td>
+                                                <td className="px-4 py-2">{app.proposed_fee} TL</td>
+                                                <td className="px-4 py-2">
+                                                    <span className={`px-2 py-1 rounded text-xs font-semibold uppercase ${app.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                                            app.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                                'bg-yellow-100 text-yellow-800'
+                                                        }`}>
+                                                        {app.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    {new Date(app.created_at).toLocaleDateString('tr-TR')}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Right: Info */}
                 <div className="space-y-6">
+                    {/* Premium Details */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <Shield className="w-5 h-5 text-indigo-600" />
+                            Üyelik Detayları
+                        </h2>
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-sm text-gray-500">Üyelik Tipi</p>
+                                <p className="font-medium uppercase text-indigo-600">{user.membership_type || user.membershipType || 'Free'}</p>
+                            </div>
+
+                            {(user.membership_type === 'premium' || user.membership_type === 'premium_plus' || user.membershipType === 'premium' || user.membershipType === 'premium_plus') && (
+                                <>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-sm text-gray-500">Başlangıç</p>
+                                            <p className="font-medium">
+                                                {user.premium_since || user.premiumSince ? new Date(user.premium_since || user.premiumSince).toLocaleDateString('tr-TR') : '-'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">Bitiş</p>
+                                            <p className="font-medium">
+                                                {user.premium_until || user.premiumUntil ? new Date(user.premium_until || user.premiumUntil).toLocaleDateString('tr-TR') : 'Süresiz'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-2 border-t border-gray-100">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-sm text-gray-600">Geçen Süre</span>
+                                            <span className="font-bold text-gray-900">{premiumDays || 0} Gün</span>
+                                        </div>
+                                        {remainingDays !== null && (
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm text-gray-600">Kalan Süre</span>
+                                                <span className="font-bold text-green-600">{remainingDays} Gün</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+
+                            {(user.membership_type === 'free' || (!user.membership_type && !user.membershipType) || user.membershipType === 'free') && (
+                                <div className="p-3 bg-gray-50 rounded text-sm text-gray-500 text-center">
+                                    Kullanıcı premium üye değil.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
                         <h2 className="text-lg font-semibold mb-4">İletişim</h2>
                         <div className="space-y-3">
@@ -257,7 +418,7 @@ const AdminUserDetail = () => {
                                 <MapPin className="w-5 h-5 text-gray-400" />
                                 <div>
                                     <p className="text-sm text-gray-500">Baro</p>
-                                    <p className="font-medium">{user.baroCity} - {user.baroNumber}</p>
+                                    <p className="font-medium">{user.baro_city || user.baroCity} - {user.baro_number || user.baroNumber}</p>
                                 </div>
                             </div>
                         </div>

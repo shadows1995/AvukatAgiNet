@@ -10,7 +10,7 @@ const Logo = ({ className = "" }: { className?: string }) => (
       <Gavel className="h-6 w-6" />
     </div>
     <span className="font-bold text-xl tracking-tight text-slate-800">
-      Avukat<span className="text-primary-600">Net</span>
+      Avukat<span className="text-primary-600">Ağı</span>
     </span>
   </div>
 );

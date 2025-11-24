@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
 import RatingModal from '../components/RatingModal';
 
+
 interface AcceptedJobData {
   job: Job;
   application: Application;

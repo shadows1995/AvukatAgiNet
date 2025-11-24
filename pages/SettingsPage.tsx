@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, User as UserIcon } from 'lucide-react';
-import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield } from 'lucide-react';
 import { User as UserType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
@@ -267,6 +267,59 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     )
   }
 
+  const PasswordChangeTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handlePasswordChange = async () => {
+      if (password !== confirmPassword) {
+        showNotification('error', 'Şifreler eşleşmiyor.');
+        return;
+      }
+      if (password.length < 6) {
+        showNotification('error', 'Şifre en az 6 karakter olmalıdır.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { error } = await supabase.auth.updateUser({ password: password });
+        if (error) throw error;
+        showNotification('success', 'Şifreniz başarıyla güncellendi.');
+        setPassword('');
+        setConfirmPassword('');
+      } catch (error: any) {
+        showNotification('error', 'Şifre güncellenirken hata oluştu: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-6 animate-in fade-in">
+        <div className="border-b border-slate-100 pb-4">
+          <h3 className="text-lg font-bold text-slate-800">Şifre Değiştir</h3>
+          <p className="text-sm text-slate-500 mt-1">Hesabınızın güvenliği için şifrenizi düzenli olarak değiştirin.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Yeni Şifre</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-lg border-slate-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 h-11" placeholder="••••••••" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Yeni Şifre (Tekrar)</label>
+          <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full rounded-lg border-slate-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 h-11" placeholder="••••••••" />
+        </div>
+        <div className="flex justify-end">
+          <button onClick={handlePasswordChange} disabled={loading} className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition flex items-center">
+            {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {loading ? "Güncelleniyor..." : "Şifreyi Güncelle"}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const SpecializationTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
     const [specs, setSpecs] = useState<string[]>(user.specializations || []);
     const [input, setInput] = useState('');
@@ -415,6 +468,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     { id: 'courthouses', label: 'Görev Adliyeleriniz', icon: Gavel, component: <CourthousesTab showNotification={showNotification} /> },
     { id: 'specialization', label: 'Uzmanlık Alanları', icon: Award, component: <SpecializationTab showNotification={showNotification} /> },
     { id: 'about', label: 'Hakkımda', icon: Info, component: <AboutTab showNotification={showNotification} /> },
+    { id: 'password', label: 'Şifre Değiştir', icon: Shield, component: <PasswordChangeTab showNotification={showNotification} /> },
     { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <div className="text-center py-12 text-slate-500">Profil fotoğrafı yükleme modülü yakında eklenecek.</div> },
   ];
 

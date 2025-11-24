@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
                 <div className="prose prose-slate max-w-none">
                     <h3>1. Veri Sorumlusu</h3>
                     <p>
-                        6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verileriniz; veri sorumlusu olarak AvukatNet tarafından aşağıda açıklanan kapsamda işlenebilecektir.
+                        6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verileriniz; veri sorumlusu olarak AvukatAğı tarafından aşağıda açıklanan kapsamda işlenebilecektir.
                     </p>
 
                     <h3>2. Kişisel Verilerin İşlenme Amacı</h3>

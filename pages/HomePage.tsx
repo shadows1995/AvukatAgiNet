@@ -445,7 +445,7 @@ const HomePage = ({ user }: { user: User }) => {
                      <div className="p-2 bg-primary-50 rounded-lg mr-3">
                         <Activity className="w-5 h-5 text-primary-600" />
                      </div>
-                     AvukatNet'te neler oluyor?
+                     AvukatAğı'nda neler oluyor?
                   </h3>
                   <div className="space-y-8 relative pl-2">
                      <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-100"></div>

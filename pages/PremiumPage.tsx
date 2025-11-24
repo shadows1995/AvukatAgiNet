@@ -197,7 +197,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                         İhtiyacınıza uygun planı seçin
                     </h2>
                     <p className={styles.subheading}>
-                        İşletmenize en uygun planı seçin ve Avukat Ağı'nın premium özelliklerinin keyfini çıkarın.
+                        Kendinize en uygun planı seçin ve Avukat Ağı'nın premium özelliklerinin keyfini çıkarın.
                     </p>
 
                     {/* Billing Toggle */}

@@ -7,6 +7,7 @@ import { supabase } from '../supabaseClient';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
 
+
 const MyJobs = () => {
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
@@ -254,7 +255,7 @@ const MyJobs = () => {
           user_id: user.id,
           title: "Görev Atandı ✅",
           message: `"${job.title}" görevi Av. ${app.applicantName}'e atandı.`,
-          type: "success",
+          type: "info",
           read: false,
           created_at: new Date().toISOString()
         });
@@ -299,7 +300,12 @@ const MyJobs = () => {
       <div className="space-y-4">
         {myJobs.length === 0 && <p className="text-slate-500">Henüz görev yayınlamadınız.</p>}
         {myJobs.map(job => {
-          const isSelectionLocked = false; // Force unlocked for testing
+          // Calculate if selection is locked
+          // Urgent jobs: 5 minutes, Regular jobs: 15 minutes
+          const lockDuration = job.isUrgent ? 5 : 15;
+          const selectionUnlockTime = new Date(job.createdAt).getTime() + lockDuration * 60000;
+          const isSelectionLocked = Date.now() < selectionUnlockTime;
+
           const selectedUser = job.jobId ? selectedApplicantData[job.jobId] : null;
 
           return (
@@ -352,7 +358,7 @@ const MyJobs = () => {
                     <div className={`flex items-center font-mono text-sm px-3 py-1 rounded-md ${isSelectionLocked ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
                       <Timer className="w-4 h-4 mr-2" />
                       {isSelectionLocked ? (
-                        <span>Süre Bekleniyor...</span>
+                        <span>Seçim İçin: {formatTime(getTimeLeft(new Date(new Date(job.createdAt).getTime() + (job.isUrgent ? 5 : 15) * 60000).toISOString()))}</span>
                       ) : (
                         <span>Seçim Yapılabilir</span>
                       )}
@@ -369,7 +375,11 @@ const MyJobs = () => {
 
                   <button
                     onClick={() => fetchApplications(job.jobId!)}
-                    className="flex items-center text-primary-600 font-medium hover:bg-primary-50 px-4 py-2 rounded-lg transition border border-transparent hover:border-primary-100"
+                    disabled={isSelectionLocked}
+                    className={`flex items-center font-medium px-4 py-2 rounded-lg transition border border-transparent ${isSelectionLocked
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'text-primary-600 hover:bg-primary-50 hover:border-primary-100'
+                      }`}
                   >
                     <Users className="w-4 h-4 mr-2" />
                     Başvuruları Yönet {expandedJobId === job.jobId ? <ChevronDown className="ml-1 w-4 h-4 rotate-180" /> : <ChevronDown className="ml-1 w-4 h-4" />}

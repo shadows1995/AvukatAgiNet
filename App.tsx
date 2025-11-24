@@ -13,7 +13,7 @@ import MyJobs from './pages/MyJobs';
 import CreateJob from './pages/CreateJob';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
-import { LandingPage, LoginPage, RegisterPage } from './pages/AuthPages';
+import { LandingPage, LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage } from './pages/AuthPages';
 import PremiumPage from './pages/PremiumPage';
 import PaymentPage from './pages/Payment';
 import AcceptedJobs from './pages/AcceptedJobs';
@@ -89,7 +89,12 @@ const AppContent = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // Redirect to reset password page when recovery link is clicked
+        window.location.hash = '#/reset-password';
+      }
+
       if (session?.user) {
         // Only fetch if we don't have the user or if the ID changed
         if (!user || user.uid !== session.user.id) {
@@ -114,7 +119,7 @@ const AppContent = () => {
   if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="h-12 w-12 text-primary-600 animate-spin" /></div>;
 
   // Footer visibility logic
-  const showFooter = ['/', '/home', '/login', '/register', '/terms', '/privacy'].includes(location.pathname);
+  const showFooter = ['/', '/home', '/login', '/register', '/forgot-password', '/reset-password', '/terms', '/privacy'].includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -124,6 +129,8 @@ const AppContent = () => {
           <Route path="/" element={user ? <Navigate to="/home" /> : <LandingPage />} />
           <Route path="/login" element={user ? <Navigate to="/home" /> : <LoginPage />} />
           <Route path="/register" element={user ? <Navigate to="/home" /> : <RegisterPage />} />
+          <Route path="/forgot-password" element={user ? <Navigate to="/home" /> : <ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/home" element={user ? <HomePage user={user} /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
           <Route path="/create-job" element={user ? <CreateJob user={user} /> : <Navigate to="/login" />} />

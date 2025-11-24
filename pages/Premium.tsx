@@ -27,7 +27,7 @@ export const PremiumPage = ({ user }: { user: User }) => {
             <div className="text-center mb-10">
                 <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">İhtiyacınıza uygun planı seçin</h2>
                 <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
-                    İşletmenize en uygun planı seçin ve Avukat Ağı'nın premium özelliklerinin keyfini çıkarın.
+                    Kendinize en uygun planı seçin ve Avukat Ağı'nın premium özelliklerinin keyfini çıkarın.
                 </p>
 
                 {/* Billing Toggle */}

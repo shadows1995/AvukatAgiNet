@@ -29,7 +29,7 @@ const Footer = () => {
                             <Gavel className="h-6 w-6" />
                         </div>
                         <span className="font-bold text-xl tracking-tight text-white">
-                            Avukat<span className="text-primary-500">Net</span>
+                            Avukat<span className="text-primary-500">Ağı</span>
                         </span>
                     </div>
                     <p className="text-sm text-slate-400 max-w-xs text-center sm:text-left leading-relaxed">
@@ -64,7 +64,7 @@ const Footer = () => {
                 <div className="max-w-6xl w-11/12 mx-auto flex flex-col sm:flex-row justify-between items-center gap-6">
                     <p className="text-xs text-slate-500 text-center sm:text-left">
                         © {new Date().getFullYear()}{" "}
-                        <span className="text-primary-500 font-medium">AvukatNet</span>. Tüm hakları saklıdır.
+                        <span className="text-primary-500 font-medium">AvukatAğı</span>. Tüm hakları saklıdır.
                     </p>
 
                     {/* Social Icons */}
