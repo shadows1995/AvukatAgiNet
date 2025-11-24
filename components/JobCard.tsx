@@ -16,6 +16,13 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
   const { showAlert } = useAlert();
 
+  // Check if application window is still open
+  // Urgent jobs: 5 minutes, Regular jobs: 15 minutes from job creation
+  const applicationWindowMinutes = job.isUrgent ? 5 : 15;
+  const jobCreatedTime = new Date(job.createdAt).getTime();
+  const applicationDeadline = jobCreatedTime + (applicationWindowMinutes * 60 * 1000);
+  const isApplicationWindowClosed = Date.now() > applicationDeadline;
+
   const handleApplyClick = () => {
     if (!user) {
       showAlert({
@@ -36,6 +43,15 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
         confirmText: "Premium'a Geç",
         cancelText: "Vazgeç",
         onConfirm: () => window.location.hash = "#/premium"
+      });
+      return;
+    }
+
+    if (isApplicationWindowClosed) {
+      showAlert({
+        title: "Başvuru Süresi Doldu",
+        message: `Bu göreve başvuru süresi (${applicationWindowMinutes} dakika) dolmuştur.`,
+        type: "error"
       });
       return;
     }
@@ -145,6 +161,13 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
             >
               <Phone className="w-4 h-4 mr-2" />
               İletişim Bilgileri
+            </button>
+          ) : isApplicationWindowClosed ? (
+            <button
+              disabled
+              className="w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white bg-slate-400 cursor-not-allowed"
+            >
+              Başvuru Süresi Doldu
             </button>
           ) : (
             <button

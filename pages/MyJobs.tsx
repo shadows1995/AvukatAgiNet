@@ -145,8 +145,29 @@ const MyJobs = () => {
 
       if (error) throw error;
 
-      if (appsData) {
-        const apps: Application[] = appsData.map(app => ({
+      if (appsData && appsData.length > 0) {
+        // Get current month as DATE (first day of month: YYYY-MM-01)
+        const now = new Date();
+        const currentMonthDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+
+        // Extract applicant IDs
+        const applicantIds = appsData.map(app => app.applicant_id);
+
+        // Fetch monthly stats for all applicants
+        const { data: statsData } = await supabase
+          .from('user_monthly_stats')
+          .select('user_id, job_count')
+          .in('user_id', applicantIds)
+          .eq('month', currentMonthDate);
+
+        // Create a map of user_id to job_count
+        const jobCountMap: { [key: string]: number } = {};
+        statsData?.forEach(stat => {
+          jobCountMap[stat.user_id] = stat.job_count || 0;
+        });
+
+        // Map applications with job counts
+        const apps: (Application & { monthlyJobCount: number })[] = appsData.map(app => ({
           applicationId: app.application_id,
           jobId: app.job_id,
           applicantId: app.applicant_id,
@@ -155,9 +176,16 @@ const MyJobs = () => {
           message: app.message,
           proposedFee: app.proposed_fee,
           status: app.status,
-          createdAt: app.created_at
+          createdAt: app.created_at,
+          monthlyJobCount: jobCountMap[app.applicant_id] || 0
         }));
-        setApplications(apps);
+
+        // Sort by monthly job count (ascending)
+        apps.sort((a, b) => a.monthlyJobCount - b.monthlyJobCount);
+
+        setApplications(apps as any);
+      } else {
+        setApplications([]);
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -396,13 +424,17 @@ const MyJobs = () => {
                     <p className="text-sm text-slate-500">Henüz başvuru yok.</p>
                   ) : (
                     <div className="space-y-3">
-                      {applications.map(app => {
+                      {applications.map((app: any, index) => {
                         const isSelected = job.selectedApplicant === app.applicantId;
 
+                        // Calculate minimum job count and restriction
+                        const minJobCount = applications.length > 0 ? Math.min(...applications.map((a: any) => a.monthlyJobCount || 0)) : 0;
+                        const isRestricted = (app.monthlyJobCount || 0) > (minJobCount + 3);
+
                         return (
-                          <div key={app.applicationId} className={`bg-white p-4 rounded-lg border ${isSelected ? 'border-green-500 ring-1 ring-green-500' : 'border-slate-200'} flex justify-between items-center shadow-sm`}>
-                            <div>
-                              <div className="flex items-center space-x-2">
+                          <div key={app.applicationId} className={`bg-white p-4 rounded-lg border ${isSelected ? 'border-green-500 ring-1 ring-green-500' : isRestricted ? 'border-orange-200 bg-orange-50/30' : 'border-slate-200'} flex justify-between items-center shadow-sm`}>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                                 <span
                                   onClick={() => isSelected && navigate(`/profile/${app.applicantId}`)}
                                   className={`font-bold transition ${isSelected ? 'text-slate-800 cursor-pointer hover:text-primary-600 hover:underline' : 'text-slate-500 cursor-default'}`}
@@ -417,7 +449,11 @@ const MyJobs = () => {
                                   <Star className="w-3 h-3 fill-current mr-1" />
                                   {app.applicantRating ? app.applicantRating.toFixed(1) : '0.0'}
                                 </span>
+                                <span className="flex items-center text-blue-600 text-xs bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 font-medium">
+                                  Bu ay: {app.monthlyJobCount || 0} görev
+                                </span>
                                 {isSelected && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold border border-green-200">SEÇİLDİ</span>}
+                                {isRestricted && !isSelected && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold border border-orange-200">SEÇİLEMEZ</span>}
                               </div>
                               <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded border border-slate-100 italic">"{app.message}"</p>
                               <div className="flex items-center mt-2 text-xs text-slate-500 space-x-4">
@@ -428,19 +464,19 @@ const MyJobs = () => {
                             {!isSelected && (
                               <button
                                 onClick={() => handleSelectClick(job, app)}
-                                disabled={isSelectionLocked || isJobExpired(job)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ${isSelectionLocked || isJobExpired(job)
+                                disabled={isSelectionLocked || isJobExpired(job) || isRestricted}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ml-4 ${isSelectionLocked || isJobExpired(job) || isRestricted
                                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                   : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md'
                                   }`}
                               >
-                                {isJobExpired(job) ? 'Süre Doldu' : isSelectionLocked ? 'Süre' : 'Görevi Ver'}
+                                {isJobExpired(job) ? 'Süre Doldu' : isSelectionLocked ? 'Süre' : isRestricted ? 'Seçilemez' : 'Görevi Ver'}
                               </button>
                             )}
                             {isSelected && (
                               <button
                                 onClick={() => navigate(`/profile/${app.applicantId}`)}
-                                className="text-green-600 font-bold text-sm flex items-center hover:underline bg-green-50 px-3 py-2 rounded-lg"
+                                className="text-green-600 font-bold text-sm flex items-center hover:underline bg-green-50 px-3 py-2 rounded-lg ml-4"
                               >
                                 <CheckCircle className="w-4 h-4 mr-2" /> İletişim Bilgileri
                               </button>
