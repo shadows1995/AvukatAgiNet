@@ -1,7 +1,25 @@
 import React, { useEffect, useRef } from 'react';
 
-const InteractiveSphere: React.FC = () => {
+interface InteractiveSphereProps {
+    dotColor?: string;
+    lineColor?: string;
+}
+
+const InteractiveSphere: React.FC<InteractiveSphereProps> = ({
+    dotColor = '#4299e1', // Blue-400
+    lineColor = '#6366f1' // Indigo-500
+}) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    // Helper to convert hex to rgb
+    const hexToRgb = (hex: string) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 66, g: 153, b: 225 };
+    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -20,6 +38,9 @@ const InteractiveSphere: React.FC = () => {
 
         let rotationX = 0;
         let rotationY = 0;
+
+        const dotRgb = hexToRgb(dotColor);
+        const lineRgb = hexToRgb(lineColor);
 
         interface Point3D {
             x: number;
@@ -94,6 +115,8 @@ const InteractiveSphere: React.FC = () => {
             particles.push(p);
         }
 
+        let animationFrameId: number;
+
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
 
@@ -140,20 +163,20 @@ const InteractiveSphere: React.FC = () => {
                         ctx.beginPath();
                         ctx.moveTo(x2d, y2d);
                         ctx.lineTo(x2d2, y2d2);
-                        ctx.strokeStyle = `rgba(99, 102, 241, ${lineAlpha})`; // Indigo-500
+                        ctx.strokeStyle = `rgba(${lineRgb.r}, ${lineRgb.g}, ${lineRgb.b}, ${lineAlpha})`;
                         ctx.lineWidth = 1;
                         ctx.stroke();
                     }
                 }
 
                 // Draw particle
-                ctx.fillStyle = `rgba(66, 153, 225, ${alpha})`; // Blue-400
+                ctx.fillStyle = `rgba(${dotRgb.r}, ${dotRgb.g}, ${dotRgb.b}, ${alpha})`;
                 ctx.beginPath();
                 ctx.arc(x2d, y2d, p.size * scale, 0, Math.PI * 2);
                 ctx.fill();
             });
 
-            requestAnimationFrame(animate);
+            animationFrameId = requestAnimationFrame(animate);
         };
 
         animate();
@@ -167,8 +190,9 @@ const InteractiveSphere: React.FC = () => {
 
         return () => {
             window.removeEventListener('resize', handleResize);
+            cancelAnimationFrame(animationFrameId);
         };
-    }, []);
+    }, [dotColor, lineColor]);
 
     return (
         <canvas

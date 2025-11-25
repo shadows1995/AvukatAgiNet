@@ -7,6 +7,8 @@ import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
 
+import InteractiveSphere from '../components/InteractiveSphere';
+
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-2 ${className}`}>
     <div className="bg-primary-600 text-white p-1.5 rounded-lg">
@@ -32,10 +34,15 @@ export const LandingPage = () => (
           Türkiye'nin En Büyük Hukuk Ağı
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight">
-          Meslektaşlarınızla <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-600 animate-text">Güçlerinizi Birleştirin</span>
-        </h1>
+        <div className="relative w-full max-w-5xl mx-auto">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] -z-10 opacity-50 pointer-events-none">
+            <InteractiveSphere dotColor="#d946ef" lineColor="#4f46e5" />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight relative z-10">
+            Meslektaşlarınızla <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-600 animate-text">Güçlerinizi Birleştirin</span>
+          </h1>
+        </div>
 
         <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
           Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlarla
@@ -134,6 +141,7 @@ export const LandingPage = () => (
 
 
 
+
 export const RegisterPage = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
@@ -158,8 +166,42 @@ export const RegisterPage = () => {
       return;
     }
 
+    // Password Complexity Check
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      showNotification('error', "Şifreniz en az 6 karakter olmalı ve en az bir harf ile bir rakam içermelidir.");
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Normalize phone number (remove spaces, parentheses, etc.)
+      const cleanPhone = formData.phone.replace(/\s/g, '').replace(/[()]/g, '');
+
+      // Use RPC function to check duplicates (bypasses RLS)
+      const { data: duplicateCheck, error: rpcError } = await supabase
+        .rpc('check_duplicate_user', {
+          check_email: formData.email,
+          check_phone: cleanPhone
+        });
+
+      if (rpcError) {
+        console.error("Error checking duplicates:", rpcError);
+        // Fail open or handle error
+      } else if (duplicateCheck) {
+        if (duplicateCheck.email_exists) {
+          showNotification('error', "Bu e-posta adresi zaten kullanılıyor.");
+          setIsLoading(false);
+          return;
+        }
+
+        if (duplicateCheck.phone_exists) {
+          showNotification('error', "Bu telefon numarası zaten kayıtlı.");
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -178,7 +220,7 @@ export const RegisterPage = () => {
           baro_number: formData.barNo,
           baro_city: formData.barCity,
           city: formData.barCity,
-          phone: formData.phone,
+          phone: cleanPhone, // Save normalized phone
           role: UserRole.FREE,
           rating: 0,
           completed_jobs: 0,
@@ -273,6 +315,7 @@ export const RegisterPage = () => {
               </label>
             </div>
           </div>
+
           <button type="submit" disabled={isLoading} className="w-full bg-primary-600 text-white py-3 rounded-lg font-bold mt-6 hover:bg-primary-700 transition shadow-lg hover:shadow-primary-500/30 disabled:opacity-70">
             {isLoading ? <Loader2 className="animate-spin inline h-5 w-5" /> : 'Kayıt Ol'}
           </button>

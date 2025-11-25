@@ -39,6 +39,28 @@ const CreateJob = ({ user }: { user: User }) => {
     const deadlineDate = new Date();
     deadlineDate.setMinutes(deadlineDate.getMinutes() + deadlineMinutes);
 
+    // Daily Limit Check
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { count: todayJobCount, error: countError } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('created_by', user.uid)
+      .gte('created_at', today.toISOString());
+
+    if (countError) {
+      console.error("Error checking job limit:", countError);
+      showNotification('error', "Limit kontrolü yapılırken bir hata oluştu.");
+      setIsLoading(false);
+      return;
+    }
+
+    if ((todayJobCount || 0) >= 10) {
+      showNotification('error', "Günlük görev oluşturma limitine (10) ulaştınız. Yarın tekrar deneyiniz.");
+      setIsLoading(false);
+      return;
+    }
+
     // Date Validation
     const [year, month, day] = formData.date.split('-').map(Number);
     const [hour, minute] = formData.time.split(':').map(Number);
