@@ -92,7 +92,7 @@ export const LandingPage = () => (
         {/* Process Infographic */}
         <div className="mb-20">
           <img
-            src="/process-infographic.jpg"
+            src="/process-infographic.png"
             alt="Avukat Görevlendirme Süreci"
             className="w-full max-w-5xl mx-auto rounded-2xl shadow-xl border border-slate-200"
           />
