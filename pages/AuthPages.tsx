@@ -55,7 +55,7 @@ export const LandingPage = () => (
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
           <Link to="/login" className="px-10 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-            Sistemi İncele
+            Giriş Yap
           </Link>
         </div>
       </div>
