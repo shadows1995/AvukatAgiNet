@@ -339,11 +339,10 @@ const MyJobs = () => {
       <div className="space-y-4">
         {myJobs.length === 0 && <p className="text-slate-500">Henüz görev yayınlamadınız.</p>}
         {myJobs.map(job => {
-          // Calculate if selection is locked
-          // Urgent jobs: 5 minutes, Regular jobs: 15 minutes
-          const lockDuration = job.isUrgent ? 5 : 15;
-          const selectionUnlockTime = new Date(job.createdAt).getTime() + lockDuration * 60000;
-          const isSelectionLocked = Date.now() < selectionUnlockTime;
+          // Check if application deadline has passed
+          const isApplicationOpen = job.applicationDeadline
+            ? Date.now() < new Date(job.applicationDeadline).getTime()
+            : true; // If no deadline set, assume open
 
           const selectedUser = job.jobId ? selectedApplicantData[job.jobId] : null;
 
@@ -353,13 +352,13 @@ const MyJobs = () => {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${job.status === 'open' && isJobExpired(job) ? 'bg-red-100 text-red-700' :
-                        job.status === 'open' && !isSelectionLocked ? 'bg-orange-100 text-orange-700' :
-                          job.status === 'open' ? 'bg-green-100 text-green-700' :
-                            job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                              'bg-gray-100 text-gray-700'
+                      job.status === 'open' && !isApplicationOpen ? 'bg-orange-100 text-orange-700' :
+                        job.status === 'open' ? 'bg-green-100 text-green-700' :
+                          job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-700'
                       }`}>
                       {job.status === 'open' && isJobExpired(job) ? 'Süresi Geçmiş' :
-                        job.status === 'open' && !isSelectionLocked ? 'Başvurular Kapandı' :
+                        job.status === 'open' && !isApplicationOpen ? 'Başvurular Kapandı' :
                           job.status === 'open' ? 'Başvuruya Açık' :
                             job.status === 'in_progress' ? 'Atandı' :
                               job.status === 'completed' ? 'Tamamlandı' :
@@ -395,11 +394,11 @@ const MyJobs = () => {
                 </div>
 
                 <div className="flex flex-col items-end space-y-2">
-                  {job.status === 'open' && (
-                    <div className={`flex items-center font-mono text-sm px-3 py-1 rounded-md ${isSelectionLocked ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {job.status === 'open' && job.applicationDeadline && (
+                    <div className={`flex items-center font-mono text-sm px-3 py-1 rounded-md ${isApplicationOpen ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
                       <Timer className="w-4 h-4 mr-2" />
-                      {isSelectionLocked ? (
-                        <span>Seçim İçin: {formatTime(getTimeLeft(new Date(new Date(job.createdAt).getTime() + (job.isUrgent ? 5 : 15) * 60000).toISOString()))}</span>
+                      {isApplicationOpen ? (
+                        <span>Seçim İçin: {formatTime(getTimeLeft(job.applicationDeadline))}</span>
                       ) : (
                         <span>Seçim Yapılabilir</span>
                       )}
@@ -416,8 +415,8 @@ const MyJobs = () => {
 
                   <button
                     onClick={() => fetchApplications(job.jobId!)}
-                    disabled={isSelectionLocked}
-                    className={`flex items-center font-medium px-4 py-2 rounded-lg transition border border-transparent ${isSelectionLocked
+                    disabled={isApplicationOpen}
+                    className={`flex items-center font-medium px-4 py-2 rounded-lg transition border border-transparent ${isApplicationOpen
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                       : 'text-primary-600 hover:bg-primary-50 hover:border-primary-100'
                       }`}
@@ -477,13 +476,13 @@ const MyJobs = () => {
                             {!isSelected && (
                               <button
                                 onClick={() => handleSelectClick(job, app)}
-                                disabled={isSelectionLocked || isJobExpired(job) || isRestricted}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ml-4 ${isSelectionLocked || isJobExpired(job) || isRestricted
+                                disabled={isApplicationOpen || isJobExpired(job) || isRestricted}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm ml-4 ${isApplicationOpen || isJobExpired(job) || isRestricted
                                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                   : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-md'
                                   }`}
                               >
-                                {isJobExpired(job) ? 'Süre Doldu' : isSelectionLocked ? 'Süre' : isRestricted ? 'Seçilemez' : 'Görevi Ver'}
+                                {isJobExpired(job) ? 'Süre Doldu' : isApplicationOpen ? 'Süre' : isRestricted ? 'Seçilemez' : 'Görevi Ver'}
                               </button>
                             )}
                             {isSelected && (
