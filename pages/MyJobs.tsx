@@ -353,15 +353,17 @@ const MyJobs = () => {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${job.status === 'open' && isJobExpired(job) ? 'bg-red-100 text-red-700' :
-                      job.status === 'open' ? 'bg-green-100 text-green-700' :
-                        job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                          'bg-gray-100 text-gray-700'
+                        job.status === 'open' && !isSelectionLocked ? 'bg-orange-100 text-orange-700' :
+                          job.status === 'open' ? 'bg-green-100 text-green-700' :
+                            job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                              'bg-gray-100 text-gray-700'
                       }`}>
                       {job.status === 'open' && isJobExpired(job) ? 'Süresi Geçmiş' :
-                        job.status === 'open' ? 'Başvuruya Açık' :
-                          job.status === 'in_progress' ? 'Atandı' :
-                            job.status === 'completed' ? 'Tamamlandı' :
-                              job.status === 'cancelled' ? 'İptal Edildi' : job.status}
+                        job.status === 'open' && !isSelectionLocked ? 'Başvurular Kapandı' :
+                          job.status === 'open' ? 'Başvuruya Açık' :
+                            job.status === 'in_progress' ? 'Atandı' :
+                              job.status === 'completed' ? 'Tamamlandı' :
+                                job.status === 'cancelled' ? 'İptal Edildi' : job.status}
                     </span>
                     {job.isUrgent && <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold">ACİL</span>}
                   </div>

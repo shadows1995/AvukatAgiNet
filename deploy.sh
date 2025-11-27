@@ -10,7 +10,7 @@ if [ ! -f .env ]; then
 fi
 
 echo "📌 GitHub'dan son kod çekiliyor..."
-git pull
+git pull || { echo "❌ Git pull failed! Aborting."; exit 1; }
 
 echo "📌 Yeni Docker imajı build ediliyor (Cache temizleniyor)..."
 docker build --no-cache -t avukat-agi:latest .
