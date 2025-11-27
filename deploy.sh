@@ -12,8 +12,8 @@ fi
 echo "📌 GitHub'dan son kod çekiliyor..."
 git pull
 
-echo "📌 Yeni Docker imajı build ediliyor..."
-docker build -t avukat-agi:latest .
+echo "📌 Yeni Docker imajı build ediliyor (Cache temizleniyor)..."
+docker build --no-cache -t avukat-agi:latest .
 
 echo "📌 Eski container durduruluyor..."
 docker stop avukat-agi-container || true
@@ -23,7 +23,7 @@ docker rm avukat-agi-container || true
 
 echo "📌 Yeni container ayağa kaldırılıyor..."
 # .env dosyasını container içine mount ediyoruz
-docker run -d --name avukat-agi-container -p 80:80 -e PORT=80 -v "$(pwd)/.env:/app/.env" avukat-agi:latest
+docker run -d --name avukat-agi-container -p 80:80 -v "$(pwd)/.env:/app/.env" avukat-agi:latest
 
 echo "✅ Deploy tamamlandı!"
 echo "ℹ️ Logları kontrol etmek için: docker logs avukat-agi-container"
