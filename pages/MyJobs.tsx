@@ -289,6 +289,17 @@ const MyJobs = () => {
         });
       }
 
+      // Trigger SMS Notification (Fire and forget)
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      fetch(`${apiUrl}/api/notify-application-approved`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicantId: app.applicantId,
+          jobTitle: job.title
+        })
+      }).catch(err => console.error("SMS Notification Error:", err));
+
       // Show Success Modal
       showAlert({
         title: "İşlem Başarılı!",

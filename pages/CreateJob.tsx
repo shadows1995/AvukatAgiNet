@@ -94,6 +94,20 @@ const CreateJob = ({ user }: { user: User }) => {
 
       if (error) throw error;
 
+      // Trigger SMS Notification (Fire and forget)
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      fetch(`${apiUrl}/api/notify-new-job`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: formData.city,
+          courthouse: formData.courthouse,
+          jobType: formData.type,
+          jobId: null,
+          createdBy: user.uid
+        })
+      }).catch(err => console.error("SMS Notification Error:", err));
+
       showAlert({
         title: "Başarılı!",
         message: "Göreviniz Başarıyla Yayımlanmıştır",
