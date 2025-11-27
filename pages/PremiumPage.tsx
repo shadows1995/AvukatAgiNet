@@ -142,13 +142,13 @@ const PremiumPage = ({ user }: { user: User }) => {
         {
             type: 'free',
             title: "Başlangıç",
-            description: "Yeni başlayan avukatlar için ideal",
+            description: "Sadece Görev vermek isteyen avukatlar için ideal",
             price: 0,
             features: [
-                "Sınırsız İlan Açabilme",
+                "Günlük 10 İlan Açabilme",
                 "Profil Oluşturma",
                 "Başvuruları Görüntüleme",
-                "Mesajlaşma"
+                "Görevleri başka avukatlara verebilme"
             ],
             icon: <Rocket className="w-12 h-12 text-cyan-500" />,
             ...getPlanStatus('free')
@@ -157,14 +157,13 @@ const PremiumPage = ({ user }: { user: User }) => {
             type: 'premium',
             title: "Premium",
             description: "İşlerini büyütmek isteyenler için",
-            price: billingCycle === 'monthly' ? 300 : 125,
+            price: billingCycle === 'monthly' ? 250 : 125,
             originalPriceYearly: 1500,
             features: [
                 "Her Şey Dahil (Başlangıç)",
-                "15 dk Erken Başvuru Hakkı",
+                "15 dk Görevlere Başvuru Hakkı",
                 "Başvurudan Gelir Kazanma",
                 "Acil İlan Açabilme",
-                "Bölgesel E-posta Bildirimleri"
             ],
             icon: <Zap className="w-12 h-12 text-indigo-500" />,
             badge: "En Popüler",
@@ -175,14 +174,13 @@ const PremiumPage = ({ user }: { user: User }) => {
             type: 'premium_plus',
             title: "Premium +",
             description: "Profesyoneller için tam paket",
-            price: billingCycle === 'monthly' ? 500 : 208,
-            originalPriceYearly: 2500,
+            price: billingCycle === 'monthly' ? 300 : 167,
+            originalPriceYearly: 2000,
             features: [
                 "Tüm Premium Özellikleri",
-                "10 sn Öncelikli Bildirim",
-                "Başvurularda Üstte Çıkma",
-                "Adliye Filtreli E-posta",
-                "Para İadesi Garantisi"
+                "Görevlere başvurularda üstte yer alma",
+                "Birden fazla ildeki adliyelerde görev alabilme",
+                "Yıllık planda geçerli Para İadesi Garantisi-Yıllık 3 görev"
             ],
             icon: <Crown className="w-12 h-12 text-pink-500" />,
             ...getPlanStatus('premium_plus')
@@ -224,8 +222,8 @@ const PremiumPage = ({ user }: { user: User }) => {
                                 : "border-slate-200 border-t-4 hover:border-indigo-300"
                                 }`}
                         >
-                            {plan.badge && (
-                                <div className={`${styles.badge} ${plan.badgeColor}`}>
+                            {'badge' in plan && plan.badge && (
+                                <div className={`${styles.badge} ${'badgeColor' in plan ? plan.badgeColor : ''}`}>
                                     {plan.badge}
                                 </div>
                             )}
@@ -240,7 +238,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                                     <span className={styles.priceValue}>{Math.round(plan.price)}</span>
                                     <span className={styles.pricePeriod}>/ay</span>
                                 </div>
-                                {billingCycle === 'yearly' && plan.price > 0 && (
+                                {billingCycle === 'yearly' && plan.price > 0 && 'originalPriceYearly' in plan && (
                                     <p className="text-xs text-slate-400 mt-1">
                                         Yıllık {plan.originalPriceYearly} TL olarak faturalandırılır
                                     </p>
