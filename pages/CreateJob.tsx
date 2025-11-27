@@ -95,7 +95,7 @@ const CreateJob = ({ user }: { user: User }) => {
       if (error) throw error;
 
       // Trigger SMS Notification (Fire and forget)
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiUrl = import.meta.env.VITE_API_URL || '';
       fetch(`${apiUrl}/api/notify-new-job`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

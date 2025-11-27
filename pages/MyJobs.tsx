@@ -290,7 +290,7 @@ const MyJobs = () => {
       }
 
       // Trigger SMS Notification (Fire and forget)
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiUrl = import.meta.env.VITE_API_URL || '';
       fetch(`${apiUrl}/api/notify-application-approved`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
