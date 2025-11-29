@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, User as UserIcon } from 'lucide-react';
-import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield } from 'lucide-react';
+import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield, Trash2 } from 'lucide-react';
 import { User as UserType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
@@ -461,6 +461,111 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
       </div>
     )
   }
+  const DeleteAccountTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+    const [loading, setLoading] = useState(false);
+    const [confirmText, setConfirmText] = useState('');
+
+    const handleDelete = async () => {
+      if (confirmText !== 'HESABIMI SİL') {
+        showNotification('error', 'Lütfen onaylamak için "HESABIMI SİL" yazınız.');
+        return;
+      }
+
+      if (!window.confirm('Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz silinecektir.')) {
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/delete-account`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            uid: user.uid,
+            token: token
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Hesap silinirken bir hata oluştu.');
+        }
+
+        // Sign out locally
+        await supabase.auth.signOut();
+        window.location.href = '/';
+
+      } catch (error: any) {
+        console.error('Delete account error:', error);
+        showNotification('error', error.message || 'Bir hata oluştu.');
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-6 animate-in fade-in">
+        <div className="border-b border-red-100 pb-4">
+          <h3 className="text-lg font-bold text-red-600">Hesabı Sil</h3>
+          <p className="text-sm text-slate-500 mt-1">Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.</p>
+        </div>
+
+        <div className="bg-red-50 border border-red-100 rounded-xl p-6">
+          <div className="flex items-start mb-4">
+            <AlertTriangle className="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-red-800">
+              <p className="font-bold mb-1">Dikkat!</p>
+              <p>Hesabınızı sildiğinizde:</p>
+              <ul className="list-disc list-inside mt-2 space-y-1 ml-2">
+                <li>Tüm profil bilgileriniz silinecek.</li>
+                <li>Mevcut başvurularınız iptal edilecek.</li>
+                <li>Yayınladığınız görevler sistemden kaldırılacak.</li>
+                <li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Onaylamak için aşağıya <span className="font-bold select-all">HESABIMI SİL</span> yazınız:
+            </label>
+            <input
+              type="text"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              className="w-full rounded-lg border-red-300 focus:ring-red-500 focus:border-red-500 mb-4"
+              placeholder="HESABIMI SİL"
+            />
+            <button
+              onClick={handleDelete}
+              disabled={loading || confirmText !== 'HESABIMI SİL'}
+              className={`w-full py-3 rounded-xl font-bold text-white shadow-md transition flex items-center justify-center ${loading || confirmText !== 'HESABIMI SİL'
+                ? 'bg-slate-300 cursor-not-allowed'
+                : 'bg-red-600 hover:bg-red-700 hover:shadow-lg'
+                }`}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Siliniyor...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-5 h-5 mr-2" />
+                  Hesabımı Kalıcı Olarak Sil
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const tabs = [
     { id: 'personal', label: 'Kişisel Bilgiler', icon: UserIcon, component: <PersonalInfoTab showNotification={showNotification} /> },
@@ -470,6 +575,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     { id: 'about', label: 'Hakkımda', icon: Info, component: <AboutTab showNotification={showNotification} /> },
     { id: 'password', label: 'Şifre Değiştir', icon: Shield, component: <PasswordChangeTab showNotification={showNotification} /> },
     { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <div className="text-center py-12 text-slate-500">Profil fotoğrafı yükleme modülü yakında eklenecek.</div> },
+    { id: 'delete', label: 'Hesabı Sil', icon: Trash2, component: <DeleteAccountTab showNotification={showNotification} /> },
   ];
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;

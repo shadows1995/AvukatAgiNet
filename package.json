@@ -10,6 +10,7 @@
     "server": "node server.js"
   },
   "dependencies": {
+    "@dr.pogodin/react-helmet": "^3.0.4",
     "@google/genai": "^1.30.0",
     "@netgsm/sms": "^1.1.10",
     "@supabase/supabase-js": "^2.84.0",

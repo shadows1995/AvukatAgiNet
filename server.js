@@ -290,6 +290,43 @@ app.post('/api/notify-application-approved', async (req, res) => {
     }
 });
 
+// Endpoint: Delete user account
+app.post('/api/delete-account', async (req, res) => {
+    const { uid, token } = req.body;
+
+    if (!uid) {
+        return res.status(400).json({ error: 'Missing uid' });
+    }
+
+    try {
+        // Optional: Verify the token matches the uid if provided
+        if (token) {
+            const { data: { user }, error } = await supabase.auth.getUser(token);
+            if (error || !user || user.id !== uid) {
+                return res.status(401).json({ error: 'Unauthorized: Token invalid or does not match uid' });
+            }
+        }
+
+        console.log(`🗑️ Deleting user account: ${uid}`);
+
+        // Delete the user from Supabase Auth (this cascades to public.users if configured, or we might need to delete manually)
+        // Using admin client initialized at the top
+        const { error } = await supabase.auth.admin.deleteUser(uid);
+
+        if (error) {
+            console.error('❌ Error deleting user:', error);
+            return res.status(500).json({ error: error.message });
+        }
+
+        console.log(`✅ User deleted successfully: ${uid}`);
+        res.json({ message: 'Account deleted successfully' });
+
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Handle React routing, return all requests to React app
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
