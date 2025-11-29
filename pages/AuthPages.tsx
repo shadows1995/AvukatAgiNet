@@ -45,8 +45,8 @@ export const LandingPage = () => (
         </div>
 
         <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
-          Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlarla
-          anında eşleşin. Premium üyelik ile iş ağınızı genişletin.
+          Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara
+          işlerinizi tevkil edin. Premium üyelik ile tevkil işlerinden para kazanın.
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
