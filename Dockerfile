@@ -9,7 +9,7 @@ COPY vite.config.* ./
 COPY tsconfig.* ./
 
 # Bağımlılıkları yükle
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Diğer tüm proje dosyalarını kopyala
 COPY . .
@@ -24,7 +24,7 @@ WORKDIR /app
 
 # Sadece production bağımlılıklarını yükle (daha küçük imaj için)
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install --only=production --legacy-peer-deps
 
 # Build aşamasından dist klasörünü kopyala
 COPY --from=build /app/dist ./dist
