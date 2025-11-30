@@ -213,6 +213,7 @@ export const RegisterPage = () => {
         options: {
           data: {
             full_name: `${formData.firstName} ${formData.lastName}`,
+            phone: cleanPhone, // Add phone to metadata
           }
         }
       });
