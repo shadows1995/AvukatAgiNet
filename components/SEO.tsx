@@ -1,5 +1,5 @@
 import React from 'react';
-import { Helmet } from '@dr.pogodin/react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
     title: string;

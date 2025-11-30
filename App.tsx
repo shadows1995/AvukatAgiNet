@@ -164,15 +164,19 @@ const AppContent = () => {
   );
 };
 
+import { HelmetProvider } from 'react-helmet-async';
+
 const App = () => {
   return (
-    <HashRouter>
-      <NotificationProvider>
-        <AlertProvider>
-          <AppContent />
-        </AlertProvider>
-      </NotificationProvider>
-    </HashRouter>
+    <HelmetProvider>
+      <HashRouter>
+        <NotificationProvider>
+          <AlertProvider>
+            <AppContent />
+          </AlertProvider>
+        </NotificationProvider>
+      </HashRouter>
+    </HelmetProvider>
   );
 };
 
