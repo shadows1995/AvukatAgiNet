@@ -5,6 +5,7 @@ import { Job, User, Application } from '../types';
 import { supabase } from '../supabaseClient';
 import ApplyModal from '../components/ApplyModal';
 import { useAlert } from '../contexts/AlertContext';
+import SEO from '../components/SEO';
 
 
 const JobDetails = ({ user }: { user: User }) => {
@@ -204,6 +205,10 @@ const JobDetails = ({ user }: { user: User }) => {
 
     return (
         <div className="max-w-3xl mx-auto px-4 py-8">
+            <SEO
+                title={`${job.title} - ${job.city} / ${job.courthouse}`}
+                description={`${job.city} ${job.courthouse} adliyesinde ${job.jobType} işi. Ücret: ${job.offeredFee} TL. Hemen başvurun.`}
+            />
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center text-slate-500 hover:text-slate-800 mb-6 transition"

@@ -1,9 +1,14 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const PrivacyPolicy = () => {
     return (
         <div className="max-w-4xl mx-auto px-4 py-12">
+            <SEO
+                title="Gizlilik Politikası ve KVKK Aydınlatma Metni - AvukatAğı"
+                description="AvukatAğı Gizlilik Politikası ve Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında aydınlatma metni."
+            />
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
                 <div className="flex items-center gap-4 mb-8">
                     <div className="p-3 bg-green-100 rounded-xl">

@@ -8,6 +8,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
 
 import InteractiveSphere from '../components/InteractiveSphere';
+import SEO from '../components/SEO';
 
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-2 ${className}`}>
@@ -22,6 +23,10 @@ const Logo = ({ className = "" }: { className?: string }) => (
 
 export const LandingPage = () => (
   <div className="flex flex-col min-h-screen bg-white">
+    <SEO
+      title="AvukatAğı - Avukatlar Arası İş Birliği ve Tevkil Platformu"
+      description="Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara işlerinizi tevkil edin. Türkiye'nin en büyük hukuk ağına katılın."
+    />
     {/* Hero Section */}
     {/* Hero Section */}
     <div className="bg-slate-50 pt-24 pb-32 px-4 relative overflow-hidden">
@@ -250,6 +255,10 @@ export const RegisterPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <SEO
+        title="Kayıt Ol - AvukatAğı"
+        description="AvukatAğı'na ücretsiz üye olun. Meslektaşlarınızla güçlerinizi birleştirin ve tevkil işlerinden kazanç sağlayın."
+      />
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -353,6 +362,10 @@ export const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex bg-white">
+      <SEO
+        title="Giriş Yap - AvukatAğı"
+        description="AvukatAğı hesabınıza giriş yapın ve işlerinizi yönetmeye başlayın."
+      />
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-12 z-10">
         <div className="mb-10">
           <Link to="/" className="inline-block">
@@ -480,6 +493,7 @@ export const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <SEO title="Şifremi Unuttum - AvukatAğı" />
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -583,6 +597,7 @@ export const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <SEO title="Şifre Sıfırlama - AvukatAğı" />
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">

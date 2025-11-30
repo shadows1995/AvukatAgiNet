@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
 import InteractiveSphere from '../components/InteractiveSphere';
+import SEO from '../components/SEO';
 
 const HomePage = ({ user }: { user: User }) => {
    const navigate = useNavigate();
@@ -211,6 +212,10 @@ const HomePage = ({ user }: { user: User }) => {
 
    return (
       <div className="bg-slate-50 min-h-screen pb-12">
+         <SEO
+            title="Ana Sayfa - AvukatAğı"
+            description="AvukatAğı ana sayfası. Güncel görevleri takip edin, yeni görev oluşturun ve istatistiklerinizi görüntüleyin."
+         />
          {/* Hero Section - BOXED LAYOUT & BLUE COLOR */}
          <div className="max-w-7xl mx-auto px-4 mt-8">
             <div className="bg-primary-900 text-white py-20 px-8 rounded-3xl shadow-2xl relative overflow-hidden">
