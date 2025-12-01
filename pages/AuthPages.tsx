@@ -62,9 +62,6 @@ export const LandingPage = () => (
           <Link to="/login" className="px-10 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
             Giriş Yap
           </Link>
-          <Link to="/how-it-works" className="px-10 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-            Nasıl Çalışır?
-          </Link>
         </div>
       </div>
     </div>
