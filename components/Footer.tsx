@@ -42,7 +42,7 @@ const Footer = () => {
                 <div className="flex flex-col gap-4">
                     <h1 className={sectionTitle}>Kurumsal</h1>
                     <ul className="flex flex-col gap-3">
-                        <li><Link to="/" className={linkStyle}>Hakkımızda</Link></li>
+                        <li><Link to="/about" className={linkStyle}>Hakkımızda</Link></li>
                         <li><Link to="/" className={linkStyle}>Özellikler</Link></li>
                         <li><Link to="/" className={linkStyle}>İletişim</Link></li>
                     </ul>
