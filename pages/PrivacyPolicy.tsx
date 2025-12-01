@@ -21,7 +21,7 @@ const PrivacyPolicy = () => {
                     <h2 className="text-center font-bold mb-6">KİŞİSEL VERİLERİN KORUNMASI KANUNU KAPSAMINDA<br />AYDINLATMA METNİ</h2>
 
                     <p>
-                        Just Fair Araştırma Danışmanlık A.Ş. (bundan böyle “Şirket” veya “Avukat Ağı” olarak anılacaktır) olarak, <a href="http://www.avukatagi.net" className="text-primary-600 hover:underline">www.avukatagi.net</a> internet sitemizde, mobil uygulamamızda ve tüm alt alan adlarımızda şahsınıza ait kişisel verilerin işlenmesi ve korunması süreçlerine azami özen göstermekteyiz.
+                        BÇK TARIM GIDA İTHALAT İHRACAT SANAYİ VE TİCARET LİMİTED ŞİRKETİ  (bundan böyle “Şirket” veya “Avukat Ağı” olarak anılacaktır) olarak, <a href="http://www.avukatagi.net" className="text-primary-600 hover:underline">www.avukatagi.net</a> internet sitemizde, mobil uygulamamızda ve tüm alt alan adlarımızda şahsınıza ait kişisel verilerin işlenmesi ve korunması süreçlerine azami özen göstermekteyiz.
                     </p>
 
                     <p>
@@ -165,11 +165,11 @@ const PrivacyPolicy = () => {
                     </p>
 
                     <h3>6. Veri Sorumlusu</h3>
-                    <p>Kişisel verileriniz, veri sorumlusu sıfatıyla Just Fair Araştırma Danışmanlık A.Ş. tarafından işlenmektedir.</p>
+                    <p>Kişisel verileriniz, veri sorumlusu sıfatıyla  BÇK TARIM GIDA İTHALAT İHRACAT SANAYİ VE TİCARET LİMİTED ŞİRKETİ tarafından işlenmektedir.</p>
                     <p>
-                        <strong>Unvan:</strong> Just Fair Araştırma Danışmanlık A.Ş.<br />
+                        <strong>Unvan:</strong> BÇK TARIM GIDA İTHALAT İHRACAT SANAYİ VE TİCARET LİMİTED ŞİRKETİ.<br />
                         <strong>İnternet Sitesi:</strong> <a href="http://www.avukatagi.net" className="text-primary-600 hover:underline">www.avukatagi.net</a><br />
-                        <strong>E-posta:</strong> <a href="mailto:info@avukatagi.net" className="text-primary-600 hover:underline">info@avukatagi.net</a>
+                        <strong>E-posta:</strong> <a href="mailto:iletisim@avukatagi.net" className="text-primary-600 hover:underline">iletisim@avukatagi.net</a>
                     </p>
 
                     <h3>7. KVKK Kapsamındaki Haklarınız ve Başvuru Usulü</h3>
