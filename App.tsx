@@ -20,6 +20,7 @@ import AcceptedJobs from './pages/AcceptedJobs';
 import JobDetails from './pages/JobDetails';
 import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import HowItWorksPage from './pages/HowItWorksPage';
 
 // Admin Imports
 import RequireAdmin from './components/RequireAdmin';
@@ -143,6 +144,9 @@ const AppContent = () => {
           <Route path="/profile/:userId" element={user ? <ProfilePage currentUser={user} /> : <Navigate to="/login" />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
           {/* Admin Routes */}
           <Route element={<RequireAdmin />}>
             <Route path="/admin" element={<AdminLayout />}>
