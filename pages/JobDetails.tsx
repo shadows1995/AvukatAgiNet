@@ -368,6 +368,20 @@ const JobDetails = ({ user }: { user: User }) => {
                     onClose={() => setIsApplyModalOpen(false)}
                     job={job}
                     user={user}
+                    onSuccess={() => {
+                        setMyApplication({
+                            applicationId: 'temp-id', // Temporary ID until refresh
+                            jobId: job.jobId!,
+                            applicantId: user.uid,
+                            applicantName: user.fullName,
+                            message: '',
+                            proposedFee: job.offeredFee,
+                            status: 'pending',
+                            createdAt: new Date().toISOString(),
+                            applicantPhone: user.phone || '',
+                            applicantRating: user.rating || 0
+                        });
+                    }}
                 />
             )}
         </div>

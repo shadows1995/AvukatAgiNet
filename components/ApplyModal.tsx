@@ -7,7 +7,7 @@ import Toast from './Toast';
 import { useAlert } from '../contexts/AlertContext';
 
 
-const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () => void }) => {
+const ApplyModal = ({ job, user, onClose, onSuccess }: { job: Job, user: User, onClose: () => void, onSuccess?: () => void }) => {
   const [message, setMessage] = useState('Görevle ilgileniyorum. Müsaitim.');
   const [bid, setBid] = useState(job.offeredFee.toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,10 +57,12 @@ const ApplyModal = ({ job, user, onClose }: { job: Job, user: User, onClose: () 
       await supabase.from('notifications').insert({
         user_id: job.createdBy,
         title: "Yeni Başvuru Geldi 📢",
-        message: `${user.fullName}, "${job.title}" görevinize başvurdu.`,
+        message: `${user.fullName}, "${job.title}" görevi için başvuru yaptı.`,
         type: "info",
         read: false
       });
+
+      if (onSuccess) onSuccess();
 
       showAlert({
         title: "Başarılı",
