@@ -217,6 +217,9 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
               </>
             ) : (
               <div className="flex items-center space-x-3">
+                <Link to="/yasal-mevzuat" className="text-slate-600 hover:text-primary-600 font-medium px-3 py-2">
+                  Yasal Mevzuat
+                </Link>
                 <Link to="/how-it-works" className="text-slate-600 hover:text-primary-600 font-medium px-3 py-2">
                   Nasıl Çalışır?
                 </Link>
