@@ -98,38 +98,44 @@ const PaymentPage = () => {
                     <p className="mt-2 text-lg text-slate-600">Güvenli ödeme altyapısı ile işleminizi tamamlayın.</p>
                 </div>
 
-                <div className="bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col md:flex-row">
+                <div className="bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
                     {/* Order Summary */}
-                    <div className="bg-slate-900 p-8 text-white md:w-1/3 flex flex-col justify-between">
-                        <div>
-                            <h3 className="text-lg font-semibold text-slate-300 uppercase tracking-wider mb-6">Sipariş Özeti</h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-slate-400">Paket</span>
-                                    <span className="font-medium">{plan === 'premium_plus' ? 'Premium Plus' : 'Premium'}</span>
+                    <div className="bg-gradient-to-br from-primary-900 to-primary-800 p-10 text-white md:w-2/5 flex flex-col justify-between relative overflow-hidden">
+                        {/* Decorative background elements */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-500/10 rounded-full -ml-10 -mb-10 blur-2xl pointer-events-none"></div>
+
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-bold text-white/90 uppercase tracking-wider mb-8 border-b border-white/10 pb-4">Sipariş Özeti</h3>
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-center group">
+                                    <span className="text-primary-100 font-medium group-hover:text-white transition-colors">Paket</span>
+                                    <span className="font-bold text-lg">{plan === 'premium_plus' ? 'Premium Plus' : 'Premium'}</span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-slate-400">Periyot</span>
-                                    <span className="font-medium">{period === 'monthly' ? 'Aylık' : 'Yıllık'}</span>
+                                <div className="flex justify-between items-center group">
+                                    <span className="text-primary-100 font-medium group-hover:text-white transition-colors">Periyot</span>
+                                    <span className="font-bold text-lg">{period === 'monthly' ? 'Aylık' : 'Yıllık'}</span>
                                 </div>
-                                <div className="pt-4 border-t border-slate-700 flex justify-between items-center text-xl font-bold">
-                                    <span>Toplam</span>
-                                    <span>{price} TL</span>
+                                <div className="pt-6 border-t border-white/10 flex justify-between items-center">
+                                    <span className="text-xl font-bold text-white/90">Toplam</span>
+                                    <span className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-primary-200">{price} TL</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-8">
-                            <div className="flex items-center text-xs text-slate-400 mb-2">
-                                <ShieldCheck className="w-4 h-4 mr-1 text-green-400" /> 256-bit SSL Koruması
+                        <div className="mt-12 relative z-10 space-y-3 bg-black/20 p-4 rounded-xl backdrop-blur-sm">
+                            <div className="flex items-center text-sm text-primary-100">
+                                <ShieldCheck className="w-5 h-5 mr-3 text-emerald-400 flex-shrink-0" />
+                                <span>256-bit SSL Koruması</span>
                             </div>
-                            <div className="flex items-center text-xs text-slate-400">
-                                <Lock className="w-4 h-4 mr-1 text-green-400" /> Güvenli Ödeme
+                            <div className="flex items-center text-sm text-primary-100">
+                                <Lock className="w-5 h-5 mr-3 text-emerald-400 flex-shrink-0" />
+                                <span>Güvenli Ödeme Altyapısı</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Payment Form */}
-                    <div className="p-8 md:w-2/3">
+                    <div className="p-8 md:p-10 md:w-3/5 bg-white">
                         <form onSubmit={(e) => { e.preventDefault(); handlePayment(); }} className="space-y-6">
 
                             {/* Billing Info */}
@@ -198,7 +204,7 @@ const PaymentPage = () => {
                             </div>
 
                             {/* Agreement Checkbox */}
-                            <div className="flex items-start mt-4">
+                            <div className="flex items-start mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
                                 <div className="flex items-center h-5">
                                     <input
                                         id="agreement"
@@ -207,12 +213,12 @@ const PaymentPage = () => {
                                         required
                                         checked={agreementAccepted}
                                         onChange={(e) => setAgreementAccepted(e.target.checked)}
-                                        className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
+                                        className="focus:ring-primary-500 h-5 w-5 text-primary-600 border-gray-300 rounded cursor-pointer"
                                     />
                                 </div>
-                                <div className="ml-3 text-sm">
-                                    <label htmlFor="agreement" className="font-medium text-slate-700">
-                                        <a href="#/distance-sales-agreement" target="_blank" className="text-primary-600 hover:underline">Mesafeli Satış Sözleşmesi</a>'ni okudum ve kabul ediyorum.
+                                <div className="ml-3 text-sm leading-relaxed">
+                                    <label htmlFor="agreement" className="font-medium text-slate-600 cursor-pointer">
+                                        <a href="#/distance-sales-agreement" target="_blank" className="text-primary-600 hover:text-primary-700 hover:underline font-bold">Mesafeli Satış Sözleşmesi</a>'ni ve <a href="#/terms" target="_blank" className="text-primary-600 hover:text-primary-700 hover:underline font-bold">Kullanım Şartları</a>'nı okudum ve kabul ediyorum.
                                     </label>
                                 </div>
                             </div>
@@ -220,9 +226,16 @@ const PaymentPage = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-primary-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-primary-700 transition shadow-lg hover:shadow-primary-500/30 disabled:opacity-70 flex justify-center items-center"
+                                className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-primary-500/30 disabled:opacity-70 flex justify-center items-center transform hover:-translate-y-0.5"
                             >
-                                {loading ? 'İşleniyor...' : `Ödemeyi Tamamla (${price} TL)`}
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                                        İşleniyor...
+                                    </>
+                                ) : (
+                                    `Ödemeyi Tamamla (${price} TL)`
+                                )}
                             </button>
                         </form>
                     </div>
