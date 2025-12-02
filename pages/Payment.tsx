@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CreditCard, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
+import { CreditCard, ShieldCheck, Lock, CheckCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
 
@@ -21,7 +21,7 @@ const PaymentPage = () => {
         if (!agreementAccepted) {
             showAlert({
                 title: "Uyarı",
-                message: "Lütfen Mesafeli Satış Sözleşmesi'ni onaylayınız.",
+                message: "Lütfen Mesafeli Satış Sözleşmesi ve Kullanım Şartları'nı onaylayınız.",
                 type: "warning",
                 confirmText: "Tamam"
             });
