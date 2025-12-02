@@ -104,7 +104,9 @@ const CreateJob = ({ user }: { user: User }) => {
           courthouse: formData.courthouse,
           jobType: formData.type,
           jobId: null,
-          createdBy: user.uid
+          createdBy: user.uid,
+          date: formData.date,
+          offeredFee: formData.fee
         })
       }).catch(err => console.error("SMS Notification Error:", err));
 

@@ -85,8 +85,8 @@ async function sendSms(phone, message) {
 
 // Endpoint: Notify users about a new job
 app.post('/api/notify-new-job', async (req, res) => {
-    const { city, courthouse, jobType, jobId, createdBy } = req.body;
-    console.log('📨 SMS Request received:', { city, courthouse, jobType, createdBy });
+    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee } = req.body;
+    console.log('📨 SMS Request received:', { city, courthouse, jobType, createdBy, date, offeredFee });
 
     if (!courthouse || !jobType) {
         console.log('❌ Missing required fields');
@@ -228,7 +228,21 @@ app.post('/api/notify-new-job', async (req, res) => {
         }
 
         // 3. Send SMS to filtered users
-        const message = `Sayın Meslektaşımız, ${courthouse} adliyesinde, yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
+        // Format date if present
+        let dateStr = '';
+        if (date) {
+            try {
+                // Assuming date is YYYY-MM-DD
+                const [y, m, d] = date.split('-');
+                dateStr = `${d}.${m}.${y} tarihli, `;
+            } catch (e) {
+                dateStr = `${date} tarihli, `;
+            }
+        }
+
+        const feeStr = offeredFee ? `${offeredFee} TL ücretli ` : '';
+
+        const message = `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
 
         let sentCount = 0;
         for (const user of usersToNotify) {
