@@ -41,6 +41,8 @@ export interface User {
   jobStatus?: 'active' | 'passive';
   aboutMe?: string;
   title?: string;
+  billingAddress?: string;
+  tcId?: string;
 }
 
 // Firestore Job Collection Schema

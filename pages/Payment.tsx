@@ -64,11 +64,8 @@ const PaymentPage = () => {
                 premium_since: new Date().toISOString(),
                 premium_until: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
                 updated_at: new Date().toISOString(),
-                address: billingInfo.address,
-                // We'll try to save these if columns exist, otherwise it might fail or ignore.
-                // To be safe, let's just update standard fields and address.
-                // If we need to store TC, we should add a column. 
-                // For this task, I will assume 'address' is the mapped field for address.
+                billing_address: billingInfo.address,
+                tc_id: billingInfo.tcId
             }).eq('uid', user.id);
 
             if (error) throw error;
