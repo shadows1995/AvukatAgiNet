@@ -54,7 +54,7 @@ const HomePage = ({ user }: { user: User }) => {
             })) as Job[];
 
             setRecentActivity(mappedJobs.slice(0, 6));
-            setArchive(mappedJobs.filter(j => j.status === 'completed').slice(0, 5));
+            setArchive(mappedJobs.filter(j => j.status === 'completed' && j.selectedApplicant === user.uid).slice(0, 5));
          }
          setLoading(false);
       };
