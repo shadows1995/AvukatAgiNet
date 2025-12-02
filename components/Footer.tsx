@@ -54,6 +54,7 @@ const Footer = () => {
                     <ul className="flex flex-col gap-3">
                         <li><Link to="/privacy" className={linkStyle}>Gizlilik ve Kişisel Verilerin İşlenmesi Politikası</Link></li>
                         <li><Link to="/terms" className={linkStyle}>Kullanım Şartları</Link></li>
+                        <li><Link to="/distance-sales-agreement" className={linkStyle}>Mesafeli Satış Sözleşmesi</Link></li>
                     </ul>
                 </div>
             </div>

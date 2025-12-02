@@ -292,7 +292,7 @@ app.post('/api/notify-application-approved', async (req, res) => {
             return res.status(400).json({ error: 'User has no phone number' });
         }
 
-        const message = `Avukat Ağı - Sayın Meslektaşımız, "${jobTitle}" görevi için başvurunuz onaylanmıştır. Detaylar için uygulamayı kontrol ediniz.`;
+        const message = `Avukat Ağı - Sayın Meslektaşımız, "${jobTitle}" görevi için başvurunuz kabul edilmiştir. Görevi yapmaya başlayabilirsiniz. Detaylar için uygulamayı kontrol ediniz.`;
 
         const response = await sendSms(user.phone, message);
 

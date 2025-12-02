@@ -19,7 +19,7 @@ async function testDirectSMS() {
     // Ideally, we should ask the user for a number, but for now let's try to send to a dummy or the user's number if known.
     // Since I don't have a number, I will use a placeholder and expect a specific error or success if I can use a real one.
     // I'll use a dummy number that is valid format: 5551234567
-    const testPhone = '5551234567';
+    const testPhone = '5532233290';
 
     if (!username || !password || !header) {
         console.error('❌ Missing NetGSM credentials in .env file');
