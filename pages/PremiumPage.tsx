@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Rocket, Zap, Crown, Shield, Loader2 } from 'lucide-react';
 import { User } from '../types';
 import { supabase } from '../supabaseClient';
@@ -38,48 +39,20 @@ const PremiumPage = ({ user }: { user: User }) => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
     const { showAlert } = useAlert();
 
-    const handleUpgrade = async (plan: 'premium' | 'premium_plus') => {
-        setLoading(`${plan}-${billingCycle}`);
+    const navigate = useNavigate();
 
-        // Simulate payment processing
-        setTimeout(async () => {
-            try {
-                const now = new Date();
-                const durationMs = billingCycle === 'monthly' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000;
-                const until = new Date(now.getTime() + durationMs);
+    const handleUpgrade = (plan: 'premium' | 'premium_plus') => {
+        const price = plan === 'premium'
+            ? (billingCycle === 'monthly' ? 250 : 1500)
+            : (billingCycle === 'monthly' ? 300 : 2000);
 
-                const { error } = await supabase.from('users').update({
-                    is_premium: true,
-                    membership_type: plan,
-                    premium_plan: billingCycle,
-                    premium_since: now.toISOString(),
-                    premium_until: until.toISOString(),
-                    premium_price: plan === 'premium'
-                        ? (billingCycle === 'monthly' ? 300 : 1500)
-                        : (billingCycle === 'monthly' ? 500 : 2500)
-                }).eq('uid', user.uid);
-
-                if (error) throw error;
-
-                showAlert({
-                    title: "Tebrikler!",
-                    message: `${plan === 'premium' ? 'Premium' : 'Premium +'} üyeliğiniz başarıyla aktif edildi.`,
-                    type: "success",
-                    confirmText: "Tamam",
-                    onConfirm: () => window.location.reload()
-                });
-            } catch (error) {
-                console.error("Upgrade error:", error);
-                showAlert({
-                    title: "Hata",
-                    message: "Bir hata oluştu. Lütfen tekrar deneyin.",
-                    type: "error",
-                    confirmText: "Tamam"
-                });
-            } finally {
-                setLoading(null);
+        navigate('/payment', {
+            state: {
+                plan,
+                price,
+                period: billingCycle
             }
-        }, 1500);
+        });
     };
 
     const getPlanStatus = (planType: string) => {
