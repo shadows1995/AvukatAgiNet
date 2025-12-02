@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CreditCard, ShieldCheck, Lock, CheckCircle, Loader2 } from 'lucide-react';
+import { CreditCard, ShieldCheck, Lock, CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
 
@@ -93,6 +93,14 @@ const PaymentPage = () => {
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
+                <button
+                    onClick={() => navigate('/premium')}
+                    className="flex items-center text-slate-500 hover:text-slate-800 transition-colors mb-6 font-medium"
+                >
+                    <ArrowLeft className="w-5 h-5 mr-2" />
+                    Paketlere Geri Dön
+                </button>
+
                 <div className="text-center mb-8">
                     <h2 className="text-3xl font-extrabold text-slate-900">Ödeme Bilgileri</h2>
                     <p className="mt-2 text-lg text-slate-600">Güvenli ödeme altyapısı ile işleminizi tamamlayın.</p>
