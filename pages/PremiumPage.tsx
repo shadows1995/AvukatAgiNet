@@ -240,7 +240,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                                     )}
                                 </button>
                                 <p className={`${styles.noCredit} text-center`}>
-                                    {plan.price > 0 ? 'Kredi kartı gerekmez' : 'Süresiz ücretsiz'}
+                                    {plan.price > 0 ? '' : 'Süresiz ücretsiz'}
                                 </p>
                             </div>
                         </div>
