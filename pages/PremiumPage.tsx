@@ -181,7 +181,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                             <div className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${billingCycle === 'yearly' ? 'translate-x-6' : ''}`}></div>
                         </button>
                         <span className={`text-sm font-bold ${billingCycle === 'yearly' ? 'text-slate-900' : 'text-slate-500'}`}>
-                            Yıllık <span className="text-green-600 text-xs ml-1 bg-green-100 px-2 py-0.5 rounded-full">5 Ay Bedava!</span>
+                            Yıllık <span className="text-green-600 text-xs ml-1 bg-green-100 px-2 py-0.5 rounded-full">%50 İndirim</span>
                         </span>
                     </div>
                 </div>
