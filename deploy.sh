@@ -13,7 +13,7 @@ echo "📌 GitHub'dan son kod çekiliyor..."
 git pull || { echo "❌ Git pull failed! Aborting."; exit 1; }
 
 echo "📌 Yeni Docker imajı build ediliyor (Cache temizleniyor)..."
-docker build --no-cache -t avukat-agi:latest .
+docker build --no-cache -t avukat-agi:latest . || { echo "❌ Docker build failed! Aborting."; exit 1; }
 
 echo "📌 Eski container durduruluyor..."
 docker stop avukat-agi-container || true

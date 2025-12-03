@@ -1,18 +1,19 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { sendSaleRequest } from "./garantiClient.cjs";
-import dotenv from "dotenv";
+
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import path from "path";
-import { fileURLToPath } from "url";
 import cron from 'node-cron';
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// __dirname is available in CommonJS
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
