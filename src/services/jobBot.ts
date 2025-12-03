@@ -175,7 +175,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 owner_name: jobDetails.ownerName,
                 owner_phone: '555' + Math.floor(1000000 + Math.random() * 9000000),
                 status: 'open',
-                applications_count: 0,
+                applications_count: Math.floor(Math.random() * (6 - 4 + 1)) + 4, // Random between 4 and 6
                 is_urgent: false,
                 application_deadline: deadlineDate.toISOString(),
                 created_at: new Date().toISOString(),
