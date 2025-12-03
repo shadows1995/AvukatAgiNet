@@ -17,6 +17,9 @@ COPY . .
 # Vite build: dist klasörü oluşacak
 RUN npm run build
 
+# Backend build: TypeScript dosyalarını derle
+RUN npx tsc --project tsconfig.server.json
+
 # 2. AŞAMA: Production aşaması (Sadece backend ve dist)
 FROM node:20-alpine
 
@@ -29,10 +32,9 @@ RUN npm install --only=production --legacy-peer-deps
 # Build aşamasından dist klasörünü kopyala
 COPY --from=build /app/dist ./dist
 
-# Backend dosyalarını kopyala
-COPY server.js ./
-# Eğer backend için başka dosyalar lazımsa buraya ekle (örn: services, utils klasörleri)
-# COPY services ./services 
+# Build aşamasından derlenmiş backend dosyalarını kopyala
+COPY --from=build /app/src/server.cjs ./src/server.cjs
+COPY --from=build /app/src/garantiClient.cjs ./src/garantiClient.cjs
 
 # Portu ayarla (deploy.sh 80:80 mapliyor, bu yüzden içeride 80 dinlemeli)
 ENV PORT=80
@@ -40,4 +42,4 @@ ENV PORT=80
 EXPOSE 80
 
 # Uygulamayı başlat
-CMD ["node", "server.js"]
+CMD ["node", "src/server.cjs"]

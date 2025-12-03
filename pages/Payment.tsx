@@ -3,8 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CreditCard, ShieldCheck, Lock, CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
+import axios from 'axios';
 
-const PaymentPage = () => {
+interface PaymentPageProps {
+    onPaymentSuccess?: () => void;
+}
+
+const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { plan, price, period } = location.state || { plan: 'premium', price: 249, period: 'monthly' };
@@ -15,6 +20,12 @@ const PaymentPage = () => {
         fullName: '',
         address: '',
         tcId: ''
+    });
+    const [cardInfo, setCardInfo] = useState({
+        holderName: '',
+        number: '',
+        expDate: '',
+        cvc: ''
     });
 
     const handlePayment = async () => {
@@ -38,50 +49,80 @@ const PaymentPage = () => {
             return;
         }
 
+        if (!cardInfo.holderName || !cardInfo.number || !cardInfo.expDate || !cardInfo.cvc) {
+            showAlert({
+                title: "Eksik Bilgi",
+                message: "Lütfen tüm kart bilgilerini doldurunuz.",
+                type: "warning",
+                confirmText: "Tamam"
+            });
+            return;
+        }
+
         setLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+            showAlert({
+                title: "Hata",
+                message: "Oturum açmanız gerekiyor.",
+                type: "error",
+                confirmText: "Tamam"
+            });
+            setLoading(false);
+            return;
+        }
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            const [expMonth, expYear] = cardInfo.expDate.split('/');
 
-            // Update user with premium status AND billing info
-            // Note: Ideally billing info should be in a separate table or column.
-            // For now, we will try to update it in the 'users' table if columns exist, 
-            // or just proceed with premium update if not.
-            // Since we can't easily run migrations here, we'll assume columns might be missing 
-            // and just update what we can, or store it in metadata if possible.
-            // However, the user requested it to be stored. 
-            // We will try to update 'address' which exists in User type, and maybe store TC in metadata or a new column if we could.
-            // Let's try to update address. TC might need a new column.
+            if (!expMonth || !expYear || expMonth.length !== 2 || expYear.length !== 2) {
+                throw new Error("Son kullanma tarihi AA/YY formatında olmalıdır.");
+            }
 
-            const { error } = await supabase.from('users').update({
-                is_premium: true,
-                membership_type: plan,
-                premium_plan: period,
-                premium_price: price,
-                premium_since: new Date().toISOString(),
-                premium_until: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
-                updated_at: new Date().toISOString(),
-                billing_address: billingInfo.address,
-                tc_id: billingInfo.tcId
-            }).eq('uid', user.id);
+            const apiUrl = import.meta.env.VITE_API_URL;
+            if (!apiUrl) {
+                console.error("VITE_API_URL is not defined!");
+                throw new Error("Sistem yapılandırma hatası: API URL bulunamadı.");
+            }
+            const response = await axios.post(`${apiUrl}/api/garanti/test-sale`, {
+                amount: price.toString(),
+                cardNumber: cardInfo.number.replace(/\s/g, ''),
+                expMonth,
+                expYear,
+                cvv: cardInfo.cvc,
+                email: user.email,
+                userId: user.id, // Pass user ID for backend update
+                plan,
+                period,
+                billingInfo
+            });
 
-            if (error) throw error;
+            const result = response.data;
+
+            if (!result.approved) {
+                throw new Error(result.errorMsg || result.message || "Ödeme reddedildi.");
+            }
+
+            // Client-side update removed as it is now handled by the backend securely.
+            // We just show success message.
 
             showAlert({
                 title: "Ödeme Başarılı!",
                 message: "Üyeliğiniz başarıyla güncellendi.",
                 type: "success",
                 confirmText: "Tamam",
-                onConfirm: () => navigate('/dashboard')
+                onConfirm: () => {
+                    if (onPaymentSuccess) onPaymentSuccess();
+                    navigate('/payment-success', {
+                        state: { plan, period }
+                    });
+                }
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Payment error:", error);
             showAlert({
-                title: "Hata",
-                message: "Ödeme sırasında bir hata oluştu.",
+                title: "Ödeme Başarısız",
+                message: error.message || "Ödeme sırasında bir hata oluştu.",
                 type: "error",
                 confirmText: "Tamam"
             });
@@ -189,27 +230,65 @@ const PaymentPage = () => {
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800 mb-4">Kart Bilgileri</h3>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Kart Üzerindeki İsim</label>
-                                <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11" placeholder="Ad Soyad" />
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                                    placeholder="Ad Soyad"
+                                    value={cardInfo.holderName}
+                                    onChange={e => setCardInfo({ ...cardInfo, holderName: e.target.value })}
+                                />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Kart Numarası</label>
                                 <div className="relative">
                                     <CreditCard className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-                                    <input type="text" required className="w-full pl-10 rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11" placeholder="0000 0000 0000 0000" />
+                                    <input
+                                        type="text"
+                                        required
+                                        className="w-full pl-10 rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                                        placeholder="0000 0000 0000 0000"
+                                        maxLength={19}
+                                        value={cardInfo.number}
+                                        onChange={e => setCardInfo({ ...cardInfo, number: e.target.value })}
+                                    />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Son Kullanma Tarihi</label>
-                                    <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11" placeholder="AA/YY" />
+                                    <input
+                                        type="text"
+                                        required
+                                        className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                                        placeholder="AA/YY"
+                                        maxLength={5}
+                                        value={cardInfo.expDate}
+                                        onChange={e => {
+                                            let val = e.target.value.replace(/\D/g, '');
+                                            if (val.length > 2) {
+                                                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                                            }
+                                            setCardInfo({ ...cardInfo, expDate: val });
+                                        }}
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">CVC</label>
-                                    <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11" placeholder="123" />
+                                    <input
+                                        type="text"
+                                        required
+                                        className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-11"
+                                        placeholder="123"
+                                        maxLength={4}
+                                        value={cardInfo.cvc}
+                                        onChange={e => setCardInfo({ ...cardInfo, cvc: e.target.value })}
+                                    />
                                 </div>
                             </div>
+
 
                             {/* Agreement Checkbox */}
                             <div className="flex items-start mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
@@ -248,8 +327,8 @@ const PaymentPage = () => {
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 
