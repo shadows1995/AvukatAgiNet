@@ -160,6 +160,17 @@ const MyJobs = () => {
           .in('user_id', applicantIds)
           .eq('month', currentMonthDate);
 
+        // Fetch membership types for all applicants
+        const { data: usersData } = await supabase
+          .from('users')
+          .select('uid, membership_type')
+          .in('uid', applicantIds);
+
+        const membershipMap: { [key: string]: string } = {};
+        usersData?.forEach(u => {
+          membershipMap[u.uid] = u.membership_type || 'free';
+        });
+
         // Create a map of user_id to job_count
         const jobCountMap: { [key: string]: number } = {};
         statsData?.forEach(stat => {
@@ -177,11 +188,19 @@ const MyJobs = () => {
           proposedFee: app.proposed_fee,
           status: app.status,
           createdAt: app.created_at,
-          monthlyJobCount: jobCountMap[app.applicant_id] || 0
+          monthlyJobCount: jobCountMap[app.applicant_id] || 0,
+          membershipType: membershipMap[app.applicant_id] as any
         }));
 
-        // Sort by monthly job count (ascending)
-        apps.sort((a, b) => a.monthlyJobCount - b.monthlyJobCount);
+        // Sort: Premium+ first, then by monthly job count (ascending)
+        apps.sort((a, b) => {
+          // 1. Premium Plus Priority
+          if (a.membershipType === 'premium_plus' && b.membershipType !== 'premium_plus') return -1;
+          if (a.membershipType !== 'premium_plus' && b.membershipType === 'premium_plus') return 1;
+
+          // 2. Monthly Job Count (Ascending - fewer jobs first)
+          return a.monthlyJobCount - b.monthlyJobCount;
+        });
 
         setApplications(apps as any);
       } else {
@@ -442,9 +461,14 @@ const MyJobs = () => {
                         // Calculate minimum job count and restriction
                         const minJobCount = applications.length > 0 ? Math.min(...applications.map((a: any) => a.monthlyJobCount || 0)) : 0;
                         const isRestricted = (app.monthlyJobCount || 0) > (minJobCount + 3);
+                        const isPremiumPlus = app.membershipType === 'premium_plus';
 
                         return (
-                          <div key={app.applicationId} className={`bg-white p-4 rounded-lg border ${isSelected ? 'border-green-500 ring-1 ring-green-500' : isRestricted ? 'border-orange-200 bg-orange-50/30' : 'border-slate-200'} flex justify-between items-center shadow-sm`}>
+                          <div key={app.applicationId} className={`bg-white p-4 rounded-lg border flex justify-between items-center shadow-sm transition-all duration-300 ${isSelected ? 'border-green-500 ring-1 ring-green-500' :
+                              isPremiumPlus ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-amber-100 bg-amber-50/30' :
+                                isRestricted ? 'border-orange-200 bg-orange-50/30' :
+                                  'border-slate-200'
+                            }`}>
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                                 <span
@@ -465,6 +489,7 @@ const MyJobs = () => {
                                   Bu ay: {app.monthlyJobCount || 0} görev
                                 </span>
                                 {isSelected && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold border border-green-200">SEÇİLDİ</span>}
+                                {isPremiumPlus && !isSelected && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold border border-amber-200 flex items-center"><Star className="w-3 h-3 mr-1 fill-amber-700" /> PREMIUM+</span>}
                                 {isRestricted && !isSelected && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold border border-orange-200">SEÇİLEMEZ</span>}
                               </div>
                               <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded border border-slate-100 italic">"{app.message}"</p>

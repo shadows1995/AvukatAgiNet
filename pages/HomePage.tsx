@@ -450,7 +450,7 @@ const HomePage = ({ user }: { user: User }) => {
                      <div className="p-2 bg-primary-50 rounded-lg mr-3">
                         <Activity className="w-5 h-5 text-primary-600" />
                      </div>
-                     AvukatAğı'nda neler oluyor?
+                     AvukatAğı'nda Gündem
                   </h3>
                   <div className="space-y-8 relative pl-2">
                      <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-100"></div>
@@ -489,7 +489,7 @@ const HomePage = ({ user }: { user: User }) => {
                         <div className="p-2 bg-secondary-50 rounded-lg mr-3">
                            <Archive className="w-5 h-5 text-secondary-600" />
                         </div>
-                        Arşiv
+                        Geçmiş Görevlerim
                      </h3>
                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Son Tamamlananlar</span>
                   </div>

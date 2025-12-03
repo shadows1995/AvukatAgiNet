@@ -82,6 +82,7 @@ export interface Application {
   // Denormalized fields for UI efficiency
   applicantPhone?: string;
   applicantRating?: number;
+  membershipType?: 'free' | 'premium' | 'premium_plus';
 }
 
 export interface Notification {
