@@ -55,7 +55,7 @@ const CreateJob = ({ user }: { user: User }) => {
       return;
     }
 
-    if ((todayJobCount || 0) >= 10) {
+    if (user.role !== 'admin' && (todayJobCount || 0) >= 10) {
       showNotification('error', "Günlük görev oluşturma limitine (10) ulaştınız. Yarın tekrar deneyiniz.");
       setIsLoading(false);
       return;
