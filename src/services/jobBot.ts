@@ -119,10 +119,12 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 .eq('date', today)
                 .limit(1);
 
+            /*
             if (existingJobs && existingJobs.length > 0) {
                 console.log(`🤖 Job Bot: Job already exists for ${ch.name} today. Skipping.`);
                 continue;
             }
+            */
 
             // Generate Content
             console.log(`🤖 Job Bot: Generating content for ${ch.name}...`);
@@ -191,9 +193,8 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 status: 'open',
                 applications_count: Math.floor(Math.random() * (6 - 4 + 1)) + 4, // Random between 4 and 6
                 is_urgent: false,
-                application_deadline: deadlineDate.toISOString(),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                application_deadline: deadlineDate.toISOString()
+                // created_at and updated_at are handled by the database default value (now())
             }).select().single();
 
             if (insertError) {
