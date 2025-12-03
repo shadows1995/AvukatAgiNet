@@ -1,4 +1,4 @@
-import { google } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -20,8 +20,8 @@ export const generateJobDetails = async (courthouse: string): Promise<GeneratedJ
     }
 
     try {
-        const client = new google.GenAI({ apiKey });
-        const model = client.generativeModel("gemini-1.5-flash");
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
         Sen bir Türk avukatısın. "${courthouse}" için gerçekçi bir tevkil (avukatlar arası iş yardımlaşması) görevi oluşturman gerekiyor.

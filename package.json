@@ -10,7 +10,7 @@
     "server": "node server.js"
   },
   "dependencies": {
-    "@google/genai": "^1.30.0",
+    "@google/generative-ai": "^0.21.0",
     "@netgsm/sms": "^1.1.10",
     "@supabase/supabase-js": "^2.86.0",
     "@types/canvas-confetti": "^1.9.0",
