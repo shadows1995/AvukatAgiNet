@@ -418,7 +418,7 @@ app.post("/api/garanti/test-sale", async (req, res) => {
                 premium_plan: period,
                 premium_price: parseFloat(amount),
                 premium_since: new Date().toISOString(),
-                premium_until: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
+                premium_until: new Date(Date.now() + ((period === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000)).toISOString(),
                 updated_at: new Date().toISOString(),
                 billing_address: billingInfo?.address,
                 tc_id: billingInfo?.tcId
