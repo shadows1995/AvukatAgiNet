@@ -1,7 +1,6 @@
 node_modules
 dist
 .git
-.env
 src/*.js
 src/*.cjs
 src/*.map
