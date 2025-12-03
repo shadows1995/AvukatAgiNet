@@ -10,7 +10,7 @@
     "server": "node src/server.js"
   },
   "dependencies": {
-    "@google/genai": "^0.1.1",
+    "@google/genai": "*",
     "@netgsm/sms": "^1.1.10",
     "@supabase/supabase-js": "^2.86.0",
     "@types/canvas-confetti": "^1.9.0",
