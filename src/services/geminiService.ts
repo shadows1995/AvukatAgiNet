@@ -13,29 +13,33 @@ interface GeneratedJob {
     ownerName: string;
 }
 
-export const generateJobDetails = async (courthouse: string): Promise<GeneratedJob | null> => {
+export const generateJobDetails = async (courthouse: string, allowedJobTypes?: string[]): Promise<GeneratedJob | null> => {
     if (!apiKey) {
         console.error("Gemini API key is missing.");
         return null;
     }
 
     try {
-        // Initialize the new SDK client
-        // The docs say: const ai = new GoogleGenAI({}); and it picks up GEMINI_API_KEY env var.
-        // But we can also pass it explicitly if needed, though the constructor might not take { apiKey }.
-        // Let's try passing it if the type allows, otherwise rely on env var.
-        // Based on user docs: const ai = new GoogleGenAI({});
-        // Let's rely on process.env.GEMINI_API_KEY being set (which we know it is).
         const ai = new GoogleGenAI({ apiKey });
+
+        const jobTypeInstruction = allowedJobTypes && allowedJobTypes.length > 0
+            ? `Seçilecek görev türü SADECE şunlardan biri olabilir: ${allowedJobTypes.join(', ')}.`
+            : 'Herhangi bir görev türü seçilebilir.';
 
         const prompt = `
         Sen bir Türk avukatısın. "${courthouse}" için gerçekçi bir tevkil (avukatlar arası iş yardımlaşması) görevi oluşturman gerekiyor.
         
+        KURALLAR:
+        1. ${jobTypeInstruction}
+        2. Eğer görev türü "Diğer" seçilirse, bu görev MUTLAKA idari kurumlarla ilgili olmalı (Örn: Göç İdaresi, Polis Merkezi, Tapu Müdürlüğü, Nüfus Müdürlüğü vb.).
+        3. Eğer görev türü "İcra İşlemi" seçilirse, bu görev MUTLAKA icra dairesinde yapılan bir işlem olmalı ve detayları buna uygun olmalı (Örn: Dosya fotokopisi, talep açma, haciz vb.).
+        4. Eğer görev türü "Duruşma" seçilirse, mahkeme türü ve duruşma detayları gerçekçi olmalı.
+        
         Lütfen aşağıdaki formatta geçerli bir JSON çıktısı ver (Markdown yok, sadece JSON):
         {
-            "title": "Kısa ve net bir başlık (Örn: Duruşma Tevkil, Dosya İnceleme)",
-            "description": "Görevin detaylı açıklaması. Resmi ve profesyonel bir dil kullan. Emoji kullanma. Dosya numarası verme. Tarih olarak bugünü ima et.",
-            "jobType": "Duruşma" | "İcra İşlemi" | "Dosya İnceleme" | "Haciz" | "Dilekçe" | "Diğer" (Bunlardan birini seç)",
+            "title": "Kısa ve net bir başlık (Örn: Duruşma Tevkil, Dosya İnceleme, Göç İdaresi Başvuru)",
+            "description": "Görevin detaylı açıklaması. Resmi ve profesyonel bir dil kullan. Emoji kullanma. Dosya numarası verme. Tarih olarak bugünü ima et. İcra ise icra dairesi detaylarını, Diğer ise kurum detaylarını içersin.",
+            "jobType": "Duruşma" | "İcra İşlemi" | "Dosya İnceleme" | "Haciz" | "Dilekçe" | "Diğer" (Yukarıdaki kısıtlamalara uygun seç)",
             "offeredFee": 800 (Genelde 800 civarı olsun, işin zorluğuna göre 500-1500 arası değişebilir),
             "ownerName": "Rastgele bir Türk avukat ismi (Örn: Av. Ahmet Yılmaz, Av. Ayşe Demir vb.)"
         }
