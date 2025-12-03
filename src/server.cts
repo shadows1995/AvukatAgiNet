@@ -450,7 +450,7 @@ app.post("/api/garanti/test-sale", async (req, res) => {
 
 // Handle React routing, return all requests to React app
 // This must be the last route
-app.get('*', (req, res) => {
+app.get('(.*)', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
