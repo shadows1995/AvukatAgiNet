@@ -123,7 +123,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 city: ch.city,
                 courthouse: ch.name,
                 date: today,
-                time: '09:00',
+                time: '17:00', // Set to end of day to prevent immediate expiration
                 job_type: jobDetails.jobType,
                 offered_fee: jobDetails.offeredFee,
                 created_by: botUserId,
@@ -132,6 +132,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 status: 'open',
                 applications_count: 0,
                 is_urgent: false,
+                application_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             });
