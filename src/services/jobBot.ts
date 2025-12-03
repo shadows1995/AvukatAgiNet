@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { generateJobDetails } from "./geminiService.js";
 import { COURTHOUSES } from "../../data/courthouses.js";
+import { notifyNewJob } from "./notificationService.js";
 
 // Bot User Configuration
 const BOT_EMAIL = 'bot@avukatagi.net';
@@ -202,22 +203,20 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             } else {
                 console.log(`🤖 Job Bot: ✅ Job created for ${ch.name} by ${jobDetails.ownerName}`);
 
+
+
+                // ... (inside the loop)
+
                 // Trigger SMS Notification
                 try {
-                    const apiUrl = process.env.VITE_API_URL || 'http://localhost:3001';
-                    // Use dynamic import or assume fetch is available (Node 18+)
-                    await fetch(`${apiUrl}/api/notify-new-job`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            city: ch.city,
-                            courthouse: ch.name,
-                            jobType: jobDetails.jobType,
-                            jobId: insertedJob.job_id,
-                            createdBy: botUserId,
-                            date: today,
-                            offeredFee: jobDetails.offeredFee
-                        })
+                    await notifyNewJob(supabase, {
+                        city: ch.city,
+                        courthouse: ch.name,
+                        jobType: jobDetails.jobType,
+                        jobId: insertedJob.job_id,
+                        createdBy: botUserId,
+                        date: today,
+                        offeredFee: String(jobDetails.offeredFee)
                     });
                     console.log(`🤖 Job Bot: 📨 Notification triggered for job ${insertedJob.job_id}`);
                 } catch (notifyError) {
