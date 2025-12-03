@@ -3,7 +3,16 @@ CREATE OR REPLACE FUNCTION check_daily_job_limit()
 RETURNS TRIGGER AS $$
 DECLARE
     job_count INTEGER;
+    user_role TEXT;
 BEGIN
+    -- Get user role
+    SELECT role INTO user_role FROM users WHERE uid = NEW.created_by;
+
+    -- If admin, skip limit
+    IF user_role = 'admin' THEN
+        RETURN NEW;
+    END IF;
+
     -- Count jobs created by this user today
     SELECT COUNT(*)
     INTO job_count
