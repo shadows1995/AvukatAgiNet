@@ -6,7 +6,8 @@
         "noEmit": false,
         "allowImportingTsExtensions": false,
         "isolatedModules": false,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "allowJs": false
     },
     "include": [
         "src/**/*",
