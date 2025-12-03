@@ -8,14 +8,18 @@ import path from "path";
 import cron from 'node-cron';
 import dotenv from "dotenv";
 import { runJobBot } from "./services/jobBot.js";
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Serve static files from the dist directory (one level up from src where server.cjs resides)
+// Serve static files from the dist directory (one level up from src where server.js resides)
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Initialize Supabase Admin Client

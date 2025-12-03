@@ -33,8 +33,8 @@ RUN npm install --only=production --legacy-peer-deps
 COPY --from=build /app/dist ./dist
 
 # Build aşamasından derlenmiş backend dosyalarını kopyala
-COPY --from=build /app/src/server.cjs ./src/server.cjs
-COPY --from=build /app/src/garantiClient.cjs ./src/garantiClient.cjs
+# Build aşamasından derlenmiş backend dosyalarını kopyala
+COPY --from=build /app/src ./src
 
 # Portu ayarla (deploy.sh 80:80 mapliyor, bu yüzden içeride 80 dinlemeli)
 ENV PORT=80
@@ -42,4 +42,4 @@ ENV PORT=80
 EXPOSE 80
 
 # Uygulamayı başlat
-CMD ["node", "src/server.cjs"]
+CMD ["node", "src/server.js"]
