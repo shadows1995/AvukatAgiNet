@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -20,8 +20,13 @@ export const generateJobDetails = async (courthouse: string): Promise<GeneratedJ
     }
 
     try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
+        // Initialize the new SDK client
+        // The docs say: const ai = new GoogleGenAI({}); and it picks up GEMINI_API_KEY env var.
+        // But we can also pass it explicitly if needed, though the constructor might not take { apiKey }.
+        // Let's try passing it if the type allows, otherwise rely on env var.
+        // Based on user docs: const ai = new GoogleGenAI({});
+        // Let's rely on process.env.GEMINI_API_KEY being set (which we know it is).
+        const ai = new GoogleGenAI({ apiKey });
 
         const prompt = `
         Sen bir Türk avukatısın. "${courthouse}" için gerçekçi bir tevkil (avukatlar arası iş yardımlaşması) görevi oluşturman gerekiyor.
@@ -36,9 +41,22 @@ export const generateJobDetails = async (courthouse: string): Promise<GeneratedJ
         }
         `;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const response = await ai.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: [
+                {
+                    parts: [
+                        { text: prompt }
+                    ]
+                }
+            ]
+        });
+
+        const text = response.text;
+
+        if (!text) {
+            throw new Error("Empty response from Gemini");
+        }
 
         // Clean up markdown code blocks if present
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
