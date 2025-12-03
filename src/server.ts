@@ -84,8 +84,8 @@ async function sendSms(phone: string, message: string) {
     }
 }
 
-// Cron Job: Run Job Bot every hour
-cron.schedule('0 * * * *', () => {
+// Cron Job: Run Job Bot every 10 minutes
+cron.schedule('*/10 * * * *', () => {
     console.log('🤖 Running Job Bot...');
     runJobBot(supabase);
 });
