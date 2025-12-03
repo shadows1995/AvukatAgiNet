@@ -193,6 +193,12 @@ app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
+// Job Bot Schedule (Every 2 minutes)
+cron.schedule('*/2 * * * *', async () => {
+    console.log('🤖 Cron Job: Triggering Job Bot...');
+    await runJobBot(supabase);
+});
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
