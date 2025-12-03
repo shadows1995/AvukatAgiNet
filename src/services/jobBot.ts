@@ -117,13 +117,58 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             }
 
             // Insert Job
+            // Calculate Time (Turkey Time UTC+3)
+            const now = new Date();
+            const trTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
+            const currentHour = trTime.getHours();
+            const currentMin = trTime.getMinutes();
+
+            let minHour = 9;
+            const maxHour = 17;
+
+            // If currently after 9, start from current hour
+            if (currentHour >= 9) {
+                minHour = currentHour;
+            }
+
+            let randomHour = Math.floor(Math.random() * (maxHour - minHour + 1)) + minHour;
+            let randomMin = Math.floor(Math.random() * 60);
+
+            // Ensure it is in the future relative to now
+            if (randomHour === currentHour) {
+                // Add 15-45 mins buffer
+                randomMin = currentMin + 15 + Math.floor(Math.random() * 30);
+                if (randomMin >= 60) {
+                    randomHour++;
+                    randomMin -= 60;
+                }
+            }
+
+            // Cap at 17:00
+            if (randomHour >= 17) {
+                randomHour = 17;
+                randomMin = 0;
+            }
+
+            // If it's already past 17:00, we still set it to 17:00 as per "same day" rule, 
+            // even if it might be expired. The bot should ideally run earlier.
+
+            const timeString = `${String(randomHour).padStart(2, '0')}:${String(randomMin).padStart(2, '0')}`;
+
+            // Calculate Application Deadline (Same as job time)
+            // Construct deadline in UTC
+            // Job Time (TRT) -> UTC
+            // Formula: TRT - 3 hours = UTC
+            const deadlineDate = new Date(now);
+            deadlineDate.setUTCHours(randomHour - 3, randomMin, 0, 0);
+
             const { error: insertError } = await supabase.from('jobs').insert({
                 title: jobDetails.title,
                 description: jobDetails.description,
                 city: ch.city,
                 courthouse: ch.name,
                 date: today,
-                time: '17:00', // Set to end of day to prevent immediate expiration
+                time: timeString,
                 job_type: jobDetails.jobType,
                 offered_fee: jobDetails.offeredFee,
                 created_by: botUserId,
@@ -132,7 +177,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 status: 'open',
                 applications_count: 0,
                 is_urgent: false,
-                application_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
+                application_deadline: deadlineDate.toISOString(),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             });
