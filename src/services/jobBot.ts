@@ -172,14 +172,11 @@ export const runJobBot = async (supabase: SupabaseClient) => {
 
             const timeString = `${String(randomHour).padStart(2, '0')}:${String(randomMin).padStart(2, '0')}`;
 
-            // Calculate Application Deadline (Same as job time)
-            // Construct deadline in UTC
-            // Job Time (TRT) -> UTC
-            // Formula: TRT - 3 hours = UTC
-            const deadlineDate = new Date(now);
-            deadlineDate.setUTCHours(randomHour - 3, randomMin, 0, 0);
+            // Calculate Application Deadline (15 minutes from NOW)
+            const deadlineDate = new Date();
+            deadlineDate.setMinutes(deadlineDate.getMinutes() + 15);
 
-            const { error: insertError } = await supabase.from('jobs').insert({
+            const { data: insertedJob, error: insertError } = await supabase.from('jobs').insert({
                 title: jobDetails.title,
                 description: jobDetails.description,
                 city: ch.city,
@@ -197,12 +194,34 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 application_deadline: deadlineDate.toISOString(),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
-            });
+            }).select().single();
 
             if (insertError) {
                 console.error(`🤖 Job Bot: Error inserting job for ${ch.name}:`, insertError);
             } else {
                 console.log(`🤖 Job Bot: ✅ Job created for ${ch.name} by ${jobDetails.ownerName}`);
+
+                // Trigger SMS Notification
+                try {
+                    const apiUrl = process.env.VITE_API_URL || 'http://localhost:3001';
+                    // Use dynamic import or assume fetch is available (Node 18+)
+                    await fetch(`${apiUrl}/api/notify-new-job`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            city: ch.city,
+                            courthouse: ch.name,
+                            jobType: jobDetails.jobType,
+                            jobId: insertedJob.job_id,
+                            createdBy: botUserId,
+                            date: today,
+                            offeredFee: jobDetails.offeredFee
+                        })
+                    });
+                    console.log(`🤖 Job Bot: 📨 Notification triggered for job ${insertedJob.job_id}`);
+                } catch (notifyError) {
+                    console.error('🤖 Job Bot: Failed to trigger notification:', notifyError);
+                }
             }
         }
 
