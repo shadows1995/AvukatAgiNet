@@ -43,8 +43,8 @@ const PremiumPage = ({ user }: { user: User }) => {
 
     const handleUpgrade = (plan: 'premium' | 'premium_plus') => {
         const price = plan === 'premium'
-            ? (billingCycle === 'monthly' ? 250 : 1500)
-            : (billingCycle === 'monthly' ? 300 : 2000);
+            ? (billingCycle === 'monthly' ? 150 : 899)
+            : (billingCycle === 'monthly' ? 250 : 1399);
 
         navigate('/payment', {
             state: {
@@ -130,8 +130,8 @@ const PremiumPage = ({ user }: { user: User }) => {
             type: 'premium',
             title: "Premium",
             description: "İşlerini büyütmek isteyenler için",
-            price: billingCycle === 'monthly' ? 250 : 125,
-            originalPriceYearly: 1500,
+            price: billingCycle === 'monthly' ? 150 : 899 / 12,
+            originalPriceYearly: 899,
             features: [
                 "Her Şey Dahil (Başlangıç)",
                 "15 dk Görevlere Başvuru Hakkı",
@@ -147,8 +147,8 @@ const PremiumPage = ({ user }: { user: User }) => {
             type: 'premium_plus',
             title: "Premium +",
             description: "Profesyoneller için tam paket",
-            price: billingCycle === 'monthly' ? 300 : 167,
-            originalPriceYearly: 2000,
+            price: billingCycle === 'monthly' ? 250 : 1399 / 12,
+            originalPriceYearly: 1399,
             features: [
                 "Tüm Premium Özellikleri",
                 "Görevlere başvurularda üstte yer alma",
