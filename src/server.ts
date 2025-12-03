@@ -9,6 +9,7 @@ import cron from 'node-cron';
 import dotenv from "dotenv";
 import { runJobBot } from "./services/jobBot.js";
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -20,13 +21,18 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static files from the dist directory (one level up from src where server.js resides)
-// Serve static files from the dist directory (one level up from src where server.js resides)
 const staticPath = path.join(__dirname, '../dist');
 console.log('📂 Static Path resolved to:', staticPath);
-import fs from 'fs';
+
 if (fs.existsSync(staticPath)) {
     console.log('✅ Static directory exists.');
     console.log('   Contents:', fs.readdirSync(staticPath));
+    const assetsPath = path.join(staticPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+        console.log('   Assets Contents:', fs.readdirSync(assetsPath));
+    } else {
+        console.log('   ❌ No assets folder found in dist');
+    }
 } else {
     console.error('❌ Static directory DOES NOT exist at:', staticPath);
 }
@@ -51,8 +57,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 import { sendSms, notifyNewJob } from "./services/notificationService.js";
-
-// ... (existing imports)
 
 // Endpoint: Notify users about a new job
 app.post('/api/notify-new-job', async (req, res) => {
@@ -207,6 +211,10 @@ app.post("/api/garanti/test-sale", async (req, res) => {
 // Handle React routing, return all requests to React app
 // This must be the last route
 app.get(/.*/, (req, res) => {
+    // Log if we are serving index.html for a non-html request (likely a missing asset)
+    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
+        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
+    }
     res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
