@@ -79,11 +79,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
                 throw new Error("Son kullanma tarihi AA/YY formatında olmalıdır.");
             }
 
-            const apiUrl = import.meta.env.VITE_API_URL;
-            if (!apiUrl) {
-                console.error("VITE_API_URL is not defined!");
-                throw new Error("Sistem yapılandırma hatası: API URL bulunamadı.");
-            }
+            const apiUrl = import.meta.env.VITE_API_URL || '';
+            // if (!apiUrl) {
+            //     console.error("VITE_API_URL is not defined!");
+            //     throw new Error("Sistem yapılandırma hatası: API URL bulunamadı.");
+            // }
             const response = await axios.post(`${apiUrl}/api/garanti/test-sale`, {
                 amount: price.toString(),
                 cardNumber: cardInfo.number.replace(/\s/g, ''),
