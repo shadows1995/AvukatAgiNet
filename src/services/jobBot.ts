@@ -76,7 +76,24 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             botUserId = botUser.id;
         }
 
-        // 3. Select Random Courthouses
+        // 3. Check Day Rules
+        const now = new Date();
+        const trTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
+        const dayOfWeek = trTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+        // Rule 2: No jobs on weekends
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            console.log('🤖 Job Bot: It is weekend. No jobs will be created.');
+            return;
+        }
+
+        // Rule 1: "Duruşma" only on Tuesday (2) and Thursday (4)
+        let allowedJobTypes: string[] = ["İcra İşlemi", "Dosya İnceleme", "Haciz", "Dilekçe", "Diğer"];
+        if (dayOfWeek === 2 || dayOfWeek === 4) {
+            allowedJobTypes.push("Duruşma");
+        }
+
+        // 4. Select Random Courthouses
         const allCourthouses: { city: string, name: string }[] = [];
         Object.entries(COURTHOUSES).forEach(([city, list]) => {
             list.forEach(ch => allCourthouses.push({ city, name: ch }));
@@ -89,9 +106,9 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             selectedCourthouses.push(allCourthouses[randomIndex]);
         }
 
-        console.log(`🤖 Job Bot: Selected ${selectedCourthouses.length} courthouses for potential jobs.`);
+        console.log(`🤖 Job Bot: Selected ${selectedCourthouses.length} courthouses for potential jobs. Allowed types: ${allowedJobTypes.join(', ')}`);
 
-        // 4. Process Each Courthouse
+        // 5. Process Each Courthouse
         for (const ch of selectedCourthouses) {
             const today = new Date().toISOString().split('T')[0];
 
@@ -109,7 +126,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
 
             // Generate Content
             console.log(`🤖 Job Bot: Generating content for ${ch.name}...`);
-            const jobDetails = await generateJobDetails(ch.name);
+            const jobDetails = await generateJobDetails(ch.name, allowedJobTypes);
 
             if (!jobDetails) {
                 console.error(`🤖 Job Bot: Failed to generate content for ${ch.name}.`);
