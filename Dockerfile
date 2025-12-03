@@ -35,6 +35,7 @@ COPY --from=build /app/dist ./dist
 # Build aşamasından derlenmiş backend dosyalarını kopyala
 # Build aşamasından derlenmiş backend dosyalarını kopyala
 COPY --from=build /app/src ./src
+COPY --from=build /app/data ./data
 
 # Portu ayarla (deploy.sh 80:80 mapliyor, bu yüzden içeride 80 dinlemeli)
 ENV PORT=80
