@@ -1,19 +1,15 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { sendSaleRequest } from "./garantiClient.cjs";
-
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import path from "path";
 import cron from 'node-cron';
 import dotenv from "dotenv";
+import { runJobBot } from "./services/jobBot.js";
 
 dotenv.config();
-
-// __dirname is available in CommonJS
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -33,6 +29,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// Helper to send SMS via NetGSM XML API
 // Helper to send SMS via NetGSM XML API
 async function sendSms(phone: string, message: string) {
     try {
@@ -78,13 +75,18 @@ async function sendSms(phone: string, message: string) {
         console.error(`❌ Error sending SMS to ${phone}:`, error.message);
         if (error.response) {
             console.error('Response status:', error.response.status);
-            console.error('Response data:', error.response.data);
         }
-        return null;
+        return { success: false, error: error.message };
     }
 }
 
-// Daily check for expired memberships (runs at midnight)
+// Cron Job: Run Job Bot every hour
+cron.schedule('0 * * * *', () => {
+    console.log('🤖 Running Job Bot...');
+    runJobBot(supabase);
+});
+
+// Cron Job: Check for expired premium memberships daily at midnight
 cron.schedule('0 0 * * *', async () => {
     console.log('Running daily premium expiration check...');
     const now = new Date().toISOString();
@@ -106,7 +108,47 @@ cron.schedule('0 0 * * *', async () => {
     if (error) {
         console.error('Error checking expired memberships:', error);
     } else {
-        console.log(`Expired memberships updated: ${data.length} users reverted to free.`);
+        console.log(`Expired memberships updated: ${data?.length || 0} users reverted to free.`);
+    }
+});
+
+// Admin Bot Status Endpoints
+app.get('/api/admin/bot-status', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'job_bot_enabled')
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            throw error;
+        }
+
+        const enabled = data?.value === 'true' || data?.value === true;
+        res.json({ enabled });
+    } catch (error: any) {
+        console.error('Error fetching bot status:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/admin/bot-status', async (req, res) => {
+    try {
+        const { enabled } = req.body;
+        const { error } = await supabase
+            .from('system_settings')
+            .upsert({
+                key: 'job_bot_enabled',
+                value: String(enabled),
+                updated_at: new Date().toISOString()
+            });
+
+        if (error) throw error;
+        res.json({ success: true, enabled });
+    } catch (error: any) {
+        console.error('Error updating bot status:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

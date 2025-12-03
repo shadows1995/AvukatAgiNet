@@ -273,13 +273,40 @@ export const adminApi = {
         return { success: true };
     },
 
+    async getBotStatus() {
+        const { data, error } = await supabase
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'job_bot_enabled')
+            .single();
+
+        if (error) {
+            console.error('Error fetching bot status:', error);
+            return { enabled: false };
+        }
+
+        return { enabled: data?.value === 'true' || data?.value === true };
+    },
+
+    async updateBotStatus(enabled: boolean) {
+        const { error } = await supabase
+            .from('system_settings')
+            .upsert({
+                key: 'job_bot_enabled',
+                value: enabled.toString(),
+                updated_at: new Date().toISOString()
+            });
+
+        if (error) throw error;
+
+        await createAuditLog('BOT_STATUS_CHANGED', 'system', 'job_bot', { enabled });
+        return { success: true };
+    },
+
     async getDashboardStats() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayIso = today.toISOString();
-
-        // This might be heavy if we fetch all. Better to use count queries.
-        // But for now, let's replicate the existing logic but optimized with count.
 
         const { count: totalUsers } = await supabase.from('users').select('*', { count: 'exact', head: true });
         const { count: totalJobs } = await supabase.from('jobs').select('*', { count: 'exact', head: true });
@@ -289,12 +316,13 @@ export const adminApi = {
         const { count: todayJobs } = await supabase.from('jobs').select('*', { count: 'exact', head: true }).gte('created_at', todayIso);
         const { count: todayCompleted } = await supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'completed').gte('completed_at', todayIso);
         const { count: activeUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('account_status', 'active');
+        const { count: newUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', todayIso);
 
         return {
             today: {
                 jobsCreated: todayJobs || 0,
                 jobsCompleted: todayCompleted || 0,
-                newUsers: 0, // Need a query for this if needed
+                newUsers: newUsers || 0,
                 activeUsers: activeUsers || 0
             },
             totals: {

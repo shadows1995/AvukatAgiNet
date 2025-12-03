@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     Briefcase, CheckCircle, Users, TrendingUp,
-    Activity, AlertCircle
+    Activity, AlertCircle, Bot, Power
 } from 'lucide-react';
 import { adminApi } from '../../services/adminApi';
 
@@ -22,24 +22,45 @@ interface DashboardStats {
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [botEnabled, setBotEnabled] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [togglingBot, setTogglingBot] = useState(false);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const data = await adminApi.getDashboardStats();
-                setStats(data);
+                const [statsData, botData] = await Promise.all([
+                    adminApi.getDashboardStats(),
+                    adminApi.getBotStatus()
+                ]);
+                setStats(statsData);
+                setBotEnabled(botData.enabled);
             } catch (err) {
                 console.error(err);
-                setError('İstatistikler yüklenirken hata oluştu.');
+                setError('Veriler yüklenirken hata oluştu.');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStats();
+        fetchData();
     }, []);
+
+    const handleToggleBot = async () => {
+        if (botEnabled === null) return;
+        setTogglingBot(true);
+        try {
+            const newState = !botEnabled;
+            await adminApi.updateBotStatus(newState);
+            setBotEnabled(newState);
+        } catch (err) {
+            console.error("Error toggling bot:", err);
+            alert("Bot durumu değiştirilemedi.");
+        } finally {
+            setTogglingBot(false);
+        }
+    };
 
     if (loading) {
         return <div className="p-8 text-center">Yükleniyor...</div>;
@@ -58,9 +79,35 @@ const AdminDashboard = () => {
 
     return (
         <div className="space-y-8">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500">Sistemin genel durumuna hızlı bakış</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+                    <p className="text-gray-500">Sistemin genel durumuna hızlı bakış</p>
+                </div>
+
+                {/* Bot Control Panel */}
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center space-x-4">
+                    <div className={`p-3 rounded-lg ${botEnabled ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                        <Bot className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-gray-900">Otomatik Görev Botu</h3>
+                        <p className="text-xs text-gray-500">
+                            {botEnabled ? 'Aktif - Görev oluşturuyor' : 'Pasif - Devre dışı'}
+                        </p>
+                    </div>
+                    <button
+                        onClick={handleToggleBot}
+                        disabled={togglingBot}
+                        className={`ml-4 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 ${botEnabled ? 'bg-green-500' : 'bg-gray-200'}`}
+                    >
+                        <span className="sr-only">Botu Aç/Kapat</span>
+                        <span
+                            aria-hidden="true"
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${botEnabled ? 'translate-x-5' : 'translate-x-0'}`}
+                        />
+                    </button>
+                </div>
             </div>
 
             {/* Today's Stats */}
