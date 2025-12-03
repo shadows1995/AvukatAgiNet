@@ -330,7 +330,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     <span className="text-sm">Kalan Süre</span>
                   </div>
                   <span className="text-sm font-bold text-primary-600">
-                    {user.premiumUntil ? Math.ceil((user.premiumUntil - Date.now()) / (1000 * 60 * 60 * 24)) : 0} Gün
+                    {user.premiumUntil ? Math.ceil((new Date(user.premiumUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0} Gün
                   </span>
                 </div>
               </div>
