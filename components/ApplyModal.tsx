@@ -57,7 +57,7 @@ const ApplyModal = ({ job, user, onClose, onSuccess }: { job: Job, user: User, o
       await supabase.from('notifications').insert({
         user_id: job.createdBy,
         title: "Yeni Başvuru Geldi 📢",
-        message: `${user.fullName}, "${job.title}" görevi için başvuru yaptı.`,
+        message: `Bir avukat, "${job.title}" görevinize başvuru yaptı.`,
         type: "info",
         read: false
       });
