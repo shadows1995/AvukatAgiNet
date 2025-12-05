@@ -204,6 +204,11 @@ app.post("/api/garanti/test-sale", async (req, res) => {
         res.json(result);
     } catch (err: any) {
         console.error(err);
+        const fs = require('fs');
+        try {
+            fs.appendFileSync('debug_log.txt', `\n--- SALE REQUEST ERROR ---\nError: ${err.message}\nStack: ${err.stack}\n--------------------------\n`);
+        } catch (e) { }
+
         res.status(500).json({ error: "Garanti test sale failed", details: err?.message });
     }
 });

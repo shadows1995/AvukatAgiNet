@@ -189,8 +189,19 @@ export async function sendSaleRequest(req: GarantiSaleRequest): Promise<GarantiS
     responseType: "arraybuffer", // ensure we handle encoding
   });
 
+  const fs = require('fs');
+  try {
+    const rawHex = Buffer.from(data).toString('hex').substring(0, 200) + "...";
+    fs.appendFileSync('debug_log.txt', `\n--- RAW RESPONCE START ---\nHex: ${rawHex}\n`);
+  } catch (e) { }
+
   console.log("Raw Response Buffer:", Buffer.from(data).toString('hex').substring(0, 100) + "...");
   const decoded = iconv.decode(Buffer.from(data), "ISO-8859-9");
+
+  try {
+    fs.appendFileSync('debug_log.txt', `Decoded ISO-8859-9: ${decoded}\n--- RAW RESPONCE END ---\n`);
+  } catch (e) { }
+
   console.log("Decoded Response (ISO-8859-9):", decoded);
 
   // Try UTF-8 just in case
