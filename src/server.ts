@@ -184,7 +184,7 @@ app.post("/api/garanti/test-sale", async (req, res) => {
                 tc_id: billingInfo?.tcId
             };
 
-            const fs = require('fs');
+            // const fs = require('fs'); // Removed: using top-level import
             fs.appendFileSync('debug_log.txt', `\n--- Supabase Update Attempt ---\nUser: ${userId}\nPlan: ${plan}\nData: ${JSON.stringify(updateData, null, 2)}\n`);
 
             const { data, error } = await supabase.from('users').update(updateData).eq('uid', userId).select();
@@ -197,14 +197,14 @@ app.post("/api/garanti/test-sale", async (req, res) => {
                 fs.appendFileSync('debug_log.txt', `Success: Updated ${data?.length} rows.\n-------------------------------\n`);
             }
         } else {
-            const fs = require('fs');
+            // const fs = require('fs'); // Removed: using top-level import
             fs.appendFileSync('debug_log.txt', `\n--- Supabase Update Skipped ---\nApproved: ${result.approved}\nUserId: ${userId}\n-------------------------------\n`);
         }
 
         res.json(result);
     } catch (err: any) {
         console.error(err);
-        const fs = require('fs');
+        // const fs = require('fs'); // Removed: using top-level import
         try {
             fs.appendFileSync('debug_log.txt', `\n--- SALE REQUEST ERROR ---\nError: ${err.message}\nStack: ${err.stack}\n--------------------------\n`);
         } catch (e) { }
