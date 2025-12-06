@@ -114,6 +114,49 @@ app.post('/api/notify-application-approved', async (req, res) => {
     }
 });
 
+// Endpoint: General SMS sending (protected)
+app.post('/api/send-sms', async (req, res) => {
+    const { phone, message } = req.body;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ error: 'Missing Authorization header' });
+    }
+
+    if (!phone || !message) {
+        return res.status(400).json({ error: 'Missing phone or message' });
+    }
+
+    try {
+        // Extract token
+        const token = authHeader.replace('Bearer ', '');
+
+        // Verify user with Supabase
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+
+        if (error || !user) {
+            return res.status(401).json({ error: 'Invalid or expired token' });
+        }
+
+        // Optional: Add rate limiting or permission checks here if needed
+        // For now, any authenticated user (lawyer) can trigger this if implemented in the app
+
+        console.log(`📨 Authenticated SMS request from user ${user.id} to ${phone}`);
+
+        const result = await sendSms(phone, message);
+
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(500).json(result);
+        }
+
+    } catch (err: any) {
+        console.error('Server error during SMS send:', err);
+        res.status(500).json({ error: 'Internal server error', details: err.message });
+    }
+});
+
 // Endpoint: Delete user account
 app.post('/api/delete-account', async (req, res) => {
     const { uid, token } = req.body;
