@@ -3,6 +3,7 @@ import axios from "axios";
 
 // Helper to send SMS via NetGSM XML API
 export async function sendSms(phone: string, message: string) {
+    console.log('📨 sendSms called', phone, message);
     try {
         // Clean phone number (remove spaces, ensure 10 digits if possible, or 90 prefix)
         const cleanPhone = phone.replace(/\D/g, '');
@@ -30,20 +31,21 @@ export async function sendSms(phone: string, message: string) {
         const response = await axios.post(url, xmlData, {
             headers: {
                 'Content-Type': 'application/xml'
-            }
+            },
+            timeout: 10000 // 10 seconds timeout
         });
 
         const responseCode = response.data.toString().trim().substring(0, 2);
 
         if (responseCode === '00' || responseCode === '01') {
             console.log(`✅ SMS sent successfully to ${cleanPhone}. Code: ${responseCode}`);
-            return { success: true, code: responseCode, data: response.data };
+            return { success: true, code: responseCode, providerResponse: response.data };
         } else {
             console.log(`❌ SMS failed to ${cleanPhone}. Code: ${responseCode}`);
-            return { success: false, code: responseCode, data: response.data };
+            return { success: false, code: responseCode, providerResponse: response.data };
         }
     } catch (error: any) {
-        console.error(`❌ Error sending SMS to ${phone}:`, error.message);
+        console.error('❌ NetGSM error', error.message);
         if (error.response) {
             console.error('Response status:', error.response.status);
         }

@@ -114,10 +114,17 @@ app.post('/api/notify-application-approved', async (req, res) => {
     }
 });
 
+// Endpoint: Health Check
+app.get('/api/health', (req, res) => {
+    res.json({ ok: true, time: new Date().toISOString() });
+});
+
 // Endpoint: General SMS sending (protected)
 app.post('/api/send-sms', async (req, res) => {
     const { phone, message } = req.body;
     const authHeader = req.headers.authorization;
+
+    console.log("Incoming /api/send-sms request", phone);
 
     if (!authHeader) {
         return res.status(401).json({ error: 'Missing Authorization header' });
@@ -138,17 +145,14 @@ app.post('/api/send-sms', async (req, res) => {
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
 
-        // Optional: Add rate limiting or permission checks here if needed
-        // For now, any authenticated user (lawyer) can trigger this if implemented in the app
-
         console.log(`📨 Authenticated SMS request from user ${user.id} to ${phone}`);
 
         const result = await sendSms(phone, message);
 
         if (result.success) {
-            res.json(result);
+            return res.json(result);
         } else {
-            res.status(500).json(result);
+            return res.status(500).json(result);
         }
 
     } catch (err: any) {
