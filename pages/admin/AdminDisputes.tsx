@@ -35,10 +35,10 @@ const AdminDisputes = () => {
         setIsModalOpen(true);
     };
 
-    const handleResolve = async () => {
+    const handleResolve = async (status: 'resolved' | 'dismissed') => {
         if (!selectedDispute) return;
         try {
-            await adminApi.resolveDispute(selectedDispute.id, resolutionNote);
+            await adminApi.resolveDispute(selectedDispute.id, resolutionNote, status);
             setIsModalOpen(false);
             fetchDisputes(); // Refresh list
         } catch (err) {
@@ -73,7 +73,13 @@ const AdminDisputes = () => {
                                 İptal
                             </button>
                             <button
-                                onClick={handleResolve}
+                                onClick={() => handleResolve('dismissed')}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition shadow-sm"
+                            >
+                                Reddet
+                            </button>
+                            <button
+                                onClick={() => handleResolve('resolved')}
                                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition shadow-sm"
                             >
                                 Çözüldü Olarak İşaretle
@@ -140,30 +146,37 @@ const AdminDisputes = () => {
                                         <td className="p-4 text-sm text-slate-700 max-w-xs">
                                             <div>{dispute.description}</div>
                                             {dispute.resolution_notes && (
-                                                <div className="mt-1 text-xs text-green-700 bg-green-50 p-1 rounded border border-green-100">
-                                                    <strong>Çözüm:</strong> {dispute.resolution_notes}
+                                                <div className={`mt-1 text-xs p-1 rounded border ${dispute.status === 'dismissed'
+                                                        ? 'text-red-700 bg-red-50 border-red-100'
+                                                        : 'text-green-700 bg-green-50 border-green-100'
+                                                    }`}>
+                                                    <strong>{dispute.status === 'dismissed' ? 'Red Nedeni:' : 'Çözüm:'}</strong> {dispute.resolution_notes}
                                                 </div>
                                             )}
                                         </td>
                                         <td className="p-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${dispute.status === 'resolved'
                                                     ? 'bg-green-100 text-green-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
+                                                    : dispute.status === 'dismissed'
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {dispute.status === 'resolved' ? (
                                                     <><CheckCircle className="w-3 h-3 mr-1" /> Çözüldü</>
+                                                ) : dispute.status === 'dismissed' ? (
+                                                    <><AlertCircle className="w-3 h-3 mr-1" /> Reddedildi</>
                                                 ) : (
                                                     <><Clock className="w-3 h-3 mr-1" /> Açık</>
                                                 )}
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            {dispute.status !== 'resolved' && (
+                                            {dispute.status === 'open' && (
                                                 <button
                                                     onClick={() => openResolveModal(dispute)}
                                                     className="text-sm text-white bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-md font-medium transition shadow-sm"
                                                 >
-                                                    Çöz
+                                                    İşlem Yap
                                                 </button>
                                             )}
                                         </td>

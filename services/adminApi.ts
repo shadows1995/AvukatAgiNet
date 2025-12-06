@@ -351,10 +351,10 @@ export const adminApi = {
         return data || [];
     },
 
-    async resolveDispute(disputeId: string, resolution: string) {
+    async resolveDispute(disputeId: string, resolution: string, status: 'resolved' | 'dismissed' = 'resolved') {
         const { error } = await supabase
             .from('disputes')
-            .update({ status: 'resolved', resolution_notes: resolution }) // assuming we might want notes, or just status
+            .update({ status: status, resolution_notes: resolution })
             .eq('id', disputeId);
 
         if (error) throw error;
