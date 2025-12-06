@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
-    LayoutDashboard, Briefcase, Users, Shield,
+    LayoutDashboard, Briefcase, Users, Shield, AlertCircle,
     LogOut, Menu, X
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
@@ -19,6 +19,7 @@ const AdminLayout = () => {
         { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
         { to: '/admin/jobs', icon: Briefcase, label: 'Görev Yönetimi' },
         { to: '/admin/users', icon: Users, label: 'Kullanıcı Yönetimi' },
+        { to: '/admin/disputes', icon: AlertCircle, label: 'Şikayet Yönetimi' },
         { to: '/admin/security', icon: Shield, label: 'Güvenlik & Loglar' },
     ];
 

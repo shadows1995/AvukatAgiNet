@@ -317,6 +317,7 @@ export const adminApi = {
         const { count: todayCompleted } = await supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'completed').gte('completed_at', todayIso);
         const { count: activeUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('account_status', 'active');
         const { count: newUsers } = await supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', todayIso);
+        const { count: openDisputes } = await supabase.from('disputes').select('*', { count: 'exact', head: true }).eq('status', 'open');
 
         return {
             today: {
@@ -329,9 +330,36 @@ export const adminApi = {
                 totalUsers: totalUsers || 0,
                 totalJobs: totalJobs || 0,
                 activeJobs: activeJobs || 0,
-                premiumUsers: premiumUsers || 0
+                premiumUsers: premiumUsers || 0,
+                openDisputes: openDisputes || 0
             }
         };
+    },
+
+    // Disputes
+    async getDisputes() {
+        const { data, error } = await supabase
+            .from('disputes')
+            .select(`
+                *,
+                users:reporter_id (full_name, email, phone),
+                jobs:job_id (title, city, courthouse)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    async resolveDispute(disputeId: string, resolution: string) {
+        const { error } = await supabase
+            .from('disputes')
+            .update({ status: 'resolved', resolution_notes: resolution }) // assuming we might want notes, or just status
+            .eq('id', disputeId);
+
+        if (error) throw error;
+        await createAuditLog('DISPUTE_RESOLVED', 'dispute', disputeId, { resolution });
+        return { success: true };
     }
 };
 

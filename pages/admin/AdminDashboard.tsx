@@ -17,6 +17,7 @@ interface DashboardStats {
         totalJobs: number;
         activeJobs: number;
         premiumUsers: number;
+        openDisputes: number;
     };
 }
 
@@ -183,6 +184,12 @@ const AdminDashboard = () => {
                     <div className="p-4 bg-gray-50 rounded-lg text-center">
                         <p className="text-sm text-gray-500 mb-1">Açık Görevler</p>
                         <p className="text-xl font-bold text-green-600">{stats.totals.activeJobs}</p>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-lg text-center cursor-pointer hover:bg-red-100 transition" onClick={() => window.location.hash = '#/admin/disputes'}>
+                        <p className="text-sm text-red-600 mb-1 flex items-center justify-center font-medium">
+                            <AlertCircle className="w-4 h-4 mr-1" /> Açık Şikayetler
+                        </p>
+                        <p className="text-xl font-bold text-red-700">{stats.totals.openDisputes || 0}</p>
                     </div>
                 </div>
             </div>
