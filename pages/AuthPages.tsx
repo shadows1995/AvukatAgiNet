@@ -216,7 +216,7 @@ export const RegisterPage = () => {
         options: {
           data: {
             full_name: `${formData.firstName} ${formData.lastName}`,
-            phone: cleanPhone, // Add phone to metadata
+            phone: cleanPhone,
             baro_number: formData.barNo,
             baro_city: formData.barCity,
             city: formData.barCity,
@@ -226,9 +226,21 @@ export const RegisterPage = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Signup Error Object:", error);
+        alert("Kayıt Hatası (Detay): " + error.message + "\nCode: " + error.status);
+        throw error;
+      }
 
+      if (!data.user) {
+        alert("Kritik Hata: Kullanıcı nesnesi boş döndü! (Database hatası değil, Auth hatası)");
+        return;
+      }
+
+      // Success case
       if (data.user) {
+        // Log success for debugging
+        console.log("Signup Successful, User ID:", data.user.id);
         // Attempt to update profile fields (if the user exists from trigger)
         // If trigger failed/delayed, this might miss, but it won't crash.
         const { error: updateError } = await supabase.from('users').update({
