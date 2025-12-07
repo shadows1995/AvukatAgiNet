@@ -214,6 +214,11 @@ export const RegisterPage = () => {
           data: {
             full_name: `${formData.firstName} ${formData.lastName}`,
             phone: cleanPhone, // Add phone to metadata
+            baro_number: formData.barNo,
+            baro_city: formData.barCity,
+            city: formData.barCity,
+            role: 'free',
+            job_status: 'active'
           }
         }
       });

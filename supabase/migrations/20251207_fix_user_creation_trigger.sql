@@ -2,17 +2,33 @@
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (uid, email, full_name, phone, role, job_status, rating, completed_jobs, created_at)
+  insert into public.users (
+    uid, 
+    email, 
+    full_name, 
+    phone, 
+    role, 
+    job_status, 
+    rating, 
+    completed_jobs, 
+    created_at,
+    baro_number,
+    baro_city,
+    city
+  )
   values (
     new.id,
     new.email,
     new.raw_user_meta_data->>'full_name',
     new.raw_user_meta_data->>'phone',
-    'free',
-    'active',
+    coalesce(new.raw_user_meta_data->>'role', 'free'),
+    coalesce(new.raw_user_meta_data->>'job_status', 'active'),
     0,
     0,
-    now()
+    now(),
+    new.raw_user_meta_data->>'baro_number',
+    new.raw_user_meta_data->>'baro_city',
+    new.raw_user_meta_data->>'city'
   );
   return new;
 end;
