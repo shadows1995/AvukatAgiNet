@@ -9,6 +9,7 @@ begin
     phone, 
     role, 
     job_status, 
+    account_status,
     rating, 
     completed_jobs, 
     created_at,
@@ -23,12 +24,13 @@ begin
     new.raw_user_meta_data->>'phone',
     coalesce(new.raw_user_meta_data->>'role', 'free'),
     coalesce(new.raw_user_meta_data->>'job_status', 'active'),
+    NULL, -- account_status default as requested
     0,
     0,
     now(),
     new.raw_user_meta_data->>'baro_number',
     new.raw_user_meta_data->>'baro_city',
-    new.raw_user_meta_data->>'city'
+    coalesce(new.raw_user_meta_data->>'city', new.raw_user_meta_data->>'baro_city')
   );
   return new;
 end;

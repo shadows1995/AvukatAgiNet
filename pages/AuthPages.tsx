@@ -183,6 +183,8 @@ export const RegisterPage = () => {
       // Normalize phone number (remove spaces, parentheses, etc.)
       const cleanPhone = formData.phone.replace(/\s/g, '').replace(/[()]/g, '');
 
+      // BYPASS DUPLICATE CHECK FOR DEBUGGING
+      /*
       // Use RPC function to check duplicates (bypasses RLS)
       const { data: duplicateCheck, error: rpcError } = await supabase
         .rpc('check_duplicate_user', {
@@ -206,6 +208,7 @@ export const RegisterPage = () => {
           return;
         }
       }
+      */
 
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
