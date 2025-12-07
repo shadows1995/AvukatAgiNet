@@ -23,6 +23,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const location = useLocation();
   const navigate = useNavigate();
   const notificationRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuBtnRef = useRef<HTMLButtonElement>(null);
 
   const isActive = (path: string) => location.pathname === path
     ? "text-primary-600 font-bold bg-primary-50/80 rounded-xl px-3 py-2 shadow-sm ring-1 ring-primary-100 whitespace-nowrap text-sm"
@@ -86,8 +88,20 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   // Close notifications when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Notifications
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setShowNotifs(false);
+      }
+
+      // Mobile Menu
+      if (
+        isOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        mobileMenuBtnRef.current &&
+        !mobileMenuBtnRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     };
 
@@ -95,7 +109,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -124,8 +138,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   return (<>
     <nav className="glass-effect border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20">
-          <div className="flex items-center">
+        <div className="flex justify-between h-20 relative">
+          <div className="flex items-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0">
             <Link to="/" className="flex-shrink-0">
               <Logo />
             </Link>
@@ -234,7 +248,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           </div>
 
           <div className="flex items-center md:hidden order-first">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-slate-600">
+            <button ref={mobileMenuBtnRef} onClick={() => setIsOpen(!isOpen)} className="text-slate-600">
               {isOpen ? <X /> : <Menu />}
             </button>
           </div>
@@ -243,20 +257,20 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
 
       {/* Mobile Menu */}
       {isOpen && user && (
-        <div className="md:hidden bg-white border-t border-slate-100 px-2 pt-2 pb-3 space-y-1">
-          <Link to="/home" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Anasayfa</Link>
-          <Link to="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Açık Görevler</Link>
-          <Link to="/create-job" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
-          <Link to="/my-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
-          <Link to="/accepted-jobs" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>
+        <div ref={mobileMenuRef} className="md:hidden bg-white border-t border-slate-100 px-2 pt-2 pb-3 space-y-1">
+          <Link to="/home" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Anasayfa</Link>
+          <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Açık Görevler</Link>
+          <Link to="/create-job" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
+          <Link to="/my-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
+          <Link to="/accepted-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>
           {user.role === 'admin' && (
-            <Link to="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">
+            <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">
               <Shield className="w-4 h-4 mr-2 inline-block" /> Admin Paneli
             </Link>
           )}
-          <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Ayarlar</Link>
-          <Link to={`/profile/${user.uid}`} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Profilim</Link>
-          <button onClick={onLogout} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
+          <Link to="/settings" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Ayarlar</Link>
+          <Link to={`/profile/${user.uid}`} onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Profilim</Link>
+          <button onClick={() => { onLogout(); setIsOpen(false); }} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
         </div>
       )}
     </nav>
