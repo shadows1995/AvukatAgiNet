@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle, Sparkles } from 'lucide-react';
+import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle, Sparkles, FileText, UserCheck, ShieldCheck } from 'lucide-react';
 import { User, Job } from '../types';
 import { supabase } from '../supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
@@ -532,26 +532,51 @@ const HomePage = ({ user }: { user: User }) => {
             </div>
          </div>
 
-         {/* How It Works Section (Brief) */}
-         <div className="max-w-7xl mx-auto px-4 mt-12">
-            <div className="bg-white rounded-xl p-8 border border-slate-200 text-center">
-               <h3 className="text-lg font-bold text-slate-800 mb-6">Nasıl Çalışır?</h3>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div>
-                     <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600 font-bold text-lg">1</div>
-                     <h4 className="font-bold text-sm">Görev Oluştur</h4>
-                     <p className="text-xs text-slate-500 mt-1">Detayları girin ve görevi yayınlayın.</p>
+         {/* How It Works Section (Enhanced) */}
+         <div className="max-w-7xl mx-auto px-4 mt-16 mb-16">
+            <div className="text-center mb-12">
+               <h3 className="text-3xl font-bold text-slate-900">Nasıl Çalışır?</h3>
+               <p className="text-slate-500 mt-2 max-w-2xl mx-auto">AvukatAğı ile işbirliği yapmak güvenli, hızlı ve kolaydır. Sürecin nasıl işlediğine göz atın.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+               {/* Connector Line (Desktop) */}
+               <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-primary-200 via-primary-300 to-primary-200 z-0 border-t-2 border-dashed border-primary-200"></div>
+
+               {/* Step 1 */}
+               <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-24 h-24 bg-white rounded-2xl shadow-lg border border-primary-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative">
+                     <div className="absolute -top-3 -right-3 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold shadow-md">1</div>
+                     <FileText className="w-10 h-10 text-primary-600" />
                   </div>
-                  <div>
-                     <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600 font-bold text-lg">2</div>
-                     <h4 className="font-bold text-sm">Avukat Seç</h4>
-                     <p className="text-xs text-slate-500 mt-1">Gelen başvuruları değerlendirin.</p>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">Görev Oluştur</h4>
+                  <p className="text-slate-500 leading-relaxed max-w-xs">
+                     İhtiyaç duyduğunuz işin detaylarını, yerini ve ücretini belirterek saniyeler içinde görev oluşturun.
+                  </p>
+               </div>
+
+               {/* Step 2 */}
+               <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-24 h-24 bg-white rounded-2xl shadow-lg border border-primary-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative">
+                     <div className="absolute -top-3 -right-3 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold shadow-md">2</div>
+                     <UserCheck className="w-10 h-10 text-primary-600" />
                   </div>
-                  <div>
-                     <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600 font-bold text-lg">3</div>
-                     <h4 className="font-bold text-sm">İşi Tamamla</h4>
-                     <p className="text-xs text-slate-500 mt-1">Güvenle işbirliği yapın.</p>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">Avukat Seç</h4>
+                  <p className="text-slate-500 leading-relaxed max-w-xs">
+                     Gelen başvuruları inceleyin, meslektaşlarınızın profillerini ve puanlarını görüntüleyerek en uygun adayı seçin.
+                  </p>
+               </div>
+
+               {/* Step 3 */}
+               <div className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-24 h-24 bg-white rounded-2xl shadow-lg border border-primary-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative">
+                     <div className="absolute -top-3 -right-3 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold shadow-md">3</div>
+                     <ShieldCheck className="w-10 h-10 text-primary-600" />
                   </div>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">İşi Tamamla</h4>
+                  <p className="text-slate-500 leading-relaxed max-w-xs">
+                     Güvenle işbirliği yapın, görev tamamlandığında ödeme onayını verin ve meslektaşınızı değerlendirin.
+                  </p>
                </div>
             </div>
          </div>

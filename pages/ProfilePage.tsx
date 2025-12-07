@@ -168,6 +168,21 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
         </div>
       </div>
 
+      {/* Reviews Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="text-lg font-bold text-slate-800 flex items-center">
+            <Star className="w-5 h-5 mr-2 text-amber-500 fill-current" /> Değerlendirmeler
+          </h3>
+          <span className="text-sm text-slate-500">
+            {profileUser.rating ? profileUser.rating.toFixed(1) : '0.0'} / 5.0
+          </span>
+        </div>
+        <div className="p-6">
+          <ReviewsList userId={userId!} />
+        </div>
+      </div>
+
       {/* Contact Information - Conditional Visibility */}
       {(canViewContact || currentUser.uid === profileUser.uid) && (
         <div className={`rounded-2xl shadow-sm border overflow-hidden ${canViewContact ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-200'}`}>
@@ -230,5 +245,104 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
     </div>
   );
 };
+
+// Sub-component for listing reviews to keep code clean
+const ReviewsList = ({ userId }: { userId: string }) => {
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        // Fetch ratings for this user
+        const { data: ratingsData, error } = await supabase
+          .from('ratings')
+          .select('*')
+          .eq('reviewee_id', userId)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (ratingsData) {
+          // Fetch reviewer details for each rating
+          const reviewsWithDetails = await Promise.all(ratingsData.map(async (rating) => {
+            const { data: reviewerData } = await supabase
+              .from('users')
+              .select('full_name, avatar_url')
+              .eq('uid', rating.reviewer_id)
+              .single();
+
+            return {
+              ...rating,
+              reviewer: reviewerData || { full_name: 'Bilinmeyen Kullanıcı', avatar_url: null }
+            };
+          }));
+          setReviews(reviewsWithDetails);
+        }
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [userId]);
+
+  if (loading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-300" /></div>;
+
+  if (reviews.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <div className="bg-slate-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+          <Star className="w-6 h-6 text-slate-300" />
+        </div>
+        <p className="text-slate-500 text-sm">Henüz değerlendirme yapılmamış.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {reviews.map((review) => (
+        <div key={review.id} className="flex space-x-4 pb-6 border-b border-slate-50 last:border-0 last:pb-0">
+          <div className="flex-shrink-0">
+            {review.reviewer.avatar_url ? (
+              <img src={review.reviewer.avatar_url} alt={review.reviewer.full_name} className="w-10 h-10 rounded-full object-cover border border-slate-100" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold border border-slate-200">
+                {review.reviewer.full_name.charAt(0)}
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900">{review.reviewer.full_name}</h4>
+                <div className="flex items-center mt-1 space-x-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-3 h-3 ${star <= review.rating ? 'text-amber-400 fill-current' : 'text-slate-200'}`}
+                    />
+                  ))}
+                  <span className="text-xs text-slate-400 ml-2">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {review.review_text && (
+              <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-3 rounded-lg">
+                {review.review_text}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 
 export default ProfilePage;

@@ -181,7 +181,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 )}
                 <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
 
-                  {/* Notification Bell */}
+                  {/* Notification Bell (Desktop) */}
                   <div className="relative" ref={notificationRef}>
                     <button
                       onClick={handleReadNotifications}
@@ -247,10 +247,46 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             )}
           </div>
 
+          {/* Mobile Left Section: Menu + Notification */}
           <div className="flex items-center md:hidden order-first">
-            <button ref={mobileMenuBtnRef} onClick={() => setIsOpen(!isOpen)} className="text-slate-600">
+            {/* Hamburger Button */}
+            <button ref={mobileMenuBtnRef} onClick={() => setIsOpen(!isOpen)} className="text-slate-600 p-2 -ml-2">
               {isOpen ? <X /> : <Menu />}
             </button>
+
+            {/* Mobile Notification Bell */}
+            {user && (
+              <div className="relative ml-1">
+                <button
+                  onClick={handleReadNotifications}
+                  className="p-2 text-slate-600 hover:text-primary-600 transition relative"
+                >
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border border-white"></span>
+                  )}
+                </button>
+                {showNotifs && (
+                  <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="p-3 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700 text-sm">
+                      Bildirimler
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-slate-500">Bildiriminiz yok.</div>
+                      ) : (
+                        notifications.map(n => (
+                          <div key={n.id} className={`p-3 border-b border-slate-50 hover:bg-slate-50 ${!n.read ? 'bg-blue-50/50' : ''}`}>
+                            <div className="text-sm font-medium text-slate-800">{n.title}</div>
+                            <div className="text-xs text-slate-500 mt-1">{n.message}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
