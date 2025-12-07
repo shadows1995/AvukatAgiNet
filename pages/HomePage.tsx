@@ -218,29 +218,29 @@ const HomePage = ({ user }: { user: User }) => {
          />
          {/* Hero Section - BOXED LAYOUT & BLUE COLOR */}
          <div className="max-w-7xl mx-auto px-4 mt-8">
-            <div className="bg-primary-900 text-white py-20 px-8 rounded-3xl shadow-2xl relative overflow-hidden">
-               {/* Interactive Sphere Background */}
-               <div className="absolute top-0 right-0 w-full h-full md:w-2/3 md:h-full opacity-60 pointer-events-auto z-0">
+            <div className="bg-primary-900 text-white py-10 px-6 md:py-20 md:px-8 rounded-3xl shadow-2xl relative overflow-hidden">
+               {/* Interactive Sphere Background - Adjusted for mobile */}
+               <div className="absolute top-0 right-0 w-full h-full md:w-2/3 md:h-full opacity-40 md:opacity-60 pointer-events-auto z-0 scale-150 md:scale-100 origin-center translate-x-10 md:translate-x-0">
                   <InteractiveSphere />
                </div>
 
                <div className="flex flex-col md:flex-row items-center justify-between relative z-10">
                   <div className="mb-6 md:mb-0 max-w-2xl">
-                     <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+                     <h1 className="text-3xl md:text-6xl font-extrabold mb-4 md:mb-6 leading-tight tracking-tight">
                         Meslektaşlarınızla <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-200">
                            Güçlerinizi Birleştirin
                         </span>
                      </h1>
-                     <p className="text-primary-100 text-xl mb-10 max-w-lg leading-relaxed">
+                     <p className="text-primary-100 text-base md:text-xl mb-6 md:mb-10 max-w-lg leading-relaxed">
                         Türkiye'nin lider tevkil uygulaması ile iş ağınızı genişletin, zaman kazanın.
                      </p>
-                     <div className="flex flex-wrap gap-4">
+                     <div className="flex flex-wrap gap-3 md:gap-4">
                         <button
                            onClick={() => navigate('/create-job')}
-                           className="bg-white text-primary-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-blue-50 transition transform hover:-translate-y-1 flex items-center"
+                           className="bg-white text-primary-900 px-5 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl hover:shadow-2xl hover:bg-blue-50 transition transform hover:-translate-y-1 flex items-center"
                         >
-                           <PlusCircle className="w-6 h-6 mr-3" /> Yeni Görev Ver
+                           <PlusCircle className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" /> Yeni Görev
                         </button>
                         <button
                            onClick={() => {
@@ -250,9 +250,9 @@ const HomePage = ({ user }: { user: User }) => {
                                  navigate('/premium');
                               }
                            }}
-                           className="bg-primary-800/50 backdrop-blur-md border border-primary-400/30 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-primary-800/70 transition transform hover:-translate-y-1 flex items-center"
+                           className="bg-primary-800/50 backdrop-blur-md border border-primary-400/30 text-white px-5 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl hover:shadow-2xl hover:bg-primary-800/70 transition transform hover:-translate-y-1 flex items-center"
                         >
-                           <Briefcase className="w-6 h-6 mr-3" /> Görevlere Başvur
+                           <Briefcase className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" /> Görev Bul
                         </button>
                      </div>
                   </div>
@@ -271,40 +271,41 @@ const HomePage = ({ user }: { user: User }) => {
                <h3 className="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider border-b border-slate-100 pb-2">İSTATİSTİKLERİM</h3>
 
                {/* KPI Cards */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl p-6 text-white shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+                  <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl p-5 md:p-6 text-white shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
                      <div className="flex justify-between items-start relative z-10">
                         <div>
-                           <p className="text-primary-100 font-medium mb-1 text-sm uppercase tracking-wide">Toplam Kazanç</p>
-                           <h3 className="text-4xl font-extrabold tracking-tight">{totalEarnings.toLocaleString('tr-TR')} <span className="text-2xl font-bold text-primary-200">TL</span></h3>
+                           <p className="text-primary-100 font-medium mb-1 text-xs md:text-sm uppercase tracking-wide">Toplam Kazanç</p>
+                           <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight">{totalEarnings.toLocaleString('tr-TR')} <span className="text-xl md:text-2xl font-bold text-primary-200">TL</span></h3>
                         </div>
-                        <div className="bg-white/20 p-3.5 rounded-2xl backdrop-blur-sm border border-white/10">
-                           <Wallet className="w-7 h-7 text-white" />
-                        </div>
-                     </div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
-                     <div className="flex justify-between items-start">
-                        <div>
-                           <p className="text-slate-500 font-medium mb-1 text-sm uppercase tracking-wide">Tamamlanan Görevler</p>
-                           <h3 className="text-4xl font-extrabold text-slate-900 tracking-tight">{completedCount}</h3>
-                        </div>
-                        <div className="bg-primary-50 p-3.5 rounded-2xl group-hover:bg-primary-100 transition-colors duration-300">
-                           <CheckCircle className="w-7 h-7 text-primary-600" />
+                        <div className="bg-white/20 p-3 md:p-3.5 rounded-2xl backdrop-blur-sm border border-white/10">
+                           <Wallet className="w-6 h-6 md:w-7 md:h-7 text-white" />
                         </div>
                      </div>
                   </div>
 
-                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+                  <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                      <div className="flex justify-between items-start">
                         <div>
-                           <p className="text-slate-500 font-medium mb-1 text-sm uppercase tracking-wide">Çalışılan Adliyeler</p>
-                           <h3 className="text-4xl font-extrabold text-slate-900 tracking-tight">{Object.keys(courthouseStats).length}</h3>
+                           <p className="text-slate-500 font-medium mb-1 text-xs md:text-sm uppercase tracking-wide">Tamamlanan Görev</p>
+                           <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{completedCount}</h3>
                         </div>
-                        <div className="bg-secondary-50 p-3.5 rounded-2xl group-hover:bg-secondary-100 transition-colors duration-300">
-                           <Briefcase className="w-7 h-7 text-secondary-600" />
+                        <div className="bg-primary-50 p-3 md:p-3.5 rounded-2xl group-hover:bg-primary-100 transition-colors duration-300">
+                           <CheckCircle className="w-6 h-6 md:w-7 md:h-7 text-primary-600" />
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-slate-500 font-medium mb-1 text-xs md:text-sm uppercase tracking-wide">Çalışılan Adliyeler</p>
+                           <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{Object.keys(courthouseStats).length}</h3>
+                        </div>
+                        <div className="bg-secondary-50 p-3 md:p-3.5 rounded-2xl group-hover:bg-secondary-100 transition-colors duration-300">
+                           <Briefcase className="w-6 h-6 md:w-7 md:h-7 text-secondary-600" />
                         </div>
                      </div>
                   </div>

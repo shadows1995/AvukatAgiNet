@@ -233,7 +233,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             )}
           </div>
 
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center md:hidden order-first">
             <button onClick={() => setIsOpen(!isOpen)} className="text-slate-600">
               {isOpen ? <X /> : <Menu />}
             </button>

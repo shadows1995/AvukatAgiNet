@@ -174,7 +174,11 @@ const AppContent = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      {showFooter && <Footer />}
+      {showFooter && (
+        <div className="hidden md:block">
+          <Footer />
+        </div>
+      )}
     </div>
   );
 };
