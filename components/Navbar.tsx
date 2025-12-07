@@ -138,8 +138,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   return (<>
     <nav className="glass-effect border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 relative">
-          <div className="flex items-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0">
+        <div className="flex justify-between h-16 md:h-20 relative">
+          <div className="flex items-center md:static absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 md:top-auto md:left-auto">
             <Link to="/" className="flex-shrink-0">
               <Logo />
             </Link>

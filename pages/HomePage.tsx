@@ -446,7 +446,7 @@ const HomePage = ({ user }: { user: User }) => {
 
 
             {/* Feed & Archive Grid */}
-            <div className="grid grid-cols-2 gap-3 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-8">
 
                {/* Live Feed */}
                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-3 md:p-8">
