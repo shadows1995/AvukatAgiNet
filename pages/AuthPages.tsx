@@ -229,12 +229,13 @@ export const RegisterPage = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Update additional fields that might not be handled by trigger or need explicit setting
+        // Attempt to update profile fields (if the user exists from trigger)
+        // If trigger failed/delayed, this might miss, but it won't crash.
         const { error: updateError } = await supabase.from('users').update({
           baro_number: formData.barNo,
           baro_city: formData.barCity,
           city: formData.barCity,
-          phone: cleanPhone, // Save normalized phone
+          phone: cleanPhone,
           role: UserRole.FREE,
           rating: 0,
           completed_jobs: 0,
@@ -242,8 +243,7 @@ export const RegisterPage = () => {
         }).eq('uid', data.user.id);
 
         if (updateError) {
-          console.error("Error updating user profile:", updateError);
-          // Continue anyway as the user is created
+          console.error("Profile update error (non-fatal):", updateError);
         }
 
         showAlert({
