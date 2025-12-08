@@ -270,6 +270,19 @@ app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
+
+// Endpoint: Manually trigger Job Bot
+app.post('/api/trigger-bot', async (req, res) => {
+    try {
+        console.log('🤖 Manual Trigger: Starting Job Bot...');
+        await runJobBot(supabase);
+        res.json({ message: 'Job Bot triggered successfully. Check server logs for details.' });
+    } catch (err: any) {
+        console.error('Manual Trigger Error:', err);
+        res.status(500).json({ error: 'Failed to trigger bot', details: err.message });
+    }
+});
+
 // Job Bot Schedule (Every 2 minutes)
 cron.schedule('*/2 * * * *', async () => {
     console.log('🤖 Cron Job: Triggering Job Bot...');
