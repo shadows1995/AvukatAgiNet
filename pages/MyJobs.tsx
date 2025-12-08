@@ -36,7 +36,7 @@ const MyJobs = () => {
 
       const { data: jobsData, error } = await supabase
         .from('jobs')
-        .select('*')
+        .select('*, applications(count)')
         .eq('created_by', user.id)
         .order('created_at', { ascending: false });
 
@@ -47,7 +47,7 @@ const MyJobs = () => {
       }
 
       if (jobsData) {
-        const mappedJobs: Job[] = jobsData.map(job => ({
+        const mappedJobs: Job[] = jobsData.map((job: any) => ({
           jobId: job.job_id,
           title: job.title,
           description: job.description,
@@ -61,7 +61,7 @@ const MyJobs = () => {
           ownerName: job.owner_name,
           ownerPhone: job.owner_phone,
           status: job.status,
-          applicationsCount: job.applications_count,
+          applicationsCount: job.applications ? job.applications[0].count : (job.applications_count || 0),
           createdAt: job.created_at,
           updatedAt: job.updated_at,
           isUrgent: job.is_urgent,
@@ -441,7 +441,7 @@ const MyJobs = () => {
                       }`}
                   >
                     <Users className="w-4 h-4 mr-2" />
-                    Başvuruları Yönet {expandedJobId === job.jobId ? <ChevronDown className="ml-1 w-4 h-4 rotate-180" /> : <ChevronDown className="ml-1 w-4 h-4" />}
+                    Başvuruları Yönet ({job.applicationsCount || 0}) {expandedJobId === job.jobId ? <ChevronDown className="ml-1 w-4 h-4 rotate-180" /> : <ChevronDown className="ml-1 w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -465,9 +465,9 @@ const MyJobs = () => {
 
                         return (
                           <div key={app.applicationId} className={`bg-white p-4 rounded-lg border flex justify-between items-center shadow-sm transition-all duration-300 ${isSelected ? 'border-green-500 ring-1 ring-green-500' :
-                              isPremiumPlus ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-amber-100 bg-amber-50/30' :
-                                isRestricted ? 'border-orange-200 bg-orange-50/30' :
-                                  'border-slate-200'
+                            isPremiumPlus ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-amber-100 bg-amber-50/30' :
+                              isRestricted ? 'border-orange-200 bg-orange-50/30' :
+                                'border-slate-200'
                             }`}>
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 flex-wrap gap-y-1">
