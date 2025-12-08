@@ -386,7 +386,7 @@ const MyJobs = () => {
                     {job.isUrgent && <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold">ACİL</span>}
                   </div>
                   <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                  <p className="text-sm text-slate-500">{job.city} • {job.courthouse} • {job.date}</p>
+                  <p className="text-sm text-slate-500">{job.city} • {job.courthouse} • {job.date ? job.date.split('-').reverse().join('-') : ''}</p>
 
                   {/* SELECTED APPLICANT INFO CARD */}
                   {job.status === 'in_progress' && selectedUser && (

@@ -90,7 +90,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
             </div>
             <div className="flex items-center text-slate-500 text-sm">
               <Clock className="h-4 w-4 mr-2 text-slate-400" />
-              {job.date} | {job.time}
+              {job.date ? job.date.split('-').reverse().join('-') : ''} | {job.time}
             </div>
             <div className="flex items-center text-slate-500 text-sm">
               <Users className="h-4 w-4 mr-2 text-slate-400" />
