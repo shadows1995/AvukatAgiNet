@@ -144,7 +144,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             const currentMin = trTime.getMinutes();
 
             let minHour = 9;
-            const maxHour = 17;
+            const maxHour = 23;
 
             // If currently after 9, start from current hour
             if (currentHour >= 9) {
@@ -164,10 +164,10 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 }
             }
 
-            // Cap at 17:00
-            if (randomHour >= 17) {
-                randomHour = 17;
-                randomMin = 0;
+            // Cap at 23:59
+            if (randomHour >= 24) {
+                randomHour = 23;
+                randomMin = 59;
             }
 
             // If it's already past 17:00, we still set it to 17:00 as per "same day" rule, 
