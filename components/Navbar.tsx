@@ -247,12 +247,37 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             )}
           </div>
 
-          {/* Mobile Left Section: Menu + Notification */}
+          {/* Mobile Left Section: Menu + Notification + Premium Badge */}
           <div className="flex items-center md:hidden order-first">
             {/* Hamburger Button */}
             <button ref={mobileMenuBtnRef} onClick={() => setIsOpen(!isOpen)} className="text-slate-600 p-2 -ml-2">
               {isOpen ? <X /> : <Menu />}
             </button>
+
+            {/* Mobile Premium Indicator */}
+            {user && (
+              <div className="ml-1">
+                {user.isPremium ? (
+                  <button
+                    onClick={() => setShowPremiumModal(true)}
+                    className={`px-3 py-1 text-[10px] font-bold text-white rounded-full flex items-center shadow-sm whitespace-nowrap ${user.membershipType === 'premium_plus'
+                      ? 'bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 border border-primary-700'
+                      : 'bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 border border-primary-400'
+                      }`}
+                  >
+                    {user.membershipType === 'premium_plus' ? <Sparkles className="w-3 h-3 mr-1" /> : <Crown className="w-3 h-3 mr-1" />}
+                    {user.membershipType === 'premium_plus' ? 'PREMIUM +' : 'PREMIUM'}
+                  </button>
+                ) : (
+                  <Link
+                    to="/premium"
+                    className="px-3 py-1 text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-full flex items-center whitespace-nowrap"
+                  >
+                    Ücretsiz
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Mobile Notification Bell */}
             {user && (

@@ -187,7 +187,7 @@ const CreateJob = ({ user }: { user: User }) => {
                   </div>
                   <select
                     required
-                    className="block w-full rounded-xl border-slate-200 bg-slate-50 pl-8 focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
+                    className="block w-full rounded-xl border-slate-200 bg-slate-50 pl-10 focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
                     value={formData.fee}
                     onChange={e => setFormData({ ...formData, fee: e.target.value })}
                   >
