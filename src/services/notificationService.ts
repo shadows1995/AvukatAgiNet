@@ -80,6 +80,7 @@ export async function notifyNewJob(
             .select('uid, phone, full_name, membership_type, preferred_courthouses')
             // .in('membership_type', ['premium', 'premium_plus']) // REMOVED: SMS for everyone
             .neq('uid', createdBy) // Exclude the job creator
+            .eq('sms_notifications_enabled', true) // Filter by user preference
             .not('phone', 'is', null);
 
         const { data: users, error } = await query;

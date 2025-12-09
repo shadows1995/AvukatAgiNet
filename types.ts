@@ -43,6 +43,7 @@ export interface User {
   title?: string;
   billingAddress?: string;
   tcId?: string;
+  sms_notifications_enabled?: boolean;
 }
 
 // Firestore Job Collection Schema
@@ -93,4 +94,9 @@ export interface Notification {
   type: 'success' | 'info' | 'warning';
   read: boolean;
   createdAt: any;
+  metadata?: {
+    jobId?: string;
+    type?: string;
+    userId?: string;
+  };
 }

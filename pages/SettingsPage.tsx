@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, User as UserIcon } from 'lucide-react';
-import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield, Trash2 } from 'lucide-react';
+import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield, Trash2, Bell } from 'lucide-react';
 import { User as UserType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
@@ -674,6 +674,60 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     );
   };
 
+  const NotificationSettingsTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+    const [smsEnabled, setSmsEnabled] = useState(user.sms_notifications_enabled !== false); // Default to true if undefined
+    const [loading, setLoading] = useState(false);
+
+    const handleToggle = async () => {
+      const newValue = !smsEnabled;
+      setSmsEnabled(newValue);
+      setLoading(true);
+
+      try {
+        const { error } = await supabase.from('users').update({ sms_notifications_enabled: newValue }).eq('uid', user.uid);
+        if (error) throw error;
+        showNotification('success', newValue ? 'SMS bildirimleri açıldı.' : 'SMS bildirimleri kapatıldı.');
+        onProfileUpdate();
+      } catch (e) {
+        setSmsEnabled(!newValue); // Revert on error
+        showNotification('error', 'Güncellenirken hata oluştu.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-6 animate-in fade-in">
+        <div className="border-b border-slate-100 pb-4">
+          <h3 className="text-lg font-bold text-slate-800">Bildirim Ayarları</h3>
+          <p className="text-sm text-slate-500 mt-1">Hangi konularda bildirim almak istediğinizi yönetin.</p>
+        </div>
+
+        <div className="bg-white border rounded-xl p-6 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+              <Bell className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-800">SMS Bildirimleri</h4>
+              <p className="text-sm text-slate-500">Mevcut veya yeni görevler hakkında SMS al.</p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleToggle}
+            disabled={loading}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${smsEnabled ? 'bg-primary-600' : 'bg-slate-200'}`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${smsEnabled ? 'translate-x-6' : 'translate-x-1'}`}
+            />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const tabs = [
     { id: 'personal', label: 'Kişisel Bilgiler', icon: UserIcon, component: <PersonalInfoTab showNotification={showNotification} /> },
     { id: 'authorization', label: 'Yetki Belgesi Bilgileri', icon: FileText, component: <AuthorizationTab showNotification={showNotification} /> },
@@ -684,6 +738,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     { id: 'password', label: 'Şifre Değiştir', icon: Shield, component: <PasswordChangeTab showNotification={showNotification} /> },
     { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <PhotoTab showNotification={showNotification} /> },
     { id: 'delete', label: 'Hesabı Sil', icon: Trash2, component: <DeleteAccountTab showNotification={showNotification} /> },
+    { id: 'notifications', label: 'Bildirim Ayarları', icon: Bell, component: <NotificationSettingsTab showNotification={showNotification} /> },
   ];
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;
