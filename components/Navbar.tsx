@@ -247,16 +247,18 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             )}
           </div>
 
-          {/* Mobile Left Section: Menu + Notification + Premium Badge */}
+          {/* Mobile Left Section: Hamburger */}
           <div className="flex items-center md:hidden order-first">
-            {/* Hamburger Button */}
             <button ref={mobileMenuBtnRef} onClick={() => setIsOpen(!isOpen)} className="text-slate-600 p-2 -ml-2">
               {isOpen ? <X /> : <Menu />}
             </button>
+          </div>
 
+          {/* Mobile Right Section: Premium + Notification */}
+          <div className="flex items-center md:hidden space-x-2">
             {/* Mobile Premium Indicator */}
             {user && (
-              <div className="ml-1">
+              <div>
                 {user.isPremium ? (
                   <button
                     onClick={() => setShowPremiumModal(true)}
@@ -281,7 +283,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
 
             {/* Mobile Notification Bell */}
             {user && (
-              <div className="relative ml-1">
+              <div className="relative">
                 <button
                   onClick={handleReadNotifications}
                   className="p-2 text-slate-600 hover:text-primary-600 transition relative"
@@ -292,7 +294,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                   )}
                 </button>
                 {showNotifs && (
-                  <div className="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-3 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700 text-sm">
                       Bildirimler
                     </div>
