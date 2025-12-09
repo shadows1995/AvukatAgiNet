@@ -308,7 +308,7 @@ const TaskDisputePage = () => {
                                         <option value="">Görev Seçiniz</option>
                                         {jobs.map(job => (
                                             <option key={job.job_id} value={job.job_id}>
-                                                {job.title} ({job.city})
+                                                {job.title} ({job.city}) — {job.created_by === user?.uid ? 'Verdiğim Görev' : 'Aldığım Görev'}
                                             </option>
                                         ))}
                                     </select>

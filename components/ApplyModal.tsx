@@ -65,13 +65,12 @@ const ApplyModal = ({ job, user, onClose, onSuccess }: { job: Job, user: User, o
 
       if (onSuccess) onSuccess();
 
-      showAlert({
-        title: "Başarılı",
-        message: "Başvurunuz başarıyla gönderildi.",
-        type: "success",
-        confirmText: "Tamam",
-        onConfirm: onClose
-      });
+      setToast({ message: 'Başvurunuz başarıyla gönderildi.', type: 'success' });
+
+      // Auto close after 1.5 seconds
+      setTimeout(() => {
+        onClose();
+      }, 1500);
 
     } catch (error) {
       console.error("Başvuru hatası:", error);

@@ -300,37 +300,37 @@ export const RegisterPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Ad</label>
-              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
+              <input type="text" required className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Soyad</label>
-              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+              <input type="text" required className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">E-posta</label>
-            <input type="email" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+            <input type="email" required className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Telefon Numarası</label>
-            <input type="tel" required placeholder="0555 555 55 55" className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+            <input type="tel" required placeholder="0555 555 55 55" className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Baro / Şehir</label>
-              <select className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barCity} onChange={e => setFormData({ ...formData, barCity: e.target.value })}>
+              <select className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.barCity} onChange={e => setFormData({ ...formData, barCity: e.target.value })}>
                 {TURKISH_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Sicil No</label>
-              <input type="text" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.barNo} onChange={e => setFormData({ ...formData, barNo: e.target.value })} />
+              <input type="text" required className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.barNo} onChange={e => setFormData({ ...formData, barNo: e.target.value })} />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Şifre</label>
-            <input type="password" required className="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-10" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
+            <input type="password" required className="w-full rounded-lg border-2 border-primary-500 shadow-sm focus:border-primary-600 focus:ring-primary-600 h-11 px-4 bg-primary-50/10" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
           </div>
 
           <div className="flex items-start mt-4">
@@ -340,7 +340,7 @@ export const RegisterPage = () => {
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                className="h-5 w-5 rounded border-2 border-primary-500 text-primary-600 focus:ring-primary-500 bg-primary-50/10"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
               />

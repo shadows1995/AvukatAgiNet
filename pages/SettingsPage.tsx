@@ -688,6 +688,19 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;
 
+  // Auto-scroll to content on mobile when tab changes
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Only scroll if we are on mobile (check window width or just always scroll if content is ref'd)
+    if (window.innerWidth < 1024 && contentRef.current) {
+      // Small delay to ensure render
+      setTimeout(() => {
+        contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [activeTab]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10 bg-slate-50 min-h-screen">
       <div className="mb-8">
@@ -717,8 +730,10 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
         </div>
 
         {/* Main Content */}
-        <div className="w-full lg:w-3/4">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 min-h-[600px] relative overflow-hidden">
+        <div ref={contentRef} className="w-full lg:w-3/4 scroll-mt-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 min-h-[600px] relative overflow-hidden md:transform-none transform scale-[0.85] origin-top-left w-[117.6%] md:w-full mb-[-15%] md:mb-0">
+            {/* Note: Scale 0.85 means width needs to be 1/0.85 = ~117.6% to fill container, and origin top-left.
+                 We apply this only on mobile phones (<768px), and reset on md/lg screens. */}
             {ActiveComponent}
           </div>
         </div>
