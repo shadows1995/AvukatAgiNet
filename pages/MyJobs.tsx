@@ -146,51 +146,76 @@ const MyJobs = () => {
       if (error) throw error;
 
       if (appsData && appsData.length > 0) {
-        // Get current month as DATE (first day of month: YYYY-MM-01)
-        const now = new Date();
-        const currentMonthDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-
         // Extract applicant IDs
         const applicantIds = appsData.map(app => app.applicant_id);
 
-        // Fetch monthly stats for all applicants
+        // Fetch FRESH user details for all applicants
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('uid, full_name, rating, membership_type, job_count, completed_jobs')
+          .in('uid', applicantIds);
+
+        if (usersError) console.error("Error fetching applicant details:", usersError);
+
+        // Create a map for easy lookup
+        const userMap: { [key: string]: User } = {};
+        usersData?.forEach((u: any) => {
+          userMap[u.uid] = {
+            uid: u.uid,
+            fullName: u.full_name, // Fresh name
+            rating: u.rating,      // Fresh rating
+            membershipType: u.membership_type,
+            // We can treat monthlyJobCount roughly as job_count or calculate it via stats if critical. 
+            // The user mentioned "Aylık alınan görev sayısı". 
+            // Let's stick to the stats table for monthly count if we want to be precise, 
+            // OR use the user's general job_status if that's what was intended. 
+            // Re-reading user request: "Aylık alınan görev sayısı gösterimi de yapılıyor o bağlantıyı da kontrol et."
+            // The previous code fetched 'user_monthly_stats'. Let's KEEP that for monthly count accuracy.
+          } as User;
+        });
+
+        // Get current month for stats (Keep this logic for monthly count)
+        const now = new Date();
+        const currentMonthDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+
         const { data: statsData } = await supabase
           .from('user_monthly_stats')
           .select('user_id, job_count')
           .in('user_id', applicantIds)
           .eq('month', currentMonthDate);
 
-        // Fetch membership types for all applicants
-        const { data: usersData } = await supabase
-          .from('users')
-          .select('uid, membership_type')
-          .in('uid', applicantIds);
-
-        const membershipMap: { [key: string]: string } = {};
-        usersData?.forEach(u => {
-          membershipMap[u.uid] = u.membership_type || 'free';
-        });
-
-        // Create a map of user_id to job_count
-        const jobCountMap: { [key: string]: number } = {};
+        const statsMap: { [key: string]: number } = {};
         statsData?.forEach(stat => {
-          jobCountMap[stat.user_id] = stat.job_count || 0;
+          statsMap[stat.user_id] = stat.job_count || 0;
         });
 
-        // Map applications with job counts
-        const apps: (Application & { monthlyJobCount: number })[] = appsData.map(app => ({
-          applicationId: app.application_id,
-          jobId: app.job_id,
-          applicantId: app.applicant_id,
-          applicantName: app.applicant_name,
-          applicantRating: app.applicant_rating,
-          message: app.message,
-          proposedFee: app.proposed_fee,
-          status: app.status,
-          createdAt: app.created_at,
-          monthlyJobCount: jobCountMap[app.applicant_id] || 0,
-          membershipType: membershipMap[app.applicant_id] as any
-        }));
+        // Map applications with FRESH user data
+        const apps: (Application & { monthlyJobCount: number })[] = appsData.map(app => {
+          const freshUser = userMap[app.applicant_id];
+          return {
+            applicationId: app.application_id,
+            jobId: app.job_id,
+            applicantId: app.applicant_id,
+
+            // Use FRESH name if available, else fallback to app snapshot
+            // NOTE: The UI will mask this name carefully!
+            applicantName: freshUser?.fullName || app.applicant_name,
+
+            // Use FRESH rating if available
+            applicantRating: freshUser?.rating !== undefined ? freshUser.rating : app.applicant_rating,
+
+            message: app.message,
+            proposedFee: app.proposed_fee,
+            status: app.status,
+            createdAt: app.created_at,
+
+            // Correct monthly count from stats view
+            monthlyJobCount: statsMap[app.applicant_id] || 0,
+
+            // Fresh membership type
+            membershipType: freshUser?.membershipType || 'free'
+          };
+        });
 
         // Sort: Premium+ first, then by monthly job count (ascending)
         apps.sort((a, b) => {
