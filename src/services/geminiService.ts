@@ -38,9 +38,9 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         Lütfen aşağıdaki formatta geçerli bir JSON çıktısı ver (Markdown yok, sadece JSON):
         {
             "title": "Kısa ve net bir başlık (Örn: Duruşma Tevkil, Dosya İnceleme, Göç İdaresi Başvuru)",
-            "description": "Görevin detaylı açıklaması. Resmi ve profesyonel bir dil kullan. Emoji kullanma. Dosya numarası verme. Tarih olarak bugünü ima et. İcra ise icra dairesi detaylarını, Diğer ise kurum detaylarını içersin.",
+            "description": "Görevin detaylı açıklaması. Resmi ve profesyonel bir dil kullan. Emoji kullanma. Dosya numarası verme. Açıklamayı uzun tutma maksimum 2 cümle olsun.Çok detay verme ve insan gibi yaz. Tarih olarak bugünü ima et. İcra ise icra dairesi detaylarını, Diğer ise kurum detaylarını içersin.",
             "jobType": "Duruşma" | "İcra İşlemi" | "Dosya İnceleme" | "Haciz" | "Dilekçe" | "Diğer" (Yukarıdaki kısıtlamalara uygun seç)",
-            "offeredFee": 800 (Genelde 800 civarı olsun, işin zorluğuna göre 500-1500 arası değişebilir),
+            "offeredFee": 800 (Genelde 800 civarı olsun, işin zorluğuna göre 800-1500 arası değişebilir),
             "ownerName": "Rastgele bir Türk avukat ismi (Örn: Av. Ahmet Yılmaz, Av. Ayşe Demir vb.)"
         }
         `;
