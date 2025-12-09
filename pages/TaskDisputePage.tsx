@@ -190,10 +190,10 @@ const TaskDisputePage = () => {
                                                 {typeInfo.label}
                                             </span>
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${dispute.status === 'resolved'
-                                                    ? 'bg-green-50 text-green-700 border-green-100'
-                                                    : dispute.status === 'dismissed'
-                                                        ? 'bg-red-50 text-red-700 border-red-100'
-                                                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                                                ? 'bg-green-50 text-green-700 border-green-100'
+                                                : dispute.status === 'dismissed'
+                                                    ? 'bg-red-50 text-red-700 border-red-100'
+                                                    : 'bg-slate-100 text-slate-600 border-slate-200'
                                                 }`}>
                                                 {dispute.status === 'resolved' ? (
                                                     <><CheckCircle className="w-3 h-3 mr-1" /> Çözüldü</>
@@ -227,8 +227,8 @@ const TaskDisputePage = () => {
 
                                         {dispute.resolution_notes && (
                                             <div className={`mt-3 p-3 rounded-lg border text-sm ${dispute.status === 'dismissed'
-                                                    ? 'bg-red-50 border-red-100 text-red-800'
-                                                    : 'bg-green-50 border-green-100 text-green-800'
+                                                ? 'bg-red-50 border-red-100 text-red-800'
+                                                : 'bg-green-50 border-green-100 text-green-800'
                                                 }`}>
                                                 <strong className="block mb-1">{dispute.status === 'dismissed' ? 'Red Nedeni:' : 'Çözüm:'}</strong>
                                                 {dispute.resolution_notes}
@@ -244,9 +244,16 @@ const TaskDisputePage = () => {
 
             {/* New Dispute Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 w-full h-full">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                        onClick={() => setIsModalOpen(false)}
+                    ></div>
+
+                    {/* Modal Content */}
+                    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mx-auto overflow-hidden animate-in zoom-in-95 duration-200 z-10 flex flex-col max-h-[90vh]">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center shrink-0">
                             <h3 className="text-lg font-bold text-slate-900">Yeni Bildirim</h3>
                             <button
                                 onClick={() => setIsModalOpen(false)}
@@ -256,7 +263,7 @@ const TaskDisputePage = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-5 space-y-5 overflow-y-auto">
 
                             {/* Type Selection */}
                             <div>
@@ -322,7 +329,7 @@ const TaskDisputePage = () => {
                                 />
                             </div>
 
-                            <div className="pt-2 flex justify-end gap-3">
+                            <div className="pt-2 flex justify-end gap-3 shrink-0">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
