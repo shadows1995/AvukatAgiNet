@@ -588,8 +588,16 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.uid}/${Date.now()}.${fileExt}`;
         const filePath = `Profile photos/${fileName}`;
+        const userFolder = `Profile photos/${user.uid}`;
 
-        // 1. Upload to Supabase Storage (LOGO2 bucket)
+        // 1. Delete Old Photos
+        const { data: oldFiles } = await supabase.storage.from('LOGO2').list(userFolder);
+        if (oldFiles && oldFiles.length > 0) {
+          const filesToRemove = oldFiles.map(x => `${userFolder}/${x.name}`);
+          await supabase.storage.from('LOGO2').remove(filesToRemove);
+        }
+
+        // 2. Upload to Supabase Storage (LOGO2 bucket)
         const { error: uploadError } = await supabase.storage
           .from('LOGO2')
           .upload(filePath, file);
