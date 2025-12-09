@@ -61,8 +61,8 @@ const TaskDisputePage = () => {
             // Fetch jobs where user is creator OR assigned lawyer
             const { data, error } = await supabase
                 .from('jobs')
-                .select('job_id, title, city, courthouse, status, created_by, assigned_to')
-                .or(`created_by.eq.${userId},assigned_to.eq.${userId}`)
+                .select('job_id, title, city, courthouse, status, created_by, selected_applicant')
+                .or(`created_by.eq.${userId},selected_applicant.eq.${userId}`)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;

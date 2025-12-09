@@ -43,7 +43,7 @@ const AcceptedJobs = () => {
       const acceptedJobsData: AcceptedJobData[] = [];
 
       if (jobsData) {
-        await Promise.all(jobsData.map(async (jobData) => {
+        const results = await Promise.all(jobsData.map(async (jobData) => {
           const mappedJob: Job = {
             jobId: jobData.job_id,
             title: jobData.title,
@@ -129,13 +129,22 @@ const AcceptedJobs = () => {
               address: ownerData.address
             };
 
-            acceptedJobsData.push({
+            return {
               job: mappedJob,
               application: mappedApp,
               owner: mappedOwner
-            });
+            };
           }
+          return null;
         }));
+
+        // Filter and assign, correcting the sorting
+        // jobsData was sorted, so mapping preserves order if we map 1:1. 
+        // Promise.all preserves order of the resulting array relative to the input array.
+        const validJobs = results.filter((item): item is AcceptedJobData => item !== null);
+
+        // Push spreads to the main array variable which was the mistake before
+        acceptedJobsData.push(...validJobs);
       }
 
       setAcceptedJobs(acceptedJobsData);

@@ -16,12 +16,32 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
   const { showAlert } = useAlert();
 
-  // Check if application window is still open
-  // Urgent jobs: 5 minutes, Regular jobs: 15 minutes from job creation
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  // Calculate deadline
   const applicationWindowMinutes = job.isUrgent ? 5 : 15;
   const jobCreatedTime = new Date(job.createdAt).getTime();
   const applicationDeadline = jobCreatedTime + (applicationWindowMinutes * 60 * 1000);
   const isApplicationWindowClosed = Date.now() > applicationDeadline;
+
+  React.useEffect(() => {
+    const updateTimer = () => {
+      const now = Date.now();
+      const diff = applicationDeadline - now;
+      setTimeLeft(diff > 0 ? diff : 0);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [applicationDeadline]);
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   const handleApplyClick = () => {
     if (!user) {
@@ -47,7 +67,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
       return;
     }
 
-    if (isApplicationWindowClosed) {
+    if (timeLeft <= 0) {
       showAlert({
         title: "Başvuru Süresi Doldu",
         message: `Bu göreve başvuru süresi (${applicationWindowMinutes} dakika) dolmuştur.`,
@@ -91,6 +111,20 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
             <div className="flex items-center text-slate-500 text-sm">
               <Clock className="h-4 w-4 mr-2 text-slate-400" />
               {job.date ? job.date.split('-').reverse().join('-') : ''} | {job.time}
+            </div>
+            {/* Countdown Display */}
+            <div className={`flex items-center text-sm font-medium ${timeLeft > 0 ? 'text-orange-600' : 'text-red-600'}`}>
+              <div className="w-4 flex justify-center mr-2">
+                <span className="relative flex h-2 w-2">
+                  {timeLeft > 0 && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>}
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${timeLeft > 0 ? 'bg-orange-500' : 'bg-red-500'}`}></span>
+                </span>
+              </div>
+              {timeLeft > 0 ? (
+                <span>Son Başvuru: {formatTime(timeLeft)}</span>
+              ) : (
+                <span>Başvuru Süresi Doldu</span>
+              )}
             </div>
             <div className="flex items-center text-slate-500 text-sm">
               <Users className="h-4 w-4 mr-2 text-slate-400" />
@@ -162,7 +196,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
               <Phone className="w-4 h-4 mr-2" />
               İletişim Bilgileri
             </button>
-          ) : isApplicationWindowClosed ? (
+          ) : timeLeft <= 0 ? (
             <button
               disabled
               className="w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white bg-slate-400 cursor-not-allowed"
