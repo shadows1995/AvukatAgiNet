@@ -143,24 +143,32 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     };
 
     const handleToggle = (courthouse: string) => {
-      if (preferences.includes(courthouse)) {
-        setPreferences(preferences.filter(c => c !== courthouse));
-      } else {
-        // Check if we are adding a courthouse from a different city
-        if (preferences.length > 0) {
-          const firstCourthouseCity = getCityFromCourthouse(preferences[0]);
-          const newCourthouseCity = getCityFromCourthouse(courthouse);
+      let nextPreferences: string[];
 
-          if (firstCourthouseCity && newCourthouseCity && firstCourthouseCity !== newCourthouseCity) {
-            // Allow multi-city ONLY for Premium +
-            if (user.membershipType !== 'premium_plus') {
-              showNotification('error', `Birden fazla ilden adliye seçimi sadece Premium + üyeler içindir. (${firstCourthouseCity})`);
-              return;
-            }
-          }
-        }
-        setPreferences([...preferences, courthouse]);
+      if (preferences.includes(courthouse)) {
+        nextPreferences = preferences.filter(c => c !== courthouse);
+      } else {
+        nextPreferences = [...preferences, courthouse];
       }
+
+      // Calculate the number of unique cities in the NEW selection
+      const cities = new Set<string>();
+      nextPreferences.forEach(ch => {
+        const city = getCityFromCourthouse(ch);
+        if (city) cities.add(city);
+      });
+
+      // If user is NOT Premium Plus and tries to select from > 1 city
+      if (cities.size > 1 && user.membershipType !== 'premium_plus') {
+        // Only block if we are ADDING. Removing is always safe (reducing complexity).
+        if (nextPreferences.length > preferences.length) {
+          const firstCity = Array.from(cities)[0];
+          showNotification('error', `Birden fazla ilden adliye seçimi sadece Premium + üyeler içindir. (${firstCity} dışında seçim yapamazsınız)`);
+          return;
+        }
+      }
+
+      setPreferences(nextPreferences);
     };
     const handleSavePreferences = async () => {
       setIsSaving(true);
