@@ -243,7 +243,10 @@ export const RegisterPage = () => {
         console.log("Signup Successful, User ID:", data.user.id);
         // Attempt to update profile fields (if the user exists from trigger)
         // If trigger failed/delayed, this might miss, but it won't crash.
-        const { error: updateError } = await supabase.from('users').update({
+        const { error: updateError } = await supabase.from('users').upsert({
+          uid: data.user.id,
+          email: formData.email,
+          full_name: `${formData.firstName} ${formData.lastName}`,
           baro_number: formData.barNo,
           baro_city: formData.barCity,
           city: formData.barCity,
@@ -251,8 +254,11 @@ export const RegisterPage = () => {
           role: UserRole.FREE,
           rating: 0,
           completed_jobs: 0,
-          job_status: 'active'
-        }).eq('uid', data.user.id);
+          job_status: 'active',
+          is_premium: false,
+          membership_type: 'free',
+          created_at: new Date().toISOString() // Fallback if trigger didn't run
+        }, { onConflict: 'uid' });
 
         if (updateError) {
           console.error("Profile update error (non-fatal):", updateError);
