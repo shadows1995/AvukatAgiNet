@@ -218,8 +218,12 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     <p className="text-sm font-bold text-slate-800 group-hover:text-primary-600 transition whitespace-nowrap">{formatName(user.fullName)}</p>
                     <p className="text-xs text-slate-500 font-medium whitespace-nowrap">{user.baroCity} Barosu</p>
                   </div>
-                  <div onClick={goToProfile} className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200 flex-shrink-0">
-                    {user.fullName.charAt(0)}
+                  <div onClick={goToProfile} className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200 flex-shrink-0 overflow-hidden">
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                    ) : (
+                      user.fullName.charAt(0)
+                    )}
                   </div>
                   <Link to="/settings" className="p-2.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all duration-200" title="Ayarlar">
                     <Settings className="h-5 w-5" />

@@ -580,6 +580,11 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
         }
 
         const file = event.target.files[0];
+
+        // CHECK FILE SIZE (Max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error('Dosya boyutu çok büyük. Lütfen 5MB\'dan küçük bir fotoğraf seçiniz.');
+        }
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.uid}/${Date.now()}.${fileExt}`;
         const filePath = `Profile photos/${fileName}`;
@@ -654,7 +659,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
                 disabled={uploading}
               />
             </label>
-            <p className="text-xs text-slate-400 mt-3">JPG, PNG veya GIF (Maks. 2MB)</p>
+            <p className="text-xs text-slate-400 mt-3">JPG, PNG veya GIF (Maks. 5MB)</p>
           </div>
         </div>
       </div>

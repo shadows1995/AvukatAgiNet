@@ -91,9 +91,13 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
         <div className="px-8 pb-8 relative">
           <div className="flex flex-col md:flex-row items-start md:items-end -mt-10 mb-6">
             <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg relative z-10">
-              <div className="h-full w-full rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-3xl font-bold">
-                {(canViewContact || currentUser.uid === profileUser.uid) ? profileUser.fullName.charAt(0) : <Lock className="w-8 h-8 opacity-50" />}
-              </div>
+              {(canViewContact || currentUser.uid === profileUser.uid) && profileUser.avatarUrl ? (
+                <img src={profileUser.avatarUrl} alt={profileUser.fullName} className="h-full w-full rounded-full object-cover" />
+              ) : (
+                <div className="h-full w-full rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-3xl font-bold">
+                  {(canViewContact || currentUser.uid === profileUser.uid) ? profileUser.fullName.charAt(0) : <Lock className="w-8 h-8 opacity-50" />}
+                </div>
+              )}
             </div>
             <div className="md:ml-6 mt-4 md:mt-0 flex-1">
               <h1 className="text-2xl font-bold text-slate-900 flex items-center">
