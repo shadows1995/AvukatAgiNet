@@ -319,7 +319,8 @@ const MyJobs = () => {
         message: `Tebrikler! "${job.title}" görevi için seçildiniz. Görev sahibiyle iletişime geçebilirsiniz.`,
         type: "success",
         read: false,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        metadata: { jobId: job.jobId, type: 'application_accepted_applicant' }
       });
 
       // 4. Notify Owner (Self)
@@ -330,7 +331,8 @@ const MyJobs = () => {
           message: `"${job.title}" görevi Av. ${app.applicantName}'e atandı.`,
           type: "info",
           read: false,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          metadata: { jobId: job.jobId, type: 'application_accepted_owner' }
         });
       }
 

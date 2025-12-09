@@ -131,6 +131,45 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     }
   };
 
+  const handleNotificationClick = (notification: any) => {
+    // 1. Mark as read immediately if not already
+    if (!notification.read) {
+      setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
+      supabase.from('notifications').update({ read: true }).eq('id', notification.id).then();
+    }
+
+    // 2. Navigate based on metadata
+    if (notification.metadata) {
+      const { jobId, type, userId } = notification.metadata;
+
+      switch (type) {
+        case 'job_application': // New application -> Go to My Jobs (Manage Applications)
+          if (jobId) navigate('/my-jobs');
+          break;
+        case 'application_accepted_applicant': // Application Accepted -> Go to Accepted Jobs
+          navigate('/accepted-jobs');
+          break;
+        case 'application_accepted_owner': // Assignment confirmed -> Go to My Jobs
+          navigate('/my-jobs');
+          break;
+        case 'job_completed': // Job Completed -> Go to relevant page
+          // If I am owner -> My Jobs (to rate)
+          // If I am worker -> Accepted Jobs (to see status)
+          // For simplicity, checking if I created it might be hard without extra data, 
+          // but we can try routing to the Job page or Dashboard.
+          // Let's try redirecting to dashboard or my-jobs.
+          if (jobId) navigate(`/job/${jobId}`);
+          break;
+        default:
+          if (jobId) navigate(`/job/${jobId}`);
+          break;
+      }
+    }
+
+    // Close dropdown
+    setShowNotifs(false);
+  };
+
   const goToProfile = () => {
     if (user) navigate(`/profile/${user.uid}`);
   }
@@ -203,7 +242,11 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                             <div className="p-4 text-center text-sm text-slate-500">Bildiriminiz yok.</div>
                           ) : (
                             notifications.map(n => (
-                              <div key={n.id} className={`p-3 border-b border-slate-50 hover:bg-slate-50 ${!n.read ? 'bg-blue-50/50' : ''}`}>
+                              <div
+                                key={n.id}
+                                onClick={() => handleNotificationClick(n)}
+                                className={`p-3 border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors duration-200 ${!n.read ? 'bg-blue-50/50' : ''}`}
+                              >
                                 <div className="text-sm font-medium text-slate-800">{n.title}</div>
                                 <div className="text-xs text-slate-500 mt-1">{n.message}</div>
                               </div>
@@ -280,7 +323,14 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                         <div className="p-4 text-center text-sm text-slate-500">Bildiriminiz yok.</div>
                       ) : (
                         notifications.map(n => (
-                          <div key={n.id} className={`p-3 border-b border-slate-50 hover:bg-slate-50 ${!n.read ? 'bg-blue-50/50' : ''}`}>
+                          <div
+                            key={n.id}
+                            onClick={() => {
+                              handleNotificationClick(n);
+                              setIsOpen(false);
+                            }}
+                            className={`p-3 border-b border-slate-50 hover:bg-slate-50 cursor-pointer ${!n.read ? 'bg-blue-50/50' : ''}`}
+                          >
                             <div className="text-sm font-medium text-slate-800">{n.title}</div>
                             <div className="text-xs text-slate-500 mt-1">{n.message}</div>
                           </div>

@@ -159,7 +159,8 @@ const JobDetails = ({ user }: { user: User }) => {
                         title: "Görev Tamamlandı! 🎉",
                         message: `"${job.title}" görevi Av. ${user.fullName} tarafından tamamlandı.`,
                         type: "success",
-                        read: false
+                        read: false,
+                        metadata: { jobId: job.jobId, type: 'job_completed' }
                     });
 
                     showAlert({

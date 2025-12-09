@@ -207,7 +207,8 @@ const AcceptedJobs = () => {
             message: `"${selectedJob.job.title}" görevi Av. ${user.user_metadata?.full_name || 'Meslektaşınız'} tarafından tamamlandı.`,
             type: "success",
             read: false,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            metadata: { jobId: selectedJob.job.jobId, type: 'job_completed' }
           });
 
           showAlert({

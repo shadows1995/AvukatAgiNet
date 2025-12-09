@@ -60,7 +60,8 @@ const ApplyModal = ({ job, user, onClose, onSuccess }: { job: Job, user: User, o
         title: "Yeni Başvuru Geldi 📢",
         message: "1 Kullanıcı oluşturduğunuz göreve başvuru yaptı.",
         type: "info",
-        read: false
+        read: false,
+        metadata: { jobId: job.jobId, type: 'job_application' }
       });
 
       if (onSuccess) onSuccess();
