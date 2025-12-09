@@ -377,7 +377,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-slate-500 font-medium">Ücret</p>
-                  <p className="text-slate-900 font-bold">{user.premiumPrice || 299} TL<span className="text-xs font-normal text-slate-500">/ay</span></p>
+                  <p className="text-slate-900 font-bold">{user.premiumPrice || 299} TL<span className="text-xs font-normal text-slate-500">{user.premiumPlan === 'yearly' ? '/yıl' : '/ay'}</span></p>
                 </div>
               </div>
 
