@@ -568,6 +568,99 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     );
   };
 
+  const PhotoTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+    const [uploading, setUploading] = useState(false);
+    const [preview, setPreview] = useState<string | null>(user.avatarUrl || null);
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      try {
+        setUploading(true);
+        if (!event.target.files || event.target.files.length === 0) {
+          throw new Error('Bir fotoğraf seçmelisiniz.');
+        }
+
+        const file = event.target.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.uid}/${Date.now()}.${fileExt}`;
+        const filePath = `Profile photos/${fileName}`;
+
+        // 1. Upload to Supabase Storage (LOGO2 bucket)
+        const { error: uploadError } = await supabase.storage
+          .from('LOGO2')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        // 2. Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('LOGO2')
+          .getPublicUrl(filePath);
+
+        // 3. Update User Profile
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ avatar_url: publicUrl })
+          .eq('uid', user.uid);
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        setPreview(publicUrl);
+        showNotification('success', 'Profil fotoğrafınız güncellendi.');
+        onProfileUpdate();
+
+      } catch (error: any) {
+        showNotification('error', error.message || 'Fotoğraf yüklenirken bir hata oluştu.');
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-6 animate-in fade-in">
+        <div className="border-b border-slate-100 pb-4">
+          <h3 className="text-lg font-bold text-slate-800">Profil Fotoğrafı</h3>
+          <p className="text-sm text-slate-500 mt-1">Diğer kullanıcıların sizi tanıması için bir fotoğraf yükleyin.</p>
+        </div>
+
+        <div className="flex flex-col items-center space-y-6 py-8">
+          <div className="relative group">
+            <div className={`w-32 h-32 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg ${!preview ? 'bg-slate-100' : ''}`}>
+              {preview ? (
+                <img src={preview} alt="Profil" className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon className="w-16 h-16 text-slate-300" />
+              )}
+            </div>
+            {uploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col items-center">
+            <label className="cursor-pointer bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition shadow-md hover:shadow-lg transform active:scale-95 flex items-center">
+              <Camera className="w-5 h-5 mr-2" />
+              <span>{uploading ? 'Yükleniyor...' : 'Fotoğraf Seç'}</span>
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={uploading}
+              />
+            </label>
+            <p className="text-xs text-slate-400 mt-3">JPG, PNG veya GIF (Maks. 2MB)</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const tabs = [
     { id: 'personal', label: 'Kişisel Bilgiler', icon: UserIcon, component: <PersonalInfoTab showNotification={showNotification} /> },
     { id: 'authorization', label: 'Yetki Belgesi Bilgileri', icon: FileText, component: <AuthorizationTab showNotification={showNotification} /> },
@@ -576,7 +669,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     { id: 'about', label: 'Hakkımda', icon: Info, component: <AboutTab showNotification={showNotification} /> },
     { id: 'disputes', label: 'Görev Uyuşmazlıkları', icon: Gavel, component: <TaskDisputePage /> },
     { id: 'password', label: 'Şifre Değiştir', icon: Shield, component: <PasswordChangeTab showNotification={showNotification} /> },
-    { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <div className="text-center py-12 text-slate-500">Profil fotoğrafı yükleme modülü yakında eklenecek.</div> },
+    { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <PhotoTab showNotification={showNotification} /> },
     { id: 'delete', label: 'Hesabı Sil', icon: Trash2, component: <DeleteAccountTab showNotification={showNotification} /> },
   ];
 
