@@ -331,7 +331,7 @@ const ReviewsList = ({ userId }: { userId: string }) => {
                     />
                   ))}
                   <span className="text-xs text-slate-400 ml-2">
-                    {new Date(review.created_at).toLocaleDateString()}
+                    {new Date(review.created_at).toLocaleDateString('tr-TR')}
                   </span>
                 </div>
               </div>

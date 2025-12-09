@@ -23,6 +23,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const location = useLocation();
   const navigate = useNavigate();
   const notificationRef = useRef<HTMLDivElement>(null);
+  const mobileNotificationRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -89,7 +90,10 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Notifications
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+      const isOutsideDesktop = notificationRef.current && !notificationRef.current.contains(event.target as Node);
+      const isOutsideMobile = mobileNotificationRef.current && !mobileNotificationRef.current.contains(event.target as Node);
+
+      if (isOutsideDesktop && isOutsideMobile) {
         setShowNotifs(false);
       }
 
@@ -303,7 +307,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
 
             {/* Mobile Notification Bell */}
             {user && (
-              <div className="relative ml-1">
+              <div ref={mobileNotificationRef} className="relative ml-1">
                 <button
                   onClick={handleReadNotifications}
                   className="p-2 text-slate-600 hover:text-primary-600 transition relative"
@@ -347,7 +351,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <div className="flex items-center md:hidden">
             {/* Mobile Premium Indicator */}
             {user && (
-              <div>
+              <div className="flex items-center">
                 {user.isPremium ? (
                   <button
                     onClick={() => setShowPremiumModal(true)}
@@ -367,6 +371,15 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     Ücretsiz
                   </Link>
                 )}
+
+                {/* Mobile Profile Avatar */}
+                <div onClick={goToProfile} className="ml-3 h-8 w-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 flex-shrink-0 overflow-hidden">
+                  {user.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                  ) : (
+                    user.fullName.charAt(0)
+                  )}
+                </div>
               </div>
             )}
           </div>
