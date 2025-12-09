@@ -25,6 +25,7 @@ import HowItWorksPage from './pages/HowItWorksPage';
 import LegalCompliancePage from './pages/LegalCompliancePage';
 import AboutPage from './pages/AboutPage';
 import DistanceSalesAgreementPage from './pages/DistanceSalesAgreementPage';
+import TaskDisputePage from './pages/TaskDisputePage';
 
 // Admin Imports
 import RequireAdmin from './components/RequireAdmin';
@@ -147,6 +148,7 @@ const AppContent = () => {
           <Route path="/my-jobs" element={user ? <MyJobs /> : <Navigate to="/login" />} />
           <Route path="/accepted-jobs" element={user ? <AcceptedJobs /> : <Navigate to="/login" />} />
           <Route path="/job/:jobId" element={user ? <JobDetails user={user} /> : <Navigate to="/login" />} />
+          <Route path="/task-dispute" element={user ? <TaskDisputePage /> : <Navigate to="/login" />} />
           <Route path="/profile/:userId" element={user ? <ProfilePage currentUser={user} /> : <Navigate to="/login" />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />

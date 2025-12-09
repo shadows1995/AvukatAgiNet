@@ -327,6 +327,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <Link to="/create-job" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
           <Link to="/my-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
           <Link to="/accepted-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>
+          <Link to="/task-dispute" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Uyuşmazlığı</Link>
           {user.role === 'admin' && (
             <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">
               <Shield className="w-4 h-4 mr-2 inline-block" /> Admin Paneli
