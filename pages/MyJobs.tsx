@@ -150,9 +150,10 @@ const MyJobs = () => {
         const applicantIds = appsData.map(app => app.applicant_id);
 
         // Fetch FRESH user details for all applicants
+        // Using select('*') to ensure we get exactly what ProfilePage gets, avoiding any RLS column restrictions
         const { data: usersData, error: usersError } = await supabase
           .from('users')
-          .select('uid, full_name, rating, membership_type, job_count, completed_jobs')
+          .select('*')
           .in('uid', applicantIds);
 
         if (usersError) console.error("Error fetching applicant details:", usersError);
