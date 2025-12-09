@@ -17,6 +17,7 @@ const HomePage = ({ user }: { user: User }) => {
    // Stats State
    const [completedJobs, setCompletedJobs] = useState<Job[]>([]);
    const [statsLoading, setStatsLoading] = useState(true);
+   const [givenJobsCount, setGivenJobsCount] = useState(0);
 
    // Chart filter state
    const [chartView, setChartView] = useState<'month' | 'day'>('month');
@@ -115,6 +116,16 @@ const HomePage = ({ user }: { user: User }) => {
                setCompletedJobs(mappedJobs);
             } else {
                setCompletedJobs([]);
+            }
+
+            // Fetch Given Jobs Count
+            const { count: givenCount, error: givenError } = await supabase
+               .from('jobs')
+               .select('*', { count: 'exact', head: true })
+               .eq('created_by', user.uid);
+
+            if (!givenError) {
+               setGivenJobsCount(givenCount || 0);
             }
          } catch (e) {
             console.error("Error fetching stats:", e);
@@ -272,7 +283,8 @@ const HomePage = ({ user }: { user: User }) => {
 
                {/* KPI Cards */}
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+                  {/* Total Earnings Card */}
                   <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl p-5 md:p-6 text-white shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
                      <div className="flex justify-between items-start relative z-10">
@@ -286,6 +298,7 @@ const HomePage = ({ user }: { user: User }) => {
                      </div>
                   </div>
 
+                  {/* Completed Jobs Card */}
                   <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                      <div className="flex justify-between items-start">
                         <div>
@@ -298,6 +311,20 @@ const HomePage = ({ user }: { user: User }) => {
                      </div>
                   </div>
 
+                  {/* Given Jobs Card (NEW) */}
+                  <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+                     <div className="flex justify-between items-start">
+                        <div>
+                           <p className="text-slate-500 font-medium mb-1 text-xs md:text-sm uppercase tracking-wide">Verilen Görevler</p>
+                           <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{givenJobsCount}</h3>
+                        </div>
+                        <div className="bg-indigo-50 p-3 md:p-3.5 rounded-2xl group-hover:bg-indigo-100 transition-colors duration-300">
+                           <Archive className="w-6 h-6 md:w-7 md:h-7 text-indigo-600" />
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Courthouses Card */}
                   <div className="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
                      <div className="flex justify-between items-start">
                         <div>
