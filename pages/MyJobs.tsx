@@ -523,12 +523,12 @@ const MyJobs = () => {
                                 {isRestricted && !isSelected && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold border border-orange-200">SEÇİLEMEZ</span>}
                               </div>
                               <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded border border-slate-100 italic">"{app.message}"</p>
-                              <div className="flex items-center mt-2 text-xs text-slate-500 space-x-4">
+                              <div className="flex flex-wrap items-center mt-2 text-xs text-slate-500 gap-2 md:gap-0 md:space-x-4">
                                 <span className="flex items-center text-primary-600 font-bold bg-primary-50 px-2 py-1 rounded"><DollarSign className="w-3 h-3 mr-1" /> Teklif: {app.proposedFee} TL</span>
                                 {isPremiumPlus && app.specializations && app.specializations.length > 0 && (
-                                  <div className="flex items-center space-x-2 ml-4">
+                                  <div className="flex flex-wrap items-center gap-1 md:space-x-2 md:ml-4">
                                     {app.specializations.map((spec: string, i: number) => (
-                                      <span key={i} className="text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full flex items-center">
+                                      <span key={i} className="text-[10px] md:text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 px-1.5 py-0.5 rounded-full flex items-center">
                                         <Award className="w-3 h-3 mr-1" />{spec}
                                       </span>
                                     ))}
