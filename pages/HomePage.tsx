@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle, Sparkles, FileText, UserCheck, ShieldCheck } from 'lucide-react';
+import { PlusCircle, ArrowRight, Gavel, Loader2, Activity, Briefcase, Archive, Users, Check, Wallet, CheckCircle, Sparkles, FileText, UserCheck, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { User, Job } from '../types';
 import { supabase } from '../supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
 import InteractiveSphere from '../components/InteractiveSphere';
+
 import SEO from '../components/SEO';
+import ProfileCompletionModal from '../components/ProfileCompletionModal';
 
 const HomePage = ({ user }: { user: User }) => {
    const navigate = useNavigate();
@@ -17,7 +19,12 @@ const HomePage = ({ user }: { user: User }) => {
    // Stats State
    const [completedJobs, setCompletedJobs] = useState<Job[]>([]);
    const [statsLoading, setStatsLoading] = useState(true);
+
    const [givenJobsCount, setGivenJobsCount] = useState(0);
+
+   // Profile Completion State
+   const [showCompletionModal, setShowCompletionModal] = useState(false);
+   const [missingFields, setMissingFields] = useState<string[]>([]);
 
    // Chart filter state
    const [chartView, setChartView] = useState<'month' | 'day'>('month');
@@ -75,6 +82,29 @@ const HomePage = ({ user }: { user: User }) => {
          subscription.unsubscribe();
       };
    }, []);
+
+   // Check Missing Fields
+   useEffect(() => {
+      if (user) {
+         const missing = [];
+         if (!user.phone) missing.push("Telefon Numarası");
+         if (!user.preferredCourthouses || user.preferredCourthouses.length === 0) missing.push("Tercih Edilen Adliyeler");
+         if (!user.specializations || user.specializations.length === 0) missing.push("Uzmanlık Alanları");
+
+         if (missing.length > 0) {
+            setMissingFields(missing);
+            // Check session storage to show modal only once per session if desired
+            // For now, let's show it on mount every time as requested "Kullanıcı giriş yaptığında"
+            // If we want it only ONCE per login, we'd use a session flag.
+            // Let's use session storage to strictly show it once per browser session reload
+            const hasSeenModal = sessionStorage.getItem('hasSeenCompletionModal');
+            if (!hasSeenModal) {
+               setShowCompletionModal(true);
+               sessionStorage.setItem('hasSeenCompletionModal', 'true');
+            }
+         }
+      }
+   }, [user]);
 
    // Fetch Completed Jobs for Stats
    useEffect(() => {
@@ -227,6 +257,35 @@ const HomePage = ({ user }: { user: User }) => {
             title="Ana Sayfa - AvukatAğı"
             description="AvukatAğı ana sayfası. Güncel görevleri takip edin, yeni görev oluşturun ve istatistiklerinizi görüntüleyin."
          />
+
+         <ProfileCompletionModal
+            isOpen={showCompletionModal}
+            onClose={() => setShowCompletionModal(false)}
+            missingFields={missingFields}
+         />
+
+         {/* Missing Fields Banner */}
+         {missingFields.length > 0 && !showCompletionModal && (
+            <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 animate-in fade-in slide-in-from-top-4 relative z-50">
+               <div className="max-w-7xl mx-auto flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                     <div className="bg-orange-100 p-1.5 rounded-full">
+                        <AlertTriangle className="w-5 h-5 text-orange-600" />
+                     </div>
+                     <p className="text-sm font-medium text-orange-800">
+                        Profilinizde eksik bilgiler var: <span className="font-bold">{missingFields.join(', ')}</span>.
+                        Güvenilir bir profil için tamamlamanızı öneririz.
+                     </p>
+                  </div>
+                  <button
+                     onClick={() => navigate('/settings')}
+                     className="text-orange-700 hover:text-orange-800 text-sm font-bold hover:underline"
+                  >
+                     Bilgileri Tamamla
+                  </button>
+               </div>
+            </div>
+         )}
          {/* Hero Section - BOXED LAYOUT & BLUE COLOR */}
          <div className="max-w-7xl mx-auto px-4 mt-8">
             <div className="bg-primary-900 text-white py-10 px-6 md:py-20 md:px-8 rounded-3xl shadow-2xl relative overflow-hidden">
