@@ -336,6 +336,10 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
 
     const addSpec = () => {
       if (input && !specs.includes(input)) {
+        if (specs.length >= 3) {
+          showNotification('error', 'En fazla 3 uzmanlık alanı ekleyebilirsiniz.');
+          return;
+        }
         setSpecs([...specs, input]);
         setInput('');
       }
@@ -363,13 +367,14 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
       <div className="space-y-6 animate-in fade-in">
         <div className="border-b border-slate-100 pb-4">
           <h3 className="text-lg font-bold text-slate-800">Uzmanlık Alanları</h3>
-          <p className="text-sm text-slate-500 mt-1">Hangi hukuk dallarında yetkin olduğunuzu belirtin.</p>
+          <p className="text-sm text-slate-500 mt-1">Hangi hukuk dallarında yetkin olduğunuzu belirtin (Maks. 3 alan).</p>
         </div>
         <div className="flex gap-2">
           <input
             className="flex-1 rounded-lg border-slate-300"
             placeholder="Örn: Ceza Hukuku"
             value={input}
+            maxLength={15}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addSpec()}
           />

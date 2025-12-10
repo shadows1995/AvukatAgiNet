@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Timer, Users, ChevronDown, Star, DollarSign, CheckCircle, User as UserIcon, AlertTriangle, X } from 'lucide-react';
+import { Loader2, Timer, Users, ChevronDown, Star, DollarSign, CheckCircle, User as UserIcon, AlertTriangle, X, Award } from 'lucide-react';
 import { Job, Application, User } from '../types';
 import { supabase } from '../supabaseClient';
 import { useNotification } from '../contexts/NotificationContext';
@@ -172,6 +172,7 @@ const MyJobs = () => {
             // OR use the user's general job_status if that's what was intended. 
             // Re-reading user request: "Aylık alınan görev sayısı gösterimi de yapılıyor o bağlantıyı da kontrol et."
             // The previous code fetched 'user_monthly_stats'. Let's KEEP that for monthly count accuracy.
+            specializations: u.specializations // Capture specializations
           } as User;
         });
 
@@ -214,7 +215,8 @@ const MyJobs = () => {
             monthlyJobCount: statsMap[app.applicant_id] || 0,
 
             // Fresh membership type
-            membershipType: freshUser?.membershipType || 'free'
+            membershipType: freshUser?.membershipType || 'free',
+            specializations: freshUser?.specializations
           };
         });
 
@@ -523,6 +525,15 @@ const MyJobs = () => {
                               <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded border border-slate-100 italic">"{app.message}"</p>
                               <div className="flex items-center mt-2 text-xs text-slate-500 space-x-4">
                                 <span className="flex items-center text-primary-600 font-bold bg-primary-50 px-2 py-1 rounded"><DollarSign className="w-3 h-3 mr-1" /> Teklif: {app.proposedFee} TL</span>
+                                {isPremiumPlus && app.specializations && app.specializations.length > 0 && (
+                                  <div className="flex items-center space-x-2 ml-4">
+                                    {app.specializations.map((spec: string, i: number) => (
+                                      <span key={i} className="text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full flex items-center">
+                                        <Award className="w-3 h-3 mr-1" />{spec}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             </div>
 

@@ -153,6 +153,7 @@ const PremiumPage = ({ user }: { user: User }) => {
                 "Tüm Premium Özellikleri",
                 "Görevlere başvurularda üstte yer alma",
                 "Birden fazla ildeki adliyelerde görev alabilme",
+                "Başvurularda Uzmanlık Alanı Gösterimi (Özel)",
                 "Yıllık planda geçerli Görev garantisi-Yıllık 3 görev"
             ],
             icon: <Crown className="w-12 h-12 text-pink-500" />,
