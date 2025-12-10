@@ -70,13 +70,13 @@ const Footer = () => {
                     {/* Social Icons */}
                     <div className="flex gap-4">
                         {[
-                            Facebook,
-                            Instagram,
-                            Twitter,
-                            Linkedin,
-                            Youtube,
-                        ].map((Icon, idx) => (
-                            <a key={idx} href="#" className={socialStyle}>
+                            { Icon: Facebook, link: "#" },
+                            { Icon: Instagram, link: "https://www.instagram.com/avukatagi.tevkil/#" },
+                            { Icon: Twitter, link: "#" },
+                            { Icon: Linkedin, link: "#" },
+                            { Icon: Youtube, link: "#" },
+                        ].map(({ Icon, link }, idx) => (
+                            <a key={idx} href={link} target="_blank" rel="noopener noreferrer" className={socialStyle}>
                                 <Icon className="w-4 h-4" />
                             </a>
                         ))}
