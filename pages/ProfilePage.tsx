@@ -215,7 +215,7 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                         className="inline-flex items-center mt-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5"
                       >
                         <Phone className="w-4 h-4 mr-2" />
-                        WhatsApp ile İletişime Geç
+                        WhatsApp ile İletişime Geç ({profileUser.phone})
                       </a>
                     )
                   ) : (
