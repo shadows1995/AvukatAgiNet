@@ -27,6 +27,7 @@ const AcceptedJobs = () => {
     fetchAcceptedJobs();
   }, []);
 
+  // ... (keep fetchAcceptedJobs and helper functions same)
   const fetchAcceptedJobs = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -138,12 +139,7 @@ const AcceptedJobs = () => {
           return null;
         }));
 
-        // Filter and assign, correcting the sorting
-        // jobsData was sorted, so mapping preserves order if we map 1:1. 
-        // Promise.all preserves order of the resulting array relative to the input array.
         const validJobs = results.filter((item): item is AcceptedJobData => item !== null);
-
-        // Push spreads to the main array variable which was the mistake before
         acceptedJobsData.push(...validJobs);
       }
 
@@ -249,112 +245,166 @@ const AcceptedJobs = () => {
     });
   };
 
-  if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin" /></div>;
+  if (loading) return (
+    <div className="flex justify-center items-center p-20 min-h-[50vh]">
+      <div className="text-center">
+        <Loader2 className="animate-spin w-10 h-10 text-primary-600 mx-auto mb-4" />
+        <p className="text-slate-500 font-medium">Görevleriniz yükleniyor...</p>
+      </div>
+    </div>
+  );
 
   if (selectedJob) {
-    const { job, owner, application } = selectedJob;
+    const { job, owner } = selectedJob;
+    const isCompleted = job.status === 'completed';
+
     return (
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <button
           onClick={() => setSelectedJob(null)}
-          className="flex items-center text-slate-500 hover:text-slate-800 mb-6 transition"
+          className="flex items-center text-slate-500 hover:text-slate-900 mb-6 transition font-medium group"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" /> Listeye Dön
+          <div className="bg-white p-2 rounded-full shadow-sm border border-slate-200 mr-2 group-hover:border-primary-200 group-hover:text-primary-600">
+            <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+          </div>
+          Listeye Dön
         </button>
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
-          <div className="bg-primary-600 p-8 text-white">
-            <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
-            <div className="flex flex-wrap gap-4 text-primary-100 text-sm">
-              <span className="flex items-center"><MapPin className="w-4 h-4 mr-1" /> {job.city} / {job.courthouse}</span>
-              <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" /> {job.date}</span>
-              <span className="flex items-center"><Clock className="w-4 h-4 mr-1" /> {job.time}</span>
-            </div>
-          </div>
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 relative">
+          {/* Artistic Header Background */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary-50 rounded-full -mr-20 -mt-20 blur-3xl opacity-50 z-0"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-50 rounded-full -ml-10 -mb-10 blur-3xl opacity-50 z-0"></div>
 
-          <div className="p-8">
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Görev Detayları</h3>
-              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{job.description}</p>
-            </div>
-
-            <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 mb-8">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Görev Sahibi</h3>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="h-12 w-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-primary-600 font-bold text-lg shadow-sm">
-                    {owner.fullName.charAt(0)}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">{owner.title || 'Av.'} {owner.fullName}</h4>
-                    <p className="text-sm text-slate-500">{owner.baroCity} Barosu • {owner.phone}</p>
-                  </div>
+          {/* Header Content */}
+          <div className="relative z-10 bg-gradient-to-br from-primary-600 to-indigo-700 text-white p-8 md:p-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <h1 className="text-2xl md:text-3xl font-bold leading-tight">{job.title}</h1>
+              {isCompleted && (
+                <div className="flex items-center bg-green-500/20 backdrop-blur-sm border border-green-400/30 px-4 py-1.5 rounded-full">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-bold">TAMAMLANDI</span>
                 </div>
-                <button
-                  onClick={() => navigate(`/profile/${owner.uid}`)}
-                  className="text-primary-600 font-medium hover:underline text-sm"
-                >
-                  Profili Gör
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {owner.phone && (
-                <>
-                  <button
-                    onClick={() => handleWhatsApp(owner.phone!)}
-                    className="flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition shadow-md hover:shadow-lg"
-                  >
-                    <MessageCircle className="w-5 h-5 mr-2" /> WhatsApp ({owner.phone})
-                  </button>
-                  <a
-                    href={`tel:${owner.phone}`}
-                    className="flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition shadow-md hover:shadow-lg"
-                  >
-                    <Phone className="w-5 h-5 mr-2" /> Ara ({owner.phone})
-                  </a>
-                </>
               )}
             </div>
 
+            <div className="flex flex-wrap gap-4 text-primary-100 text-sm font-medium">
+              <span className="flex items-center bg-white/10 backdrop-blur-md rounded-lg px-3 py-1.5 border border-white/10">
+                <MapPin className="w-4 h-4 mr-2 text-primary-200" />
+                {job.city} / {job.courthouse}
+              </span>
+              <span className="flex items-center bg-white/10 backdrop-blur-md rounded-lg px-3 py-1.5 border border-white/10">
+                <Calendar className="w-4 h-4 mr-2 text-primary-200" />
+                {job.date}
+              </span>
+              <span className="flex items-center bg-white/10 backdrop-blur-md rounded-lg px-3 py-1.5 border border-white/10">
+                <Clock className="w-4 h-4 mr-2 text-primary-200" />
+                {job.time}
+              </span>
+            </div>
+          </div>
+
+          <div className="relative z-10 p-8 md:p-10 space-y-10">
+            {/* Task Details */}
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center">
+                <div className="w-8 h-0.5 bg-slate-200 mr-2"></div>
+                Görev Detayları
+              </h3>
+              <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
+                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap text-lg">{job.description}</p>
+              </div>
+            </div>
+
+            {/* Owner Info */}
+            <div>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center">
+                <div className="w-8 h-0.5 bg-slate-200 mr-2"></div>
+                Görev Sahibi
+              </h3>
+              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 border border-white shadow flex items-center justify-center text-slate-600 font-bold text-xl">
+                      {owner.fullName.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-lg">{owner.title || 'Av.'} {owner.fullName}</h4>
+                      <div className="flex items-center text-sm text-slate-500 mt-0.5">
+                        <span>{owner.baroCity} Barosu</span>
+                        <span className="mx-2">•</span>
+                        <span>{owner.phone}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate(`/profile/${owner.uid}`)}
+                    className="text-primary-600 font-bold hover:text-primary-700 text-sm bg-primary-50 hover:bg-primary-100 px-4 py-2 rounded-xl transition"
+                  >
+                    Profili Gör
+                  </button>
+                </div>
+
+                {/* Contact Actions */}
+                {owner.phone && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-100">
+                    <button
+                      onClick={() => handleWhatsApp(owner.phone!)}
+                      className="flex items-center justify-center px-4 py-3.5 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition shadow-lg shadow-green-200 transform hover:-translate-y-0.5"
+                    >
+                      <MessageCircle className="w-5 h-5 mr-2" />
+                      WhatsApp ({owner.phone})
+                    </button>
+                    <a
+                      href={`tel:${owner.phone}`}
+                      className="flex items-center justify-center px-4 py-3.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition shadow-lg shadow-blue-200 transform hover:-translate-y-0.5"
+                    >
+                      <Phone className="w-5 h-5 mr-2" />
+                      Ara ({owner.phone})
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Completion Actions */}
             <div className="pt-8 border-t border-slate-100">
               <button
                 onClick={handleCompleteTask}
-                disabled={completing || job.status === 'completed'}
-                className={`w-full flex items-center justify-center px-6 py-4 rounded-xl font-bold transition shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${job.status === 'completed'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-slate-900 text-white hover:bg-slate-800'
+                disabled={completing || isCompleted}
+                className={`w-full flex items-center justify-center px-6 py-5 rounded-2xl font-bold text-lg transition shadow-xl transform hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none ${isCompleted
+                  ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-green-200'
+                  : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-300'
                   }`}
               >
                 {completing ? (
-                  <Loader2 className="animate-spin w-5 h-5 mr-2" />
-                ) : job.status === 'completed' ? (
-                  <CheckCircle className="w-5 h-5 mr-2" />
+                  <Loader2 className="animate-spin w-6 h-6 mr-3" />
                 ) : (
-                  <CheckCircle className="w-5 h-5 mr-2" />
+                  <CheckCircle className="w-6 h-6 mr-3" />
                 )}
-                {job.status === 'completed' ? 'Görevi Tamamladınız' : 'Görevi Tamamla'}
+                {isCompleted ? 'Görevi Tamamladınız' : 'Görevi Tamamla'}
               </button>
 
-              {job.status === 'completed' && canRate && (
+              {isCompleted && canRate && (
                 <button
                   onClick={() => setShowRatingModal(true)}
-                  className="w-full flex items-center justify-center px-6 py-4 rounded-xl font-bold transition shadow-lg hover:shadow-xl bg-yellow-500 text-white hover:bg-yellow-600 mt-3"
+                  className="w-full flex items-center justify-center px-6 py-4 rounded-2xl font-bold transition shadow-lg hover:shadow-xl bg-amber-400 text-white hover:bg-amber-500 mt-4 shadow-amber-100"
                 >
                   <Star className="w-5 h-5 mr-2" />
                   Görev Sahibini Değerlendir
                 </button>
               )}
 
-              {job.status === 'completed' && !canRate && (
-                <p className="text-center text-xs text-slate-500 mt-3">
-                  ✓ Görev sahibini değerlendirdiniz
-                </p>
+              {isCompleted && !canRate && (
+                <div className="mt-4 flex justify-center">
+                  <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
+                    <CheckCircle className="w-3 h-3 mr-1.5" />
+                    Değerlendirme yapıldı
+                  </span>
+                </div>
               )}
 
-              <p className="text-center text-xs text-slate-400 mt-3">
-                Görevi tamamladığınızda görev sahibine bildirim gönderilecektir.
+              <p className="text-center text-xs text-slate-400 mt-4 font-medium">
+                Görevi tamamladığınızda görev sahibine otomatik bildirim gönderilecektir.
               </p>
             </div>
           </div>
@@ -373,51 +423,79 @@ const AcceptedJobs = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-slate-900 mb-6">Aldığım Görevler</h2>
+    <div className="max-w-5xl mx-auto px-4 py-12">
+      <div className="mb-10">
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Aldığım Görevler</h2>
+        <p className="text-slate-500 mt-2 text-lg">Başvurusu kabul edilen ve üzerinde çalıştığınız aktif görevler.</p>
+      </div>
 
       {acceptedJobs.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-slate-200 shadow-sm">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserIcon className="w-8 h-8 text-slate-400" />
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/50">
+          <div className="w-24 h-24 bg-primary-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
+            <UserIcon className="w-12 h-12 text-primary-400" />
           </div>
-          <h3 className="text-lg font-medium text-slate-900">Aktif göreviniz bulunmuyor.</h3>
-          <p className="text-slate-500 mt-2">Başvurularınız kabul edildiğinde burada listelenecektir.</p>
+          <h3 className="text-xl font-bold text-slate-900">Henüz aktif göreviniz bulunmuyor</h3>
+          <p className="text-slate-500 mt-3 max-w-md text-center leading-relaxed">
+            Başvurularınız kabul edildiğinde görev detaylarını burada görebileceksiniz.
+          </p>
           <button
             onClick={() => navigate('/')}
-            className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition"
+            className="mt-8 px-8 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition shadow-lg shadow-primary-200 hover:-translate-y-1"
           >
-            Görevlere Göz At
+            Yeni Görev Bul
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {acceptedJobs.map((data) => (
             <div
               key={data.job.jobId}
               onClick={() => setSelectedJob(data)}
-              className={`border rounded-xl p-6 hover:shadow-md transition cursor-pointer group flex justify-between items-center ${data.job.status === 'completed' ? 'bg-slate-50 border-slate-200 opacity-75' : 'bg-white border-slate-200'
+              className={`group relative bg-white rounded-2xl p-6 border transition-all duration-300 cursor-pointer overflow-hidden ${data.job.status === 'completed'
+                ? 'border-slate-100 shadow-sm opacity-80 hover:opacity-100'
+                : 'border-slate-200 shadow-sm hover:shadow-xl hover:border-primary-200 hover:-translate-y-1'
                 }`}
             >
-              <div>
-                <div className="flex items-center space-x-2 mb-1">
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary-600 transition">{data.job.title}</h3>
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                <UserIcon className="w-24 h-24 text-primary-600 transform rotate-12" />
+              </div>
+
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="bg-primary-50 p-3 rounded-xl group-hover:bg-primary-100 transition-colors">
+                    <MapPin className="w-6 h-6 text-primary-600" />
+                  </div>
                   {data.job.status === 'completed' && (
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
-                      TAMAMLANDI
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Tamamlandı
                     </span>
                   )}
                 </div>
-                <div className="flex items-center text-slate-500 text-sm mt-1 space-x-3">
-                  <span className="flex items-center"><MapPin className="w-3 h-3 mr-1" /> {data.job.city}</span>
-                  <span className="flex items-center"><Calendar className="w-3 h-3 mr-1" /> {data.job.date}</span>
+
+                <h3 className="text-lg font-bold text-slate-900 mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
+                  {data.job.title}
+                </h3>
+
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center text-slate-500 text-sm">
+                    <MapPin className="w-4 h-4 mr-2 text-slate-400" />
+                    {data.job.city} / {data.job.courthouse}
+                  </div>
+                  <div className="flex items-center text-slate-500 text-sm">
+                    <Calendar className="w-4 h-4 mr-2 text-slate-400" />
+                    {data.job.date} &bull; {data.job.time}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center text-slate-400">
-                <span className="text-sm font-medium mr-4 text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
-                  {data.application.proposedFee} TL
-                </span>
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition" />
+
+                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                  <div className="font-bold text-lg text-slate-900">
+                    {data.application.proposedFee} <span className="text-sm text-slate-500 font-normal">TL</span>
+                  </div>
+                  <div className="flex items-center text-primary-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                    Detaylar <ChevronRight className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
               </div>
             </div>
           ))}
