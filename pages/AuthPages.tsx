@@ -382,7 +382,11 @@ export const LoginPage = () => {
       if (error) throw error;
     } catch (err: any) {
       console.error(err);
-      setError('Giriş yapılamadı. E-posta veya şifre hatalı.');
+      if (err.message && (err.message.includes('Email not confirmed') || err.message.includes('Email not verified'))) {
+        setError('Giriş yapılamadı. Lütfen mail adresinize gelen doğrulama mailinden üyeliğinizi doğrulayın.');
+      } else {
+        setError('Giriş yapılamadı. E-posta veya şifre hatalı.');
+      }
       setIsLoading(false);
     }
   };
