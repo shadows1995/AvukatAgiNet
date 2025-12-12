@@ -18,7 +18,7 @@ const Dashboard = ({ user }: { user: User }) => {
   // Fetch Jobs for Search
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data, error } = await supabase.from('jobs').select('*');
+      const { data, error } = await supabase.from('jobs').select('*').neq('status', 'cancelled');
       if (error) {
         console.error("Dashboard job fetch error:", error);
         setErrorMsg("Görevler yüklenirken bir sorun oluştu.");

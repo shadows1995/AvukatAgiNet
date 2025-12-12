@@ -38,6 +38,7 @@ const MyJobs = () => {
         .from('jobs')
         .select('*, applications(count)')
         .eq('created_by', user.id)
+        .neq('status', 'cancelled')
         .order('created_at', { ascending: false });
 
       if (error) {

@@ -204,30 +204,52 @@ const JobDetails = ({ user }: { user: User }) => {
     const isCompleted = job.status === 'completed';
     const canViewContact = isOwner || isAssignedToMe;
 
-    const handleDeleteJob = async () => {
+    const handleCancelJob = async () => {
         showAlert({
-            title: "Görevi Silmek İstediğinize Emin misiniz?",
-            message: "Bu işlem geri alınamaz. Görev kalıcı olarak silinecektir.",
+            title: "Görevi İptal Etmek İstediğinize Emin misiniz?",
+            message: "Görev iptal edilecek ve listelerden kaldırılacaktır. Bu işlem geri alınamaz.",
             type: "confirm",
-            confirmText: "Evet, Sil",
+            confirmText: "Evet, İptal Et",
             cancelText: "Vazgeç",
             onConfirm: async () => {
                 try {
                     const { error } = await supabase
                         .from('jobs')
-                        .delete()
+                        .update({ status: 'cancelled' })
                         .eq('job_id', job.jobId);
 
                     if (error) throw error;
 
                     navigate('/dashboard');
                 } catch (error) {
-                    console.error("Error deleting job:", error);
-                    showAlert({ title: "Hata", message: "Görev silinirken bir hata oluştu.", type: "error" });
+                    console.error("Error cancelling job:", error);
+                    showAlert({ title: "Hata", message: "Görev iptal edilirken bir hata oluştu.", type: "error" });
                 }
             }
         });
     };
+
+    if (job?.status === 'cancelled') {
+        return (
+            <div className="max-w-3xl mx-auto px-4 py-8">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center text-slate-500 hover:text-slate-800 mb-6 transition"
+                >
+                    <ArrowLeft className="w-5 h-5 mr-2" /> Geri Dön
+                </button>
+                <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg shadow-sm">
+                    <div className="flex items-center">
+                        <AlertTriangle className="h-8 w-8 text-red-500 mr-4" />
+                        <div>
+                            <h3 className="text-lg font-bold text-red-700">BU GÖREV İPTAL EDİLMİŞTİR</h3>
+                            <p className="text-red-600 mt-1">Bu görev, görev sahibi tarafından iptal edilmiştir ve artık işleme kapalıdır.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-3xl mx-auto px-4 py-8">
@@ -328,11 +350,11 @@ const JobDetails = ({ user }: { user: User }) => {
                             Bu görevi siz oluşturdunuz.
                         </div>
                         <button
-                            onClick={handleDeleteJob}
+                            onClick={handleCancelJob}
                             className="w-full flex items-center justify-center px-6 py-4 bg-red-50 text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-100 transition"
                         >
                             <Trash2 className="w-5 h-5 mr-2" />
-                            Görevi İptal Et / Sil
+                            Görevi İptal Et
                         </button>
                     </div>
                 ) : (
