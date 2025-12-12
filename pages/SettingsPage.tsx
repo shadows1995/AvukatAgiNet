@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { User, User as UserIcon } from 'lucide-react';
 import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield, Trash2, Bell } from 'lucide-react';
 import { User as UserType } from '../types';
@@ -7,8 +8,17 @@ import { supabase } from '../supabaseClient';
 import TaskDisputePage from './TaskDisputePage';
 
 const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpdate: () => void }) => {
-  const [activeTab, setActiveTab] = useState('personal');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'personal');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Update active tab when URL param changes
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   // Notification Modal State
   const [statusModal, setStatusModal] = useState<{ isOpen: boolean, type: 'success' | 'error', message: string }>({

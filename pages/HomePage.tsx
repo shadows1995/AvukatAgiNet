@@ -278,7 +278,14 @@ const HomePage = ({ user }: { user: User }) => {
                      </p>
                   </div>
                   <button
-                     onClick={() => navigate('/settings')}
+                     onClick={() => {
+                        let targetTab = 'personal';
+                        if (missingFields.includes("Telefon Numarası")) targetTab = 'personal';
+                        else if (missingFields.includes("Tercih Edilen Adliyeler")) targetTab = 'courthouses';
+                        else if (missingFields.includes("Uzmanlık Alanları")) targetTab = 'specialization';
+
+                        navigate(`/settings?tab=${targetTab}`);
+                     }}
                      className="text-orange-700 hover:text-orange-800 text-sm font-bold hover:underline"
                   >
                      Bilgileri Tamamla
@@ -314,7 +321,7 @@ const HomePage = ({ user }: { user: User }) => {
                         </button>
                         <button
                            onClick={() => {
-                              if (user.membershipType === 'premium' || user.membershipType === 'premium_plus') {
+                              if (user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus') {
                                  navigate('/dashboard');
                               } else {
                                  navigate('/premium');

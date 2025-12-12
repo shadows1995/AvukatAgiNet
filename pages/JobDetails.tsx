@@ -323,6 +323,22 @@ const JobDetails = ({ user }: { user: User }) => {
                                 );
                             }
 
+                            if (!user.isPremium) {
+                                return (
+                                    <div className="text-center">
+                                        <div className="bg-slate-100 text-slate-500 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center font-bold mb-3">
+                                            <p>Bu göreve başvurmak için Premium üye olmalısınız.</p>
+                                        </div>
+                                        <button
+                                            onClick={() => navigate('/premium')}
+                                            className="w-full py-4 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                        >
+                                            Premium'a Geç
+                                        </button>
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <button
                                     onClick={() => setIsApplyModalOpen(true)}

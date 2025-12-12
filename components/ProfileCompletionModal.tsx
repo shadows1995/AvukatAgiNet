@@ -43,7 +43,11 @@ const ProfileCompletionModal = ({ isOpen, onClose, missingFields }: ProfileCompl
                         <button
                             onClick={() => {
                                 onClose();
-                                navigate('/settings');
+                                let targetTab = 'personal';
+                                if (missingFields.includes("Telefon Numarası")) targetTab = 'personal';
+                                else if (missingFields.includes("Tercih Edilen Adliyeler")) targetTab = 'courthouses';
+                                else if (missingFields.includes("Uzmanlık Alanları")) targetTab = 'specialization';
+                                navigate(`/settings?tab=${targetTab}`);
                             }}
                             className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition flex items-center justify-center"
                         >
