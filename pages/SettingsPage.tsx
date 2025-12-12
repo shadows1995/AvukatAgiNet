@@ -65,8 +65,21 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
         showNotification('success', 'Kişisel bilgileriniz başarıyla güncellendi.');
         onProfileUpdate();
         setIsDirty(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
+
+        // Handle Unique Constraint Violations (Duplicate Email/Phone)
+        if (error?.code === '23505') {
+          if (error?.message?.includes('email') || error?.details?.includes('email') || error?.message?.includes('users_email_key')) {
+            showNotification('error', 'Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor.');
+            return;
+          }
+          if (error?.message?.includes('phone') || error?.details?.includes('phone') || error?.message?.includes('users_phone_key')) {
+            showNotification('error', 'Bu telefon numarası başka bir kullanıcı tarafından kullanılıyor.');
+            return;
+          }
+        }
+
         showNotification('error', 'Güncelleme sırasında bir hata oluştu.');
       } finally {
         setIsSaving(false);
