@@ -368,44 +368,60 @@ const AcceptedJobs = () => {
 
             {/* Completion Actions */}
             <div className="pt-8 border-t border-slate-100">
-              <button
-                onClick={handleCompleteTask}
-                disabled={completing || isCompleted}
-                className={`w-full flex items-center justify-center px-6 py-5 rounded-2xl font-bold text-lg transition shadow-xl transform hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none ${isCompleted
-                  ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-green-200'
-                  : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-300'
-                  }`}
-              >
-                {completing ? (
-                  <Loader2 className="animate-spin w-6 h-6 mr-3" />
-                ) : (
-                  <CheckCircle className="w-6 h-6 mr-3" />
-                )}
-                {isCompleted ? 'Görevi Tamamladınız' : 'Görevi Tamamla'}
-              </button>
-
-              {isCompleted && canRate && (
-                <button
-                  onClick={() => setShowRatingModal(true)}
-                  className="w-full flex items-center justify-center px-6 py-4 rounded-2xl font-bold transition shadow-lg hover:shadow-xl bg-amber-400 text-white hover:bg-amber-500 mt-4 shadow-amber-100"
-                >
-                  <Star className="w-5 h-5 mr-2" />
-                  Görev Sahibini Değerlendir
-                </button>
-              )}
-
-              {isCompleted && !canRate && (
-                <div className="mt-4 flex justify-center">
-                  <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
-                    <CheckCircle className="w-3 h-3 mr-1.5" />
-                    Değerlendirme yapıldı
-                  </span>
+              {job.status === 'cancelled' ? (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center animate-in fade-in slide-in-from-bottom-4">
+                  <div className="flex justify-center mb-4">
+                    <div className="bg-white p-3 rounded-full shadow-sm border border-red-100">
+                      <X className="w-8 h-8 text-red-500" />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-red-700 mb-2">Bu Görev İptal Edildi</h3>
+                  <p className="text-red-600/80 max-w-sm mx-auto">
+                    Bu görev, görev sahibi tarafından iptal edilmiştir. Artık bu görev üzerinde herhangi bir işlem yapamazsınız.
+                  </p>
                 </div>
-              )}
+              ) : (
+                <>
+                  <button
+                    onClick={handleCompleteTask}
+                    disabled={completing || isCompleted}
+                    className={`w-full flex items-center justify-center px-6 py-5 rounded-2xl font-bold text-lg transition shadow-xl transform hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none ${isCompleted
+                      ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-green-200'
+                      : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-300'
+                      }`}
+                  >
+                    {completing ? (
+                      <Loader2 className="animate-spin w-6 h-6 mr-3" />
+                    ) : (
+                      <CheckCircle className="w-6 h-6 mr-3" />
+                    )}
+                    {isCompleted ? 'Görevi Tamamladınız' : 'Görevi Tamamla'}
+                  </button>
 
-              <p className="text-center text-xs text-slate-400 mt-4 font-medium">
-                Görevi tamamladığınızda görev sahibine otomatik bildirim gönderilecektir.
-              </p>
+                  {isCompleted && canRate && (
+                    <button
+                      onClick={() => setShowRatingModal(true)}
+                      className="w-full flex items-center justify-center px-6 py-4 rounded-2xl font-bold transition shadow-lg hover:shadow-xl bg-amber-400 text-white hover:bg-amber-500 mt-4 shadow-amber-100"
+                    >
+                      <Star className="w-5 h-5 mr-2" />
+                      Görev Sahibini Değerlendir
+                    </button>
+                  )}
+
+                  {isCompleted && !canRate && (
+                    <div className="mt-4 flex justify-center">
+                      <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
+                        <CheckCircle className="w-3 h-3 mr-1.5" />
+                        Değerlendirme yapıldı
+                      </span>
+                    </div>
+                  )}
+
+                  <p className="text-center text-xs text-slate-400 mt-4 font-medium">
+                    Görevi tamamladığınızda görev sahibine otomatik bildirim gönderilecektir.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

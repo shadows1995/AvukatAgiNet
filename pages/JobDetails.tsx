@@ -220,6 +220,18 @@ const JobDetails = ({ user }: { user: User }) => {
 
                     if (error) throw error;
 
+                    // Notify Applicant if assigned
+                    if (job.selectedApplicant) {
+                        await supabase.from('notifications').insert({
+                            user_id: job.selectedApplicant,
+                            title: "Görev İptal Edildi ⚠️",
+                            message: `"${job.title}" görevi, görev sahibi tarafından iptal edildi.`,
+                            type: "error",
+                            read: false,
+                            metadata: { jobId: job.jobId, type: 'job_cancelled' }
+                        });
+                    }
+
                     navigate('/dashboard');
                 } catch (error) {
                     console.error("Error cancelling job:", error);
