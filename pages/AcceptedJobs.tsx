@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, MapPin, Phone, MessageCircle, User as UserIcon, Calendar, Clock, CheckCircle, ArrowLeft, ChevronRight, Star } from 'lucide-react';
+import { Loader2, MapPin, Phone, MessageCircle, User as UserIcon, Calendar, Clock, CheckCircle, ArrowLeft, ChevronRight, Star, X } from 'lucide-react';
 import { Job, Application, User } from '../types';
 import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
@@ -469,6 +469,12 @@ const AcceptedJobs = () => {
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 flex items-center">
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Tamamlandı
+                    </span>
+                  )}
+                  {data.job.status === 'cancelled' && (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200 flex items-center">
+                      <X className="w-3 h-3 mr-1" />
+                      İptal Edildi
                     </span>
                   )}
                 </div>

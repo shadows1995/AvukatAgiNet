@@ -38,7 +38,6 @@ const MyJobs = () => {
         .from('jobs')
         .select('*, applications(count)')
         .eq('created_by', user.id)
-        .neq('status', 'cancelled')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -405,7 +404,8 @@ const MyJobs = () => {
                       job.status === 'open' && !isApplicationOpen ? 'bg-orange-100 text-orange-700' :
                         job.status === 'open' ? 'bg-green-100 text-green-700' :
                           job.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                            'bg-gray-100 text-gray-700'
+                            job.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
                       }`}>
                       {job.status === 'open' && isJobExpired(job) ? 'Süresi Geçmiş' :
                         job.status === 'open' && !isApplicationOpen ? 'Başvurular Kapandı' :
