@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Loader2, MapPin, Calendar, Clock, User as UserIcon, ArrowLeft, MessageCircle, Phone, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Loader2, MapPin, Calendar, Clock, User as UserIcon, ArrowLeft, MessageCircle, Phone, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react';
 import { Job, User, Application } from '../types';
 import { supabase } from '../supabaseClient';
 import ApplyModal from '../components/ApplyModal';
@@ -204,6 +204,31 @@ const JobDetails = ({ user }: { user: User }) => {
     const isCompleted = job.status === 'completed';
     const canViewContact = isOwner || isAssignedToMe;
 
+    const handleDeleteJob = async () => {
+        showAlert({
+            title: "Görevi Silmek İstediğinize Emin misiniz?",
+            message: "Bu işlem geri alınamaz. Görev kalıcı olarak silinecektir.",
+            type: "confirm",
+            confirmText: "Evet, Sil",
+            cancelText: "Vazgeç",
+            onConfirm: async () => {
+                try {
+                    const { error } = await supabase
+                        .from('jobs')
+                        .delete()
+                        .eq('job_id', job.jobId);
+
+                    if (error) throw error;
+
+                    navigate('/dashboard');
+                } catch (error) {
+                    console.error("Error deleting job:", error);
+                    showAlert({ title: "Hata", message: "Görev silinirken bir hata oluştu.", type: "error" });
+                }
+            }
+        });
+    };
+
     return (
         <div className="max-w-3xl mx-auto px-4 py-8">
             <SEO
@@ -220,6 +245,7 @@ const JobDetails = ({ user }: { user: User }) => {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
                 {/* Header */}
                 <div className="bg-primary-600 p-8 text-white relative overflow-hidden">
+                    {/* ... existing header content ... */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-4">
@@ -260,7 +286,7 @@ const JobDetails = ({ user }: { user: User }) => {
 
                 {/* Actions */}
                 {isAssignedToMe ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 px-8 pb-8">
                         {/* Contact Buttons for Assignee */}
                         {owner.phone && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -297,8 +323,17 @@ const JobDetails = ({ user }: { user: User }) => {
                         )}
                     </div>
                 ) : isOwner ? (
-                    <div className="bg-blue-50 text-blue-700 p-4 rounded-xl border border-blue-100 text-center font-medium">
-                        Bu görevi siz oluşturdunuz.
+                    <div className="px-8 pb-8">
+                        <div className="bg-blue-50 text-blue-700 p-4 rounded-xl border border-blue-100 text-center font-medium mb-4">
+                            Bu görevi siz oluşturdunuz.
+                        </div>
+                        <button
+                            onClick={handleDeleteJob}
+                            className="w-full flex items-center justify-center px-6 py-4 bg-red-50 text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-100 transition"
+                        >
+                            <Trash2 className="w-5 h-5 mr-2" />
+                            Görevi İptal Et / Sil
+                        </button>
                     </div>
                 ) : (
                     // Apply Button for Others
