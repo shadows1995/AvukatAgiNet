@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import ApplyModal from '../components/ApplyModal';
 import { useAlert } from '../contexts/AlertContext';
 import SEO from '../components/SEO';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 
 const JobDetails = ({ user }: { user: User }) => {
@@ -17,6 +18,7 @@ const JobDetails = ({ user }: { user: User }) => {
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
     const [completing, setCompleting] = useState(false);
     const [myApplication, setMyApplication] = useState<Application | null>(null);
+    const isMobileApp = useMobileApp();
 
     useEffect(() => {
         const fetchJobDetails = async () => {
@@ -393,6 +395,16 @@ const JobDetails = ({ user }: { user: User }) => {
                             }
 
                             if (!user.isPremium) {
+                                if (isMobileApp) {
+                                    return (
+                                        <div className="text-center">
+                                            <div className="bg-slate-100 text-slate-500 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center font-bold mb-3">
+                                                <p>Your account does not have access to this feature.</p>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
                                 return (
                                     <div className="text-center">
                                         <div className="bg-slate-100 text-slate-500 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center font-bold mb-3">

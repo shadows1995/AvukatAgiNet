@@ -1,0 +1,37 @@
+# Apple Review Changes
+
+This file documents all changes made to the codebase to comply with Apple App Store review guidelines. These changes hide premium/payment features in the mobile webview version.
+
+## Changes to Revert (Post-App Store Approval if desired)
+
+### 1. New File: hooks/useMobileApp.ts
+- Created to detect mobile webview environment using `window.ReactNativeWebView` or `sessionStorage`.
+
+### 2. File: components/Navbar.tsx
+- Integrated `useMobileApp`.
+- Hidden "Premium" navigation link for non-premium users on mobile.
+- Hidden "Premium" status badge/button for premium users on mobile.
+
+### 3. File: pages/JobDetails.tsx
+- Integrated `useMobileApp`.
+- Replaced the "Upgrade to Premium" prompts with a generic block message: "Your account does not have access to this feature" when a non-premium user views a job detail on mobile.
+
+### 4. File: pages/PremiumPage.tsx
+- Integrated `useMobileApp`.
+- Completely replaced page content with the block message "Your account does not have access to this feature" if accessed on mobile.
+
+### 5. File: pages/Payment.tsx
+- Integrated `useMobileApp`.
+- Completely replaced page content with the block message "Your account does not have access to this feature" if accessed on mobile.
+
+### 6. File: pages/CreateJob.tsx
+- Integrated `useMobileApp`.
+- Modified "Urgent Job" checkbox (Premium feature):
+    - On mobile, if a non-premium user checks it, they see an alert "Your account does not have access to this feature" instead of an upsell confirmation dialog.
+- Hidden the "PREMIUM" text badge next to the generic "Urgent Job" label on mobile.
+
+## Summary of Strategy
+The strategy relies on the `useMobileApp` hook returning `true` inside the React Native Webview.
+- **Frontend Only:** All changes are client-side.
+- **Compliance:** Removed all direct links to payment, "Upgrade" buttons, and pricing information on the mobile interface.
+- **User Feedback:** Replaced upsells with a neutral "Access Denied" message to avoid confusing the user while satisfying Apple's "No external links or hidden buy buttons" policy.

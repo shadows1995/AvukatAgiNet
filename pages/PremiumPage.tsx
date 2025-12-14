@@ -4,6 +4,7 @@ import { CheckCircle, Rocket, Zap, Crown, Shield, Loader2 } from 'lucide-react';
 import { User } from '../types';
 import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 const styles = {
     section: "relative py-20 bg-slate-50 min-h-screen",
@@ -38,6 +39,17 @@ const PremiumPage = ({ user }: { user: User }) => {
     const [loading, setLoading] = useState<string | null>(null);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
     const { showAlert } = useAlert();
+    const isMobileApp = useMobileApp();
+
+    if (isMobileApp) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+                <div className="bg-white text-slate-500 p-8 rounded-xl border border-slate-200 shadow-sm text-center font-bold max-w-md w-full">
+                    <p>Your account does not have access to this feature.</p>
+                </div>
+            </div>
+        );
+    }
 
     const navigate = useNavigate();
 

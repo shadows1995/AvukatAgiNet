@@ -4,6 +4,7 @@ import { CreditCard, ShieldCheck, Lock, CheckCircle, Loader2, ArrowLeft } from '
 import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
 import axios from 'axios';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 interface PaymentPageProps {
     onPaymentSuccess?: () => void;
@@ -15,6 +16,17 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
     const { plan, price, period } = location.state || { plan: 'premium', price: 249, period: 'monthly' };
     const [loading, setLoading] = useState(false);
     const { showAlert } = useAlert();
+    const isMobileApp = useMobileApp();
+
+    if (isMobileApp) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+                <div className="bg-white text-slate-500 p-8 rounded-xl border border-slate-200 shadow-sm text-center font-bold max-w-md w-full">
+                    <p>Your account does not have access to this feature.</p>
+                </div>
+            </div>
+        );
+    }
     const [agreementAccepted, setAgreementAccepted] = useState(false);
     const [billingInfo, setBillingInfo] = useState({
         fullName: '',

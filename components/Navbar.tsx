@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Gavel, Bell, Settings, LogOut, Sparkles, Menu, X, Crown, Calendar, CreditCard, CheckCircle, Shield } from 'lucide-react';
 import { User, Notification } from '../types';
 import { supabase } from '../supabaseClient';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-2 ${className}`}>
@@ -23,6 +24,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
   const location = useLocation();
   const navigate = useNavigate();
   const notificationRef = useRef<HTMLDivElement>(null);
+  const isMobileApp = useMobileApp();
   const mobileNotificationRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuBtnRef = useRef<HTMLButtonElement>(null);
@@ -198,7 +200,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     <Shield className="w-4 h-4 mr-1 inline-block" /> Admin
                   </Link>
                 )}
-                {!user.isPremium && (
+                {!user.isPremium && !isMobileApp && (
                   <Link to="/premium" className="flex items-center text-secondary-600 font-medium bg-secondary-50 px-3 py-2 rounded-md hover:bg-secondary-100 transition whitespace-nowrap text-sm">
                     <Sparkles className="w-4 h-4 mr-1" /> Premium
                   </Link>
@@ -210,7 +212,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                {user.isPremium && (
+                {user.isPremium && !isMobileApp && (
                   <button
                     onClick={() => setShowPremiumModal(true)}
                     className={`px-4 py-1.5 text-xs font-bold text-white rounded-full flex items-center shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap ${user.membershipType === 'premium_plus'
@@ -350,7 +352,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           {/* Mobile Right Section: Premium Only */}
           <div className="flex items-center md:hidden">
             {/* Mobile Premium Indicator */}
-            {user && (
+            {user && !isMobileApp && (
               <div className="flex items-center">
                 {user.isPremium ? (
                   <button
@@ -373,6 +375,18 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 )}
 
                 {/* Mobile Profile Avatar */}
+                <div onClick={goToProfile} className="ml-3 h-8 w-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 flex-shrink-0 overflow-hidden">
+                  {user.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                  ) : (
+                    user.fullName.charAt(0)
+                  )}
+                </div>
+              </div>
+            )}
+            {/* If mobile app, show only avatar without premium badge/links */}
+            {user && isMobileApp && (
+              <div className="flex items-center">
                 <div onClick={goToProfile} className="ml-3 h-8 w-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 flex-shrink-0 overflow-hidden">
                   {user.avatarUrl ? (
                     <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />

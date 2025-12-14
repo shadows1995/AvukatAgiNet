@@ -6,11 +6,13 @@ import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 const CreateJob = ({ user }: { user: User }) => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const { showAlert } = useAlert();
+  const isMobileApp = useMobileApp();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -270,6 +272,16 @@ const CreateJob = ({ user }: { user: User }) => {
                     checked={formData.isUrgent}
                     onChange={(e) => {
                       if (!user.isPremium && e.target.checked) {
+                        if (isMobileApp) {
+                          showAlert({
+                            title: "Erişim Kısıtlı",
+                            message: "Your account does not have access to this feature.",
+                            type: "warning",
+                            confirmText: "Tamam"
+                          });
+                          return;
+                        }
+
                         showAlert({
                           title: "Premium Özellik",
                           message: "Acil görev oluşturmak Premium özelliklerden biridir. Yükseltmek ister misiniz?",
@@ -289,7 +301,7 @@ const CreateJob = ({ user }: { user: User }) => {
                   <label htmlFor="isUrgent" className="font-bold text-slate-900 flex items-center cursor-pointer text-base">
                     <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
                     Acil Görev
-                    {!user.isPremium && <span className="ml-3 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">PREMIUM</span>}
+                    {!user.isPremium && !isMobileApp && <span className="ml-3 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">PREMIUM</span>}
                   </label>
                   <p className="text-slate-500 mt-1.5 leading-relaxed">
                     Normal görevlerde başvuru toplama süresi 15 dakikadır. Acil görevlerde bu süre 5 dakikaya düşer ve göreviniz öne çıkarılır.
