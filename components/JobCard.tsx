@@ -4,9 +4,11 @@ import { MapPin, Clock, Users, CheckCircle, Phone } from 'lucide-react';
 import { Job, User, UserRole, JobType } from '../types';
 import ApplyModal from './ApplyModal';
 import { useAlert } from '../contexts/AlertContext';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job, user, hasApplied }) => {
   const navigate = useNavigate();
+  const isMobileApp = useMobileApp();
   const [showApplyModal, setShowApplyModal] = useState(false);
   const isPremium = user.isPremium || user.role === UserRole.ADMIN;
   const isOwner = job.createdBy === user.uid;
@@ -56,6 +58,15 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
     }
 
     if (!user.isPremium) {
+      if (isMobileApp) {
+        showAlert({
+          title: "Yetkisiz Erişim",
+          message: "Bu göreve başvuramazsın.",
+          type: "error"
+        });
+        return;
+      }
+
       showAlert({
         title: "Premium Üyelik Gerekli",
         message: "Ücretsiz üyeler ilanlara başvuru yapamaz. Premium'a geçmek ister misiniz?",
@@ -206,19 +217,23 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
           ) : (
             <button
               onClick={(e) => { e.stopPropagation(); handleApplyClick(); }}
-              disabled={hasApplied}
+              disabled={hasApplied || (!user.isPremium && isMobileApp)}
               className={`w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white transition duration-200 ${hasApplied
                 ? 'bg-slate-400 cursor-not-allowed'
-                : isPremium
-                  ? 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
-                  : 'bg-slate-800 hover:bg-slate-900'
+                : (!user.isPremium && isMobileApp)
+                  ? 'bg-slate-400 cursor-not-allowed'
+                  : isPremium
+                    ? 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
+                    : 'bg-slate-800 hover:bg-slate-900'
                 }`}
             >
               {hasApplied
                 ? 'Başvuru Yapıldı'
-                : isPremium
-                  ? 'Hemen Başvur'
-                  : 'Premium ile Başvur'}
+                : (!user.isPremium && isMobileApp)
+                  ? 'Bu göreve başvuramazsın'
+                  : isPremium
+                    ? 'Hemen Başvur'
+                    : 'Premium ile Başvur'}
             </button>
           )}
         </div>

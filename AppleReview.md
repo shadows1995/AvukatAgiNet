@@ -35,6 +35,13 @@ This file documents all changes made to the codebase to comply with Apple App St
 - Hidden "Kazanç Grafiği" (Earnings Chart) and "Adliye Dağılımı" (Pie Chart) on mobile if the user is not premium.
     - Prevents displaying the "Premium ile Kazancınızı Takip Edin" upsell overlay.
 
+### 8. File: components/JobCard.tsx
+- Integrated `useMobileApp`.
+- If on mobile and user is non-premium:
+    - Display "Bu göreve başvuramazsın" instead of "Premium ile Başvur".
+    - Disable the application button.
+    - Show an alert "Bu göreve başvuramazsın" if clicked (defensive check).
+
 ## Summary of Strategy
 The strategy relies on the `useMobileApp` hook returning `true` inside the React Native Webview.
 - **Frontend Only:** All changes are client-side.
