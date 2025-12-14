@@ -138,8 +138,8 @@ const AppContent = () => {
           <Route path="/register" element={user ? <Navigate to="/home" /> : <RegisterPage />} />
           <Route path="/forgot-password" element={user ? <Navigate to="/home" /> : <ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/home" element={user ? <HomePage user={user} /> : <Navigate to="/login" />} />
-          <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
+          <Route path="/home" element={user ? <HomePage user={user} /> : <Navigate to="/" />} />
+          <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/" />} />
           <Route path="/create-job" element={user ? <CreateJob user={user} /> : <Navigate to="/login" />} />
           <Route path="/premium" element={user ? <PremiumPage user={user} /> : <Navigate to="/login" />} />
           <Route path="/payment" element={user ? <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />

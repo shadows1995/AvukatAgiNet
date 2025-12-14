@@ -387,22 +387,35 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && user && (
+      {isOpen && (
         <div ref={mobileMenuRef} className="md:hidden bg-white border-t border-slate-100 px-2 pt-2 pb-3 space-y-1">
-          <Link to="/home" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Anasayfa</Link>
-          <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Açık Görevler</Link>
-          <Link to="/create-job" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
-          <Link to="/my-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
-          <Link to="/accepted-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>
-          <Link to="/task-dispute" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Uyuşmazlığı</Link>
-          {user.role === 'admin' && (
-            <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">
-              <Shield className="w-4 h-4 mr-2 inline-block" /> Admin Paneli
-            </Link>
+          {user ? (
+            <>
+              <Link to="/home" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Anasayfa</Link>
+              <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Açık Görevler</Link>
+              <Link to="/create-job" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Ver</Link>
+              <Link to="/my-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görevlerim</Link>
+              <Link to="/accepted-jobs" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Aldığım Görevler</Link>
+              <Link to="/task-dispute" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Görev Uyuşmazlığı</Link>
+              {user.role === 'admin' && (
+                <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">
+                  <Shield className="w-4 h-4 mr-2 inline-block" /> Admin Paneli
+                </Link>
+              )}
+              <Link to="/settings" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Ayarlar</Link>
+              <Link to={`/profile/${user.uid}`} onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Profilim</Link>
+              <button onClick={() => { onLogout(); setIsOpen(false); }} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
+            </>
+          ) : (
+            <>
+              <Link to="/how-it-works" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Nasıl Çalışır?</Link>
+              <Link to="/yasal-mevzuat" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Yasal Mevzuat</Link>
+              <div className="pt-2 border-t border-slate-100 mt-2">
+                <Link to="/login" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Giriş Yap</Link>
+                <Link to="/register" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-primary-600 font-bold hover:bg-primary-50">Kayıt Ol</Link>
+              </div>
+            </>
           )}
-          <Link to="/settings" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Ayarlar</Link>
-          <Link to={`/profile/${user.uid}`} onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Profilim</Link>
-          <button onClick={() => { onLogout(); setIsOpen(false); }} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-red-50">Çıkış Yap</button>
         </div>
       )}
     </nav>

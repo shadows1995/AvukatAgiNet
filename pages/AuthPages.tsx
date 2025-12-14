@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Gavel, ArrowRight, Activity, CheckCircle, X, Star, ShieldCheck, Briefcase, Loader2, AlertCircle, User as UserIcon } from 'lucide-react';
+import { Gavel, ArrowRight, Activity, CheckCircle, X, Star, ShieldCheck, Briefcase, Loader2, AlertCircle, User as UserIcon, ArrowLeft } from 'lucide-react';
 import { User, UserRole } from '../types';
 import { supabase } from '../supabaseClient';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
@@ -286,8 +286,11 @@ export const RegisterPage = () => {
         title="Kayıt Ol - AvukatAğı"
         description="AvukatAğı'na ücretsiz üye olun. Meslektaşlarınızla güçlerinizi birleştirin ve tevkil işlerinden kazanç sağlayın."
       />
-      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
-        <div className="text-center mb-8">
+      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100 relative">
+        <Link to="/" className="absolute top-8 left-8 text-slate-400 hover:text-slate-600 transition-colors">
+          <ArrowLeft className="h-6 w-6" />
+        </Link>
+        <div className="text-center mb-8 pt-2">
           <div className="flex justify-center mb-4">
             <div className="bg-primary-100 p-3 rounded-full">
               <Gavel className="h-8 w-8 text-primary-600" />
