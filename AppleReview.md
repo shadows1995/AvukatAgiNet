@@ -30,6 +30,11 @@ This file documents all changes made to the codebase to comply with Apple App St
     - On mobile, if a non-premium user checks it, they see an alert "Your account does not have access to this feature" instead of an upsell confirmation dialog.
 - Hidden the "PREMIUM" text badge next to the generic "Urgent Job" label on mobile.
 
+### 7. File: pages/HomePage.tsx
+- Integrated `useMobileApp`.
+- Hidden "Kazanç Grafiği" (Earnings Chart) and "Adliye Dağılımı" (Pie Chart) on mobile if the user is not premium.
+    - Prevents displaying the "Premium ile Kazancınızı Takip Edin" upsell overlay.
+
 ## Summary of Strategy
 The strategy relies on the `useMobileApp` hook returning `true` inside the React Native Webview.
 - **Frontend Only:** All changes are client-side.

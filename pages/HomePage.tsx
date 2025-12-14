@@ -9,9 +9,11 @@ import InteractiveSphere from '../components/InteractiveSphere';
 
 import SEO from '../components/SEO';
 import ProfileCompletionModal from '../components/ProfileCompletionModal';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 const HomePage = ({ user }: { user: User }) => {
    const navigate = useNavigate();
+   const isMobileApp = useMobileApp();
    const [recentActivity, setRecentActivity] = useState<Job[]>([]);
    const [archive, setArchive] = useState<Job[]>([]);
    const [loading, setLoading] = useState(true);
@@ -426,114 +428,117 @@ const HomePage = ({ user }: { user: User }) => {
                   </div>
                </div>
 
+
                {/* Charts */}
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Area Chart */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
-                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-bold text-slate-800">Kazanç Grafiği</h3>
-                        <div className="flex gap-2">
-                           <select
-                              value={chartView}
-                              onChange={(e) => setChartView(e.target.value as 'month' | 'day')}
-                              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                           >
-                              <option value="month">Aylık</option>
-                              <option value="day">Günlük</option>
-                           </select>
-                           {chartView === 'day' && (
+               {(user.isPremium || !isMobileApp) && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                     {/* Area Chart */}
+                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+                        <div className="flex items-center justify-between mb-4">
+                           <h3 className="text-lg font-bold text-slate-800">Kazanç Grafiği</h3>
+                           <div className="flex gap-2">
                               <select
-                                 value={selectedMonth}
-                                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                                 value={chartView}
+                                 onChange={(e) => setChartView(e.target.value as 'month' | 'day')}
                                  className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
                               >
-                                 {['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'].map((m, i) => (
-                                    <option key={i} value={i}>{m}</option>
+                                 <option value="month">Aylık</option>
+                                 <option value="day">Günlük</option>
+                              </select>
+                              {chartView === 'day' && (
+                                 <select
+                                    value={selectedMonth}
+                                    onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                 >
+                                    {['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'].map((m, i) => (
+                                       <option key={i} value={i}>{m}</option>
+                                    ))}
+                                 </select>
+                              )}
+                              <select
+                                 value={selectedYear}
+                                 onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                 className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                 {[2023, 2024, 2025].map(year => (
+                                    <option key={year} value={year}>{year}</option>
                                  ))}
                               </select>
-                           )}
-                           <select
-                              value={selectedYear}
-                              onChange={(e) => setSelectedYear(Number(e.target.value))}
-                              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                           >
-                              {[2023, 2024, 2025].map(year => (
-                                 <option key={year} value={year}>{year}</option>
-                              ))}
-                           </select>
+                           </div>
                         </div>
-                     </div>
-                     <div className={`h-64 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
-                        <ResponsiveContainer width="100%" height="100%">
-                           <AreaChart data={user.isPremium ? areaData : [{ name: 'Ocak', kazanc: 5000 }, { name: 'Şubat', kazanc: 7000 }, { name: 'Mart', kazanc: 3000 }, { name: 'Nisan', kazanc: 8500 }]}>
-                              <defs>
-                                 <linearGradient id="colorKazanc" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#323485" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#323485" stopOpacity={0} />
-                                 </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                              <Tooltip
-                                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                              />
-                              <Area type="monotone" dataKey="kazanc" stroke="#323485" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
-                           </AreaChart>
-                        </ResponsiveContainer>
-                     </div>
-                     {!user.isPremium && (
-                        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
-                           <button
-                              onClick={() => navigate('/premium')}
-                              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center"
-                           >
-                              <Sparkles className="w-5 h-5 mr-2" />
-                              Premium ile Kazancınızı Takip Edin
-                           </button>
+                        <div className={`h-64 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
+                           <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={user.isPremium ? areaData : [{ name: 'Ocak', kazanc: 5000 }, { name: 'Şubat', kazanc: 7000 }, { name: 'Mart', kazanc: 3000 }, { name: 'Nisan', kazanc: 8500 }]}>
+                                 <defs>
+                                    <linearGradient id="colorKazanc" x1="0" y1="0" x2="0" y2="1">
+                                       <stop offset="5%" stopColor="#323485" stopOpacity={0.8} />
+                                       <stop offset="95%" stopColor="#323485" stopOpacity={0} />
+                                    </linearGradient>
+                                 </defs>
+                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                 <Tooltip
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                 />
+                                 <Area type="monotone" dataKey="kazanc" stroke="#323485" strokeWidth={3} fillOpacity={1} fill="url(#colorKazanc)" />
+                              </AreaChart>
+                           </ResponsiveContainer>
                         </div>
-                     )}
-                  </div>
-
-                  {/* Pie Chart */}
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden hidden md:block">
-                     <h3 className="text-lg font-bold text-slate-800 mb-4">Adliye Dağılımı</h3>
-                     <div className={`h-80 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
-                        <ResponsiveContainer width="100%" height="100%">
-                           <PieChart>
-                              <Pie
-                                 data={user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]}
-                                 cx="50%"
-                                 cy="45%"
-                                 innerRadius={60}
-                                 outerRadius={80}
-                                 fill="#8884d8"
-                                 paddingAngle={5}
-                                 dataKey="value"
-                                 label={({ name, value }) => `${name} (${value})`}
-                                 labelLine={true}
+                        {!user.isPremium && (
+                           <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
+                              <button
+                                 onClick={() => navigate('/premium')}
+                                 className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center"
                               >
-                                 {(user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]).map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                 ))}
-                              </Pie>
-                              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                           </PieChart>
-                        </ResponsiveContainer>
+                                 <Sparkles className="w-5 h-5 mr-2" />
+                                 Premium ile Kazancınızı Takip Edin
+                              </button>
+                           </div>
+                        )}
                      </div>
-                     {!user.isPremium && (
-                        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
-                           <button
-                              onClick={() => navigate('/premium')}
-                              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center"
-                           >
-                              <Sparkles className="w-5 h-5 mr-2" />
-                              Premium'a Geç
-                           </button>
+
+                     {/* Pie Chart */}
+                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden hidden md:block">
+                        <h3 className="text-lg font-bold text-slate-800 mb-4">Adliye Dağılımı</h3>
+                        <div className={`h-80 ${!user.isPremium ? 'blur-sm opacity-50 select-none' : ''}`}>
+                           <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                 <Pie
+                                    data={user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]}
+                                    cx="50%"
+                                    cy="45%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    label={({ name, value }) => `${name} (${value})`}
+                                    labelLine={true}
+                                 >
+                                    {(user.isPremium ? pieData : [{ name: 'İstanbul', value: 10 }, { name: 'Ankara', value: 5 }, { name: 'İzmir', value: 3 }]).map((entry, index) => (
+                                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                 </Pie>
+                                 <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                              </PieChart>
+                           </ResponsiveContainer>
                         </div>
-                     )}
+                        {!user.isPremium && (
+                           <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 backdrop-blur-[2px]">
+                              <button
+                                 onClick={() => navigate('/premium')}
+                                 className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center"
+                              >
+                                 <Sparkles className="w-5 h-5 mr-2" />
+                                 Premium'a Geç
+                              </button>
+                           </div>
+                        )}
+                     </div>
                   </div>
-               </div>
+               )}
             </div>
 
 
