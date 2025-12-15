@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { User } from './types';
 import { supabase } from './supabaseClient';
@@ -177,7 +177,7 @@ const AppContent = () => {
         </Routes>
       </div>
       {showFooter && (
-        <div className="hidden md:block">
+        <div className={user ? "hidden md:block" : "block"}>
           <Footer />
         </div>
       )}
@@ -190,13 +190,13 @@ import { HelmetProvider } from 'react-helmet-async';
 const App = () => {
   return (
     <HelmetProvider>
-      <HashRouter>
+      <BrowserRouter>
         <NotificationProvider>
           <AlertProvider>
             <AppContent />
           </AlertProvider>
         </NotificationProvider>
-      </HashRouter>
+      </BrowserRouter>
     </HelmetProvider>
   );
 };
