@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .glass-effect {
+        @apply bg-white/70 backdrop-blur-md border border-white/50;
+    }
+
+    .glass-dark {
+        @apply bg-[#1e1b4b]/70 backdrop-blur-md border border-white/10;
+    }
+}
+
+body {
+    @apply antialiased selection:bg-primary-200 selection:text-primary-900;
+    font-family: 'Inter', sans-serif;
+}
