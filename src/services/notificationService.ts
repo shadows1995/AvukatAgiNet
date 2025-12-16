@@ -1,9 +1,11 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import axios from "axios";
 import { COURTHOUSES } from "../../data/courthouses.js";
+import { sendTelegramMessage } from "./telegramService.js";
 
 // Helper to send SMS via NetGSM XML API
 export async function sendSms(phone: string, message: string) {
+    // ... (existing sendSms implementation)
     console.log('📨 sendSms called', phone, message);
     try {
         // Clean phone number (remove spaces, ensure 10 digits if possible, or 90 prefix)
@@ -27,7 +29,7 @@ export async function sendSms(phone: string, message: string) {
     </body>
 </mainbody>`;
 
-        console.log(`📱 Sending SMS to ${cleanPhone} via XML API...`);
+        // console.log(`📱 Sending SMS to ${cleanPhone} via XML API...`);
 
         const response = await axios.post(url, xmlData, {
             headers: {
@@ -39,7 +41,7 @@ export async function sendSms(phone: string, message: string) {
         const responseCode = response.data.toString().trim().substring(0, 2);
 
         if (responseCode === '00' || responseCode === '01') {
-            console.log(`✅ SMS sent successfully to ${cleanPhone}. Code: ${responseCode}`);
+            // console.log(`✅ SMS sent successfully to ${cleanPhone}. Code: ${responseCode}`);
             return { success: true, code: responseCode, providerResponse: response.data };
         } else {
             console.log(`❌ SMS failed to ${cleanPhone}. Code: ${responseCode}`);
@@ -47,9 +49,6 @@ export async function sendSms(phone: string, message: string) {
         }
     } catch (error: any) {
         console.error('❌ NetGSM error', error.message);
-        if (error.response) {
-            console.error('Response status:', error.response.status);
-        }
         return { success: false, error: error.message };
     }
 }
@@ -76,14 +75,15 @@ export async function notifyNewJob(
     }
 
     try {
-        // 1. Find Premium/Premium+ users
+        // 1. Find Users (Fetch Telegram fields too)
         let query = supabase
             .from('users')
-            .select('uid, phone, full_name, membership_type, preferred_courthouses')
-            // .in('membership_type', ['premium', 'premium_plus']) // REMOVED: SMS for everyone
+            .select('uid, phone, full_name, membership_type, preferred_courthouses, telegram_chat_id, telegram_notifications_enabled')
+            // .in('membership_type', ['premium', 'premium_plus']) // REMOVED: SMS/Telegram for everyone configured
             .neq('uid', createdBy) // Exclude the job creator
-            .eq('sms_notifications_enabled', true) // Filter by user preference
-            .not('phone', 'is', null);
+            .or(`sms_notifications_enabled.eq.true,telegram_notifications_enabled.eq.true`) // Fetch if EITHER is enabled
+            // We'll filter null phones/chatIds in code or assume the flag implies existence
+            ;
 
         const { data: users, error } = await query;
 
@@ -92,22 +92,18 @@ export async function notifyNewJob(
             throw error;
         }
 
-        console.log(`📊 Total premium users found: ${users?.length || 0}`);
+        console.log(`📊 Total potential users found: ${users?.length || 0}`);
         if (!users || users.length === 0) {
-            console.log('⚠️ No premium users found.');
+            console.log('⚠️ No users found to notify.');
             return { success: true, message: 'No users to notify', count: 0 };
         }
 
-        // Helper to normalize strings for comparison (robust, generic and diacritic-insensitive)
+        // Helper to normalize strings for comparison
         const normalizeString = (str: string) => {
             if (!str) return '';
-            // 1. Turkish-aware lowercase (handles İ/i, I/ı correctly)
             let s = str.toLocaleLowerCase('tr-TR');
-            // 2. Normalize unicode and strip diacritics (ğ, ü, ş, ö, ç, ı vs.)
             s = s.normalize('NFD').replace(/\p{Diacritic}/gu, '');
-            // 3. Normalize again to composed form
             s = s.normalize('NFC');
-            // 4. Trim and collapse multiple spaces
             s = s.trim().replace(/\s+/g, ' ');
             return s;
         };
@@ -116,23 +112,11 @@ export async function notifyNewJob(
         let usersToNotify: any[] = [];
         const targetCourthouse = normalizeString(courthouse);
 
+        // ... Existing Filtering Logic ...
         if (isOutside) {
-            console.log(`🔍 Processing 'Outside' job for city: ${city}`);
-            // Get all courthouses for this city
-            // COURTHOUSES keys are city names. Values are arrays of courthouse names.
-            // We need to match the city name exactly or normalized?
-            // Assuming standard format in COURTHOUSES.
+            // Outside Job Filtering
             const cityCourthouses = COURTHOUSES[city] || [];
-
-            if (cityCourthouses.length === 0) {
-                console.log(`⚠️ No courthouses found for city ${city} in database.`);
-            }
-
             const cityCourthousesNormalized = cityCourthouses.map(c => normalizeString(c));
-
-            // Add the "Adliye Dışı" location itself to the list just in case needed, 
-            // though users likely follow specific courthouses.
-            // Strategy: If user follows ANY courthouse in this city, they get notified.
 
             usersToNotify = users.filter((user: any) => {
                 try {
@@ -140,11 +124,10 @@ export async function notifyNewJob(
                     if (!prefs) return false;
 
                     let userCourthouses: string[] = [];
-                    // ... extraction logic same as below, we can refactor extraction if we want but keeping it inline for safety ...
+                    // Handle JSON/String formats
                     if (Array.isArray(prefs)) {
                         userCourthouses = prefs.map((p: any) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean);
                     } else if (typeof prefs === 'string') {
-                        /* Same parsing logic as original */
                         const trimmed = prefs.trim();
                         if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
                             try {
@@ -161,151 +144,134 @@ export async function notifyNewJob(
                     // Check if ANY of user's courthouses belong to this city
                     return userCourthouses.some(uc => {
                         const normUc = normalizeString(uc);
-                        // Check if this user courthouse is in our city list
-                        // Or simple substring check if valid
-                        return cityCourthousesNormalized.some(cityCh => {
-                            // Match logic: standard normalize check
-                            // If user follows "İstanbul (Çağlayan)", and city list has "İstanbul (Çağlayan)", it matches.
-                            // We use the same stripParentheses logic or just includes?
-                            // Let's use includes for broader match in this specific "Outside" case
-                            return normUc.includes(cityCh) || cityCh.includes(normUc);
-                        });
+                        return cityCourthousesNormalized.some(cityCh => normUc.includes(cityCh) || cityCh.includes(normUc));
                     });
 
                 } catch (e) { return false; }
             });
-            console.log(`🎯 [Outside Job] Users matching ANY courthouse in '${city}': ${usersToNotify.length}`);
-
         } else {
-            console.log(`🔍 Filtering users for specific courthouse: '${courthouse}'`);
-            console.log(`   Normalized Target: '${targetCourthouse}'`);
-
-            // Helper: remove parentheses and their content for a more relaxed comparison
+            // Courthouse Job Filtering
             const stripParentheses = (str: string) => {
                 if (!str) return '';
                 return str.replace(/\([^)]*\)/g, '').trim().replace(/\s+/g, ' ');
             };
-
             const targetCourthouseStripped = stripParentheses(targetCourthouse);
 
             usersToNotify = users.filter((user: any) => {
                 try {
                     const prefs = user.preferred_courthouses;
-
-                    if (!prefs) {
-                        return false;
-                    }
-
+                    if (!prefs) return false;
                     let userCourthouses: string[] = [];
-
-                    // Normalize user preferences into an array of plain strings
+                    // ... extraction logic ...
                     if (Array.isArray(prefs)) {
-                        userCourthouses = prefs.map((p: any) => {
-                            if (typeof p === 'string') return p;
-                            if (p && typeof p === 'object') {
-                                // Common patterns if JSONB is used: { name: '...' } / { label: '...' }
-                                return p.name || p.label || '';
-                            }
-                            return '';
-                        }).filter(Boolean);
+                        userCourthouses = prefs.map((p: any) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean);
                     } else if (typeof prefs === 'string') {
                         const trimmed = prefs.trim();
                         if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-                            // JSON array as text
                             try {
                                 const parsed = JSON.parse(trimmed);
-                                if (Array.isArray(parsed)) {
-                                    userCourthouses = parsed.map((p: any) => {
-                                        if (typeof p === 'string') return p;
-                                        if (p && typeof p === 'object') return p.name || p.label || '';
-                                        return '';
-                                    }).filter(Boolean);
-                                } else {
-                                    userCourthouses = [trimmed];
-                                }
-                            } catch (e) {
-                                userCourthouses = [trimmed];
-                            }
+                                userCourthouses = Array.isArray(parsed) ? parsed.map((p: any) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean) : [trimmed];
+                            } catch (e) { userCourthouses = [trimmed]; }
                         } else if (trimmed.includes(',')) {
-                            // Comma separated list
                             userCourthouses = trimmed.split(',').map(s => s.trim()).filter(Boolean);
                         } else {
-                            // Single courthouse as plain text
                             userCourthouses = [trimmed];
                         }
                     }
 
-                    // Check for match: generic rule for all courthouses (handles parentheses variations)
-                    const isMatch = userCourthouses.some(c => {
+                    return userCourthouses.some(c => {
                         if (typeof c !== 'string') return false;
                         const normalizedPref = normalizeString(c);
                         const normalizedPrefStripped = stripParentheses(normalizedPref);
-
-                        // Exact match
                         if (normalizedPref === targetCourthouse) return true;
-
-                        // Match when one side has extra parentheses detail (e.g. "... (merkez)")
                         if (normalizedPrefStripped && normalizedPrefStripped === targetCourthouseStripped) return true;
-
                         return false;
                     });
-
-                    if (isMatch) {
-                        // console.log(`   ✅ Match found: ${user.full_name} (${user.phone})`);
-                    }
-
-                    return isMatch;
-                } catch (filterError: any) {
-                    console.error(`❌ Error filtering user ${user.full_name}:`, filterError.message);
-                    return false;
-                }
+                } catch (filterError: any) { return false; }
             });
-            console.log(`🎯 Users matching courthouse '${targetCourthouse}': ${usersToNotify.length}`);
         }
+
+        console.log(`🎯 Users matching location: ${usersToNotify.length}`);
 
         if (usersToNotify.length === 0) {
             return { success: true, message: 'No matching users for this courthouse', count: 0 };
         }
 
-        // 3. Send SMS to filtered users
-        // Format date if present
+        // 3. Prepare Messages
         let dateStr = '';
         if (date) {
             try {
-                // Assuming date is YYYY-MM-DD
                 const [y, m, d] = date.split('-');
                 dateStr = `${d}.${m}.${y} tarihli, `;
-            } catch (e) {
-                dateStr = `${date} tarihli, `;
-            }
+            } catch (e) { dateStr = `${date} tarihli, `; }
         }
-
         const feeStr = offeredFee ? `${offeredFee} TL ücretli ` : '';
 
-        let message = '';
-        if (isOutside) {
-            // Specific format for Outside jobs
-            message = `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${dateStr}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
-        } else {
-            // Standard format for Courthouse jobs
-            message = `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
-        }
+        // SMS Message
+        let smsMessage = isOutside
+            ? `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${dateStr}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`
+            : `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
 
-        let sentCount = 0;
+        // Telegram Message
+        let telegramMessage = `📢 AvukatAğı Platformunda yeni görev yayınlandı.\n\n` +
+            `Görev detayları:\n` +
+            `Şehir: ${city}\n` +
+            (isOutside ? `Görev Yeri: ${courthouse} (Adliye Dışı)\n` : `Adliye: ${courthouse}\n`) +
+            `Görev Türü: ${jobType}\n` +
+            `Tarih: ${date}\n` +
+            `Ücret: ${offeredFee} TL\n\n` +
+            `Başvurmak için avukatagi.net sitesini veya mobil uygulamasını ziyaret edin.`;
+
+
+        // 4. Send Notifications in Parallel
+        let sentSmsCount = 0;
+        let sentTelegramCount = 0;
+        const promises = [];
+
         for (const user of usersToNotify) {
-            if (user.phone) {
-                console.log(`📱 Sending SMS to ${user.full_name} (${user.phone})`);
-                const result = await sendSms(user.phone, message);
-                if (result) {
-                    sentCount++;
-                    console.log(`✅ SMS sent successfully to ${user.phone}`);
-                } else {
-                    console.log(`❌ Failed to send SMS to ${user.phone}`);
+            // SMS Logic
+            // Users have a column `sms_notifications_enabled` (we assume true for now if existing logic implies it, 
+            // but the query specifically checks filtering. 
+            // However, the query uses OR. So we must check specific flags per user.
+
+            // Note: DB column is sms_notifications_enabled. 
+            // If undefined, maybe default to true? Or false? 
+            // The query `or(sms.eq.true)` implies we only fetched those who enabled it OR telegram.
+
+            // Check SMS eligibility
+            if (user.phone && user.sms_notifications_enabled !== false) {
+                // Assuming default is true if null? Or strictly true? 
+                // Let's rely on the query filtering, but since it's OR, we double check.
+                // Actually, if query is OR, a user could have SMS=false but TELEGRAM=true.
+                if (user.sms_notifications_enabled === true) {
+                    promises.push(
+                        sendSms(user.phone, smsMessage)
+                            .then(res => { if (res && res.success) sentSmsCount++; })
+                            .catch(e => console.error(`SMS fail ${user.uid}`, e))
+                    );
                 }
+            }
+
+            // Telegram Logic
+            if (user.telegram_notifications_enabled && user.telegram_chat_id) {
+                promises.push(
+                    sendTelegramMessage(user.telegram_chat_id, telegramMessage)
+                        .then(() => sentTelegramCount++)
+                        .catch(e => console.error(`Telegram fail ${user.uid}`, e))
+                );
             }
         }
 
-        return { success: true, message: 'Notifications sent', count: sentCount, totalTargets: usersToNotify.length };
+        await Promise.allSettled(promises);
+
+        console.log(`✅ Notifications sent. SMS: ${sentSmsCount}, Telegram: ${sentTelegramCount}`);
+
+        return {
+            success: true,
+            message: 'Notifications processed',
+            counts: { sms: sentSmsCount, telegram: sentTelegramCount },
+            totalTargets: usersToNotify.length
+        };
 
     } catch (err: any) {
         console.error('❌ Notification Service Error:', err);

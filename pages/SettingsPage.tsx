@@ -711,10 +711,19 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
   };
 
   const NotificationSettingsTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
-    const [smsEnabled, setSmsEnabled] = useState(user.sms_notifications_enabled !== false); // Default to true if undefined
+    const [smsEnabled, setSmsEnabled] = useState(user.sms_notifications_enabled !== false);
+    const [telegramEnabled, setTelegramEnabled] = useState(user.telegram_notifications_enabled || false);
     const [loading, setLoading] = useState(false);
 
-    const handleToggle = async () => {
+    // Telegram Linking State
+    const [linkCode, setLinkCode] = useState<string | null>(null);
+    const [codeExpiresAt, setCodeExpiresAt] = useState<Date | null>(null);
+    const [isGeneratingCode, setIsGeneratingCode] = useState(false);
+
+    // Check if connected
+    const isTelegramConnected = !!user.telegram_chat_id;
+
+    const handleSmsToggle = async () => {
       const newValue = !smsEnabled;
       setSmsEnabled(newValue);
       setLoading(true);
@@ -725,10 +734,59 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
         showNotification('success', newValue ? 'SMS bildirimleri açıldı.' : 'SMS bildirimleri kapatıldı.');
         onProfileUpdate();
       } catch (e) {
-        setSmsEnabled(!newValue); // Revert on error
+        setSmsEnabled(!newValue);
         showNotification('error', 'Güncellenirken hata oluştu.');
       } finally {
         setLoading(false);
+      }
+    };
+
+    const handleTelegramToggle = async () => {
+      if (!isTelegramConnected) {
+        showNotification('error', 'Telegram bildirimlerini açmak için önce hesabınızı bağlamalısınız.');
+        return;
+      }
+
+      const newValue = !telegramEnabled;
+      setTelegramEnabled(newValue);
+      setLoading(true);
+
+      try {
+        const { error } = await supabase.from('users').update({ telegram_notifications_enabled: newValue }).eq('uid', user.uid);
+        if (error) throw error;
+        showNotification('success', newValue ? 'Telegram bildirimleri açıldı.' : 'Telegram bildirimleri kapatıldı.');
+        onProfileUpdate();
+      } catch (e) {
+        setTelegramEnabled(!newValue);
+        showNotification('error', 'Güncellenirken hata oluştu.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const generateLinkCode = async () => {
+      setIsGeneratingCode(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/telegram/link-code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+
+        if (!res.ok) throw new Error('Kod üretilemedi');
+
+        const data = await res.json();
+        setLinkCode(data.code);
+        setCodeExpiresAt(new Date(data.expiresAt));
+
+      } catch (e) {
+        console.error(e);
+        showNotification('error', 'Bağlantı kodu üretilirken bir hata oluştu.');
+      } finally {
+        setIsGeneratingCode(false);
       }
     };
 
@@ -739,6 +797,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
           <p className="text-sm text-slate-500 mt-1">Hangi konularda bildirim almak istediğinizi yönetin.</p>
         </div>
 
+        {/* SMS Toggle */}
         <div className="bg-white border rounded-xl p-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
@@ -749,16 +808,79 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
               <p className="text-sm text-slate-500">Mevcut veya yeni görevler hakkında SMS al.</p>
             </div>
           </div>
-
           <button
-            onClick={handleToggle}
+            onClick={handleSmsToggle}
             disabled={loading}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${smsEnabled ? 'bg-primary-600' : 'bg-slate-200'}`}
           >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${smsEnabled ? 'translate-x-6' : 'translate-x-1'}`}
-            />
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${smsEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
+        </div>
+
+        {/* Telegram Section */}
+        <div className="bg-white border rounded-xl p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-sky-50 text-sky-500 rounded-full">
+                {/* Send Icon alternative or generic */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800">Telegram Bildirimleri</h4>
+                <p className="text-sm text-slate-500">
+                  {isTelegramConnected
+                    ? 'Hesabınız Telegram\'a bağlı. Anında bildirim alabilirsiniz.'
+                    : 'Telegram botumuzu bağlayarak bildirimleri ücretsiz ve anında alın.'}
+                </p>
+              </div>
+            </div>
+
+            {isTelegramConnected && (
+              <button
+                onClick={handleTelegramToggle}
+                disabled={loading}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 ${telegramEnabled ? 'bg-sky-500' : 'bg-slate-200'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${telegramEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
+            )}
+          </div>
+
+          {!isTelegramConnected && (
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 mt-2">
+              {!linkCode ? (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <span className="text-sm text-slate-600">
+                    Telegram bildirimlerini kullanmak için hesabınızı <strong>@AvukatAgiBot</strong> ile eşleştirmeniz gerekmektedir.
+                  </span>
+                  <button
+                    onClick={generateLinkCode}
+                    disabled={isGeneratingCode}
+                    className="whitespace-nowrap bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-600 transition flex items-center"
+                  >
+                    {isGeneratingCode && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Telegram'ı Bağla
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center space-y-4 py-2">
+                  <h5 className="font-bold text-slate-800">Hesap Eşleştirme Kodu</h5>
+                  <div className="text-3xl font-mono font-bold text-sky-600 tracking-widest bg-white inline-block px-6 py-3 rounded-xl border border-sky-100 shadow-sm">
+                    {linkCode}
+                  </div>
+                  <div className="text-sm text-slate-600 space-y-1">
+                    <p>1. Telegram uygulamasını açın ve <strong>@AvukatAgiBot</strong>'u aratın (veya <a href="https://t.me/AvukatAgiBot" target="_blank" rel="noreferrer" className="text-sky-600 hover:underline">buraya tıklayın</a>).</p>
+                    <p>2. Botu başlatın ve aşağıdaki komutu gönderin:</p>
+                    <div className="font-mono bg-slate-200 inline-block px-2 py-1 rounded text-slate-700 mt-1 text-xs sm:text-sm">
+                      /start {linkCode}
+                    </div>
+                    <p className="text-xs text-red-400 mt-2">Bu kod 10 dakika geçerlidir.</p>
+                  </div>
+                  <button onClick={() => setLinkCode(null)} className="text-xs text-slate-400 hover:text-slate-600 underline">İptal</button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );

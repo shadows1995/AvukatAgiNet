@@ -44,6 +44,9 @@ export interface User {
   billingAddress?: string;
   tcId?: string;
   sms_notifications_enabled?: boolean;
+  telegram_chat_id?: string;
+  telegram_notifications_enabled?: boolean;
+  telegram_connected_at?: string;
 }
 
 // Firestore Job Collection Schema

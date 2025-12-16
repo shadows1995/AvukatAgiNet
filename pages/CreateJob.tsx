@@ -260,11 +260,11 @@ const CreateJob = ({ user }: { user: User }) => {
                       {(() => {
                         let minFee = 0;
                         switch (formData.type) {
-                          case JobType.DURUSMA: minFee = 800; break;
-                          case JobType.ICRA:
-                          case JobType.DOSYA_INCELEME:
+                          case JobType.DURUSMA: minFee = 900; break;
+                          case JobType.ICRA: minFee = 600; break;
+                          case JobType.DILEKCE: minFee = 500; break;
                           case JobType.HACIZ:
-                          case JobType.DILEKCE:
+                          case JobType.DOSYA_INCELEME:
                             minFee = 700; break;
                           case JobType.DIGER: minFee = 0; break;
                           default: minFee = 0;
@@ -274,11 +274,11 @@ const CreateJob = ({ user }: { user: User }) => {
                         // Special case for 0 start
                         if (minFee === 0) {
                           options.push(0);
-                          for (let i = 100; i <= 1500; i += 100) {
+                          for (let i = 100; i <= 2000; i += 100) {
                             options.push(i);
                           }
                         } else {
-                          for (let i = minFee; i <= 1500; i += 100) {
+                          for (let i = minFee; i <= 2000; i += 100) {
                             options.push(i);
                           }
                         }

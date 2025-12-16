@@ -146,7 +146,7 @@ const PremiumPage = ({ user }: { user: User }) => {
             originalPriceYearly: 899,
             features: [
                 "Her Şey Dahil (Başlangıç)",
-                "15 dk Görevlere Başvuru Hakkı",
+                "Acil ilanlara başvurma Hakkı",
                 "Başvurudan Gelir Kazanma",
                 "Acil İlan Açabilme",
             ],

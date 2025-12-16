@@ -413,6 +413,155 @@ cron.schedule('*/2 * * * *', async () => {
     await runJobBot(supabase);
 });
 
+// Telegram Service Imports
+import { sendTelegramMessage, setTelegramWebhook } from './services/telegramService.js';
+
+// --- Telegram Webhook Endpoint ---
+// This endpoint receives updates from Telegram (e.g. /start 123456)
+app.post('/api/telegram/webhook', async (req, res) => {
+    const secretToken = req.headers['x-telegram-bot-api-secret-token'];
+    const EXPECTED_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
+
+    // 1. Security Check
+    if (EXPECTED_SECRET && secretToken !== EXPECTED_SECRET) {
+        console.warn('⚠️ Telegram Webhook: Invalid Secret Token');
+        return res.status(403).send('Forbidden');
+    }
+
+    try {
+        const update = req.body;
+        // We only care about messages with text
+        if (!update.message || !update.message.text) {
+            return res.status(200).send('OK');
+        }
+
+        const messageText = update.message.text.trim();
+        const chatId = update.message.chat.id.toString();
+        const userIdFromTelegram = update.message.from?.id?.toString();
+
+        console.log(`📩 Telegram Message from ${chatId}: ${messageText}`);
+
+        // Handle /start CODE
+        if (messageText.startsWith('/start')) {
+            const parts = messageText.split(' ');
+            if (parts.length === 2) {
+                const code = parts[1].trim();
+
+                // Validate Code in DB
+                // Find unused code that hasn't expired
+                const { data: linkRecord, error: fetchError } = await supabase
+                    .from('telegram_link_codes')
+                    .select('*')
+                    .eq('code', code)
+                    .is('used_at', null)
+                    .gt('expires_at', new Date().toISOString())
+                    .single();
+
+                if (fetchError || !linkRecord) {
+                    await sendTelegramMessage(chatId, '❌ Bu kod geçersiz veya süresi dolmuş. Lütfen uygulamadan yeni bir kod alınız.');
+                    return res.status(200).send('OK');
+                }
+
+                // Code is valid! Link the user.
+                const avukatUserId = linkRecord.user_id;
+
+                // Update User Table
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update({
+                        telegram_chat_id: chatId,
+                        telegram_notifications_enabled: true,
+                        telegram_connected_at: new Date().toISOString()
+                    })
+                    .eq('uid', avukatUserId);
+
+                if (updateError) {
+                    console.error('❌ Failed to link Telegram user:', updateError);
+                    await sendTelegramMessage(chatId, '❌ Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.');
+                    return res.status(200).send('OK');
+                }
+
+                // Mark code as used
+                await supabase
+                    .from('telegram_link_codes')
+                    .update({ used_at: new Date().toISOString() })
+                    .eq('id', linkRecord.id);
+
+                await sendTelegramMessage(chatId, '✅ Hesabınız başarıyla eşleşti! Artık platformdaki önemli bildirimleri buradan alacaksınız.');
+                console.log(`✅ Telegram Linked: User ${avukatUserId} -> Chat ${chatId}`);
+            } else {
+                await sendTelegramMessage(chatId, '👋 Merhaba! AvukatAğı botuna hoş geldiniz. Hesabınızı bağlamak için uygulamadaki "Ayarlar" sayfasından alacağınız kodu kullanın.');
+            }
+        }
+
+        res.status(200).send('OK');
+    } catch (err) {
+        console.error('❌ Telegram Webhook Error:', err);
+        // Always return 200 to Telegram to prevent retry loops
+        res.status(200).send('OK');
+    }
+});
+
+// --- Generate Link Code Endpoint ---
+app.post('/api/telegram/link-code', async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) return res.status(400).json({ error: 'Missing token' });
+
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+        const userId = user.id;
+
+        // Generate 6-digit random code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+        // Insert into DB
+        const { error: insertError } = await supabase
+            .from('telegram_link_codes')
+            .insert({
+                user_id: userId,
+                code: code,
+                expires_at: expiresAt.toISOString()
+            });
+
+        if (insertError) {
+            console.error('❌ Failed to generate link code:', insertError);
+            return res.status(500).json({ error: 'Failed to generate code' });
+        }
+
+        res.json({ code, expiresAt });
+
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// --- Setup Webhook Manual Endpoint (Optional/Admin) ---
+app.post('/api/telegram/setup-webhook', async (req, res) => {
+    // Basic protection (or check admin role)
+    const { secret } = req.body;
+    if (secret !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    try {
+        const baseUrl = process.env.PUBLIC_BASE_URL || 'https://avukatagi.net'; // Ensure valid URL
+        const webhookUrl = `${baseUrl}/api/telegram/webhook`;
+        const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+
+        console.log(`Setting Telegram Webhook to: ${webhookUrl}`);
+        const result = await setTelegramWebhook(webhookUrl, webhookSecret);
+        res.json(result);
+    } catch (err: any) {
+        console.error('Webhook setup error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
