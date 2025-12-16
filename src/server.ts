@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import { runJobBot } from "./services/jobBot.js";
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { Builder } from 'xml2js';
 
 dotenv.config();
 
@@ -257,6 +258,62 @@ app.post("/api/garanti/test-sale", async (req, res) => {
         } catch (e) { }
 
         res.status(500).json({ error: "Garanti test sale failed", details: err?.message });
+    }
+});
+
+// Endpoint: RSS Feed for Zapier/Telegram
+app.get('/rss', async (req, res) => {
+    try {
+        const { data: jobs, error } = await supabase
+            .from('jobs')
+            .select('*')
+            .eq('status', 'pending') // Only active/pending jobs
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+        if (error) throw error;
+
+        const feedObj = {
+            rss: {
+                $: {
+                    version: "2.0",
+                    "xmlns:atom": "http://www.w3.org/2005/Atom"
+                },
+                channel: {
+                    title: "AvukatAğı Yeni Görevler",
+                    link: "https://avukatagi.net",
+                    description: "AvukatAğı üzerinde yayınlanan en yeni görevler.",
+                    language: "tr-TR",
+                    lastBuildDate: new Date().toUTCString(),
+                    item: jobs?.map(job => ({
+                        title: `${job.city} - ${job.courthouse} - ${job.job_type}`,
+                        link: `https://avukatagi.net/job/${job.job_id}`,
+                        description: `
+                            <strong>Şehir:</strong> ${job.city}<br>
+                            <strong>Adliye:</strong> ${job.courthouse}<br>
+                            <strong>Görev Türü:</strong> ${job.job_type}<br>
+                            <strong>Tarih:</strong> ${job.date} ${job.time}<br>
+                            <strong>Ücret:</strong> ${job.offered_fee} TL
+                        `.trim(),
+                        pubDate: new Date(job.created_at).toUTCString(),
+                        guid: {
+                            $: { isPermaLink: "false" },
+                            _: job.job_id
+                        }
+                    }))
+                }
+            }
+        };
+
+        const builder = new Builder();
+        const xml = builder.buildObject(feedObj);
+
+        res.set('Content-Type', 'application/xml');
+        res.send(xml);
+
+    } catch (err: any) {
+        console.error('RSS Generation Error:', err);
+        res.status(500).send('Error generating RSS feed');
     }
 });
 
