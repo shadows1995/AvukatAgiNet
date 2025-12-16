@@ -95,11 +95,14 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
             // 2. Auto-Submit Form to Garanti
             // Determine Gateway URL
             const isProd = formData.mode === "PROD";
+
+
             const gatewayUrl = isProd
                 ? "https://sanalposprov.garantibbva.com.tr/servlet/gt3dengine"
                 : "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine";
 
             console.log("Redirecting to Garanti 3D Secure...", gatewayUrl);
+            console.log("Form Data:", formData);
 
             // Create Form
             const form = document.createElement("form");

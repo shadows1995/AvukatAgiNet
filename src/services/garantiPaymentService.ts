@@ -122,7 +122,8 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    const installment = request.installmentCount || "";
+    // Change default to "0". Explicit single shot.
+    const installment = request.installmentCount || "0";
     const type = "sales";
 
     const terminalId = config.terminalId;
@@ -171,10 +172,10 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         txntimestamp: new Date().toISOString(), // This might need specific format, but usually just for logging
         refreshtime: "1",
         secure3dhash: secure3dhash,
-        txnamount: amountMinor.toString(), // 10000 for 100.00 TL
+        txnamount: amountMinor.toString(),
         txntype: type,
         txncurrencycode: currency,
-        txninstallmentcount: installment,
+        txninstallmentcount: installment, // This must match exactly what's in Hash String
         cardholdername: request.cardHolderName,
         cardnumber: request.cardNumber,
         cardexpiredatemonth: request.expMonth,
