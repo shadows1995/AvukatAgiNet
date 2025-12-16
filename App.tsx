@@ -17,10 +17,12 @@ import { LandingPage, LoginPage, RegisterPage, ForgotPasswordPage, ResetPassword
 import PremiumPage from './pages/PremiumPage';
 import PaymentPage from './pages/Payment';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailedPage from './pages/PaymentFailedPage';
 import AcceptedJobs from './pages/AcceptedJobs';
 import JobDetails from './pages/JobDetails';
 import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+
 import HowItWorksPage from './pages/HowItWorksPage';
 import LegalCompliancePage from './pages/LegalCompliancePage';
 import AboutPage from './pages/AboutPage';
@@ -148,6 +150,7 @@ const AppContent = () => {
           <Route path="/premium" element={user ? <PremiumPage user={user} /> : <Navigate to="/login" />} />
           <Route path="/payment" element={user ? <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />
           <Route path="/payment-success" element={user ? <PaymentSuccessPage /> : <Navigate to="/login" />} />
+          <Route path="/payment-failed" element={user ? <PaymentFailedPage /> : <Navigate to="/login" />} />
           <Route path="/settings" element={user ? <SettingsPage user={user} onProfileUpdate={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />
           <Route path="/my-jobs" element={user ? <MyJobs /> : <Navigate to="/login" />} />
           <Route path="/accepted-jobs" element={user ? <AcceptedJobs /> : <Navigate to="/login" />} />

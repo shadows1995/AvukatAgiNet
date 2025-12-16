@@ -233,7 +233,7 @@ app.post('/api/payment/callback/fail', async (req, res) => {
     const errorMsg = body.mderrormessage || body.errmsg || 'Ödeme başarısız oldu (Bilinmeyen Hata).';
 
     // Redirect to frontend error page
-    res.redirect(`https://avukatagi.net/odeme/hatali?msg=${encodeURIComponent(errorMsg)}`);
+    res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(errorMsg)}`);
 });
 
 // Endpoint: Payment Callback SUCCESS
@@ -244,13 +244,13 @@ app.post('/api/payment/callback/success', async (req, res) => {
     const isValid = verifyGarantiCallback(req.body);
     if (!isValid) {
         console.error('❌ Hash Mismatch! Possible Fraud.');
-        return res.redirect('https://avukatagi.net/odeme/hatali?msg=Guvenlik_Hatasi');
+        return res.redirect('https://avukatagi.net/#/payment-failed?msg=Guvenlik_Hatasi');
     }
 
     // 2. Check ProcReturnCode (must be 00)
     if (req.body.procreturncode !== '00') {
         console.error('❌ ProcReturnCode Not 00:', req.body.procreturncode);
-        return res.redirect(`https://avukatagi.net/odeme/hatali?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}`);
+        return res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}`);
     }
 
     // 3. Fulfill Order
@@ -266,7 +266,7 @@ app.post('/api/payment/callback/success', async (req, res) => {
 
     if (error || !user) {
         console.error('❌ Could not find user for OrderID:', orderId);
-        return res.redirect('https://avukatagi.net/odeme/hatali?msg=Kullanici_Bulunamadi');
+        return res.redirect('https://avukatagi.net/#/payment-failed?msg=Kullanici_Bulunamadi');
     }
 
     // Update Premium Status
@@ -288,7 +288,9 @@ app.post('/api/payment/callback/success', async (req, res) => {
     await supabase.from('users').update(updateData).eq('uid', user.uid);
 
     console.log(`🎉 User ${user.uid} upgraded via 3D Secure!`);
-    res.redirect('https://avukatagi.net/odeme/basarili');
+
+    // Redirect to HashRouter path
+    res.redirect('https://avukatagi.net/#/payment-success');
 });
 
 app.get("/api/garanti/test-sale", (req, res) => {
