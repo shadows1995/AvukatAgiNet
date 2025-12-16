@@ -1,4 +1,3 @@
-```
 import React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { XCircle, AlertTriangle } from 'lucide-react';
@@ -14,8 +13,8 @@ const PaymentFailedPage: React.FC = () => {
     const oid = searchParams.get('oid');
 
     let displayMsg = msg;
-    if (code) displayMsg += ` (Kod: ${ code })`;
-    if (md) displayMsg += ` (MD: ${ md })`;
+    if (code) displayMsg += ` (Kod: ${code})`;
+    if (md) displayMsg += ` (MD: ${md})`;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -74,4 +73,3 @@ const PaymentFailedPage: React.FC = () => {
 };
 
 export default PaymentFailedPage;
-```
