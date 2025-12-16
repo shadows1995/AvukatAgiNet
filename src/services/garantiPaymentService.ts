@@ -73,7 +73,6 @@ interface GarantiFormData {
     cardexpiredatemonth: string;
     cardexpiredateyear: string;
     cardcvv2: string;
-    rnd?: string; // Random string
     gatewayUrl?: string; // Helper for frontend
 }
 
@@ -132,10 +131,10 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
     // MD: 1 on Debit proves Keys are correct!
-    // MD: 7 on Credit. Trying to add RND parameter which is standard for 3D Pay.
+    // MD: 7 on Credit with "1" implies "1" is wrong for Credit Card Single Shot.
+    // Reverting to "" (Empty) now that TerminalID/Keys are fixed.
     const installment = request.installmentCount || "";
     const type = "sales";
-    const rnd = new Date().getTime().toString(); // Random/Timestamp
 
     const terminalId = config.terminalId;
     const orderId = request.orderId;
@@ -147,7 +146,7 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // Step A: Hash Password = SHA1(Password + "0" + TerminalID)
     const hashedPassword = sha1Iso(password + "0" + terminalId);
 
-    // Step B: Hash String = TerminalID + OrderID + Amount + Currency + SuccessURL + ErrorURL + Type + Installment + Rnd + StoreKey + HashedPassword
+    // Step B: Hash String = TerminalID + OrderID + Amount + Currency + SuccessURL + ErrorURL + Type + Installment + StoreKey + HashedPassword
     const hashString =
         terminalId +
         orderId +
@@ -157,7 +156,6 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         config.errorUrl +
         type +
         installment +
-        rnd +
         storeKey +
         hashedPassword;
 
@@ -181,15 +179,13 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         customeripaddress: request.customerIp,
         companyname: "AvukatAgi",
         lang: "tr",
-        txntimestamp: rnd, // Using rnd as timestamp too, or just separate field? Form usually has 'txntimestamp'. Spec says 'rnd' is separate often.
-        // Let's verify standard fields. Usually we send 'rnd' field.
+        txntimestamp: new Date().toISOString(), // This might need specific format, but usually just for logging
         refreshtime: "1",
         secure3dhash: secure3dhash,
         txnamount: amountMinor.toString(),
         txntype: type,
         txncurrencycode: currency,
-        txninstallmentcount: installment,
-        rnd: rnd, // Add explicit rnd field
+        txninstallmentcount: installment, // This must match exactly what's in Hash String
         cardholdername: request.cardHolderName,
         cardnumber: request.cardNumber,
         cardexpiredatemonth: request.expMonth,
