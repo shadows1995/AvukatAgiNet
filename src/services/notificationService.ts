@@ -194,19 +194,23 @@ export async function notifyNewJob(
         }
 
         // 3. Prepare Messages
-        let dateStr = '';
-        if (date) {
-            try {
+        let formattedDate = date; // Fallback
+        try {
+            if (date && date.includes('-')) {
                 const [y, m, d] = date.split('-');
-                dateStr = `${d}.${m}.${y} tarihli, `;
-            } catch (e) { dateStr = `${date} tarihli, `; }
-        }
+                if (d && m && y) {
+                    formattedDate = `${d}/${m}/${y}`;
+                }
+            }
+        } catch (e) { console.error('Date parsing error', e); }
+
         const feeStr = offeredFee ? `${offeredFee} TL ücretli ` : '';
 
-        // SMS Message
+        // SMS Message (Uses specific grammar "tarihli")
+        let smsDatePart = formattedDate ? `${formattedDate} tarihli, ` : '';
         let smsMessage = isOutside
-            ? `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${dateStr}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`
-            : `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
+            ? `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${smsDatePart}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`
+            : `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${smsDatePart}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
 
         // Telegram Message
         let telegramMessage = `📢 AvukatAğı Platformunda yeni görev yayınlandı.\n\n` +
@@ -214,7 +218,7 @@ export async function notifyNewJob(
             `Şehir: ${city}\n` +
             (isOutside ? `Görev Yeri: ${courthouse} (Adliye Dışı)\n` : `Adliye: ${courthouse}\n`) +
             `Görev Türü: ${jobType}\n` +
-            `Tarih: ${date}\n` +
+            `Tarih: ${formattedDate}\n` + // Uses DD/MM/YYYY
             `Ücret: ${offeredFee} TL\n\n` +
             `Başvurmak için avukatagi.net sitesini veya mobil uygulamasını ziyaret edin.`;
 
