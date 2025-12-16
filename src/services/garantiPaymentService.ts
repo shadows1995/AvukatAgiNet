@@ -1,6 +1,7 @@
-
 import crypto from "crypto";
-import * as iconv from "iconv-lite";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const iconv = require("iconv-lite");
 
 // --- Types ---
 
