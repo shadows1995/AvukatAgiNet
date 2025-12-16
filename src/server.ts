@@ -164,77 +164,127 @@ app.post('/api/send-sms', async (req, res) => {
     }
 });
 
-// Endpoint: Delete user account
-app.post('/api/delete-account', async (req, res) => {
-    const { uid, token } = req.body;
+// --- Payment Endpoints (3D Secure) ---
+import { generateDtPaymentForm, verifyGarantiCallback } from "./services/garantiPaymentService.js";
 
-    if (!uid) {
-        return res.status(400).json({ error: 'Missing uid' });
+// Endpoint: Initiate 3D Payment
+app.post('/api/payment/initiate', async (req, res) => {
+    const { userId, plan, period, price, cardData, billingInfo } = req.body;
+
+    if (!userId || !cardData || !price) {
+        return res.status(400).json({ error: 'Missing required payment fields' });
     }
 
     try {
-        // Optional: Verify the token matches the uid if provided
-        if (token) {
-            const { data: { user }, error } = await supabase.auth.getUser(token);
-            if (error || !user || user.id !== uid) {
-                return res.status(401).json({ error: 'Unauthorized: Token invalid or does not match uid' });
-            }
-        }
+        const { data: user, error } = await supabase.from('users').select('email, full_name').eq('uid', userId).single();
+        if (error || !user) return res.status(404).json({ error: 'User not found' });
 
-        console.log(`🗑️ Soft Deleting user account: ${uid}`);
+        // Generate Order ID
+        const orderId = `AVG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-        // 1. Generate Dummy Credentials to release the real ones
-        const dummyEmail = `deleted_${uid}@avukatagi.net`;
-        const dummyPhone = `deleted_${uid}`; // or null if we want to nullify
+        // Prepare Request for Form Generation
+        const formData = generateDtPaymentForm({
+            orderId: orderId,
+            amount: parseFloat(price),
+            installmentCount: "", // No installments for now
+            cardNumber: cardData.number.replace(/\s/g, ''),
+            expMonth: cardData.expiry.split('/')[0],
+            expYear: cardData.expiry.split('/')[1],
+            cvv: cardData.cvc,
+            cardHolderName: cardData.name,
+            customerEmail: user.email || 'noreply@avukatagi.net',
+            customerIp: req.ip || '127.0.0.1',
+            userId: userId
+        });
 
-        // 2. Anonymize Public Data & Release Constraints (public.users)
-        const { error: publicError } = await supabase
-            .from('users')
-            .update({
-                full_name: 'Silinmiş Kullanıcı',
-                email: dummyEmail,
-                phone: dummyPhone, // Release phone constraint
-                avatar_url: null,
-                baro_number: null,
-                baro_city: null,
-                address: null,
-                about_me: null,
-                sms_notifications_enabled: false,
-                job_status: 'passive',
-                updated_at: new Date().toISOString()
-            })
-            .eq('uid', uid);
+        // Store temporary transaction state if needed (Optional: create 'transactions' table)
+        // For now, we rely on the Callback carrying the OrderID and potentially UserID metadata if we had a way to pass custom fields.
+        // Garanti doesn't easily support custom pass-through fields in Form mode except potentially hijacking 'terminaluserid' or similar, but that's risky.
+        // Better approach: We will parse userid from 'oid' if we encoded it there, OR we must save the OrderID->UserID mapping in DB.
 
-        if (publicError) {
-            console.error('❌ Error anonymizing public user:', publicError);
-            return res.status(500).json({ error: 'Failed to anonymize public profile: ' + publicError.message });
-        }
+        // Let's create a Pending Transaction in DB to track who this order belongs to.
+        // We'll create a `payment_transactions` table or just store in a simple local cache/log if DB migration is too heavy.
+        // Given constraints, I'll encode UserID in OrderID or similar? No, OrderID has length limits.
+        // Let's insert a row into a new `payment_logs` table if it existed.
+        // As a Quick Fix: I'll repurpose `terminaluserid` field in the Form to store the `userId`. 
+        // Docs say `terminaluserid` (Üye işyeri kullanıcı adı). Garanti might validate this.
+        // Safe bet: Update `users` table with "last_pending_order_id" = orderId.
+        await supabase.from('users').update({
+            last_order_id: orderId,
+            last_order_plan: plan,
+            last_order_period: period
+        }).eq('uid', userId);
 
-        // 3. Update Auth User (Release Email & Ban)
-        const { error: authError } = await supabase.auth.admin.updateUserById(
-            uid,
-            {
-                email: dummyEmail,
-                phone: null, // Release phone in Auth
-                user_metadata: { full_name: 'Silinmiş Kullanıcı' },
-                ban_duration: '876000h' // ~100 years ban
-            }
-        );
-
-        if (authError) {
-            console.error('❌ Error updating/banning auth user:', authError);
-            // Revert public update if auth fails? (Optional but good practice, though complex here. 
-            // For now, logging error is sufficient as public is already safe)
-            return res.status(500).json({ error: 'Failed to ban/update auth user: ' + authError.message });
-        }
-
-        console.log(`✅ User soft deleted & banned successfully: ${uid}`);
-        res.json({ message: 'Account soft deleted successfully' });
+        res.json(formData);
 
     } catch (err: any) {
-        console.error('Server error:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Payment Init Error:', err);
+        res.status(500).json({ error: err.message });
     }
+});
+
+// Endpoint: Payment Callback FAIL
+app.post('/api/payment/callback/fail', async (req, res) => {
+    console.log('❌ Payment Failed Callback:', req.body);
+    const { mderrormessage, errmsg } = req.body;
+    // Redirect to frontend error page
+    const errorMsg = mderrormessage || errmsg || 'Ödeme başarısız oldu.';
+    res.redirect(`https://avukatagi.net/odeme/hatali?msg=${encodeURIComponent(errorMsg)}`);
+});
+
+// Endpoint: Payment Callback SUCCESS
+app.post('/api/payment/callback/success', async (req, res) => {
+    console.log('✅ Payment Success Callback:', req.body);
+
+    // 1. Verify Hash
+    const isValid = verifyGarantiCallback(req.body);
+    if (!isValid) {
+        console.error('❌ Hash Mismatch! Possible Fraud.');
+        return res.redirect('https://avukatagi.net/odeme/hatali?msg=Guvenlik_Hatasi');
+    }
+
+    // 2. Check ProcReturnCode (must be 00)
+    if (req.body.procreturncode !== '00') {
+        console.error('❌ ProcReturnCode Not 00:', req.body.procreturncode);
+        return res.redirect(`https://avukatagi.net/odeme/hatali?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}`);
+    }
+
+    // 3. Fulfill Order
+    const orderId = req.body.orderid; // "AVG-..."
+
+    // Find who this order belongs to
+    // We stored `last_order_id` in users table.
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('last_order_id', orderId)
+        .single();
+
+    if (error || !user) {
+        console.error('❌ Could not find user for OrderID:', orderId);
+        return res.redirect('https://avukatagi.net/odeme/hatali?msg=Kullanici_Bulunamadi');
+    }
+
+    // Update Premium Status
+    const plan = user.last_order_plan || 'pro';
+    const period = user.last_order_period || 'monthly';
+    const amount = parseFloat(req.body.txnamount) / 100; // Convert back to Major
+
+    const updateData = {
+        is_premium: true,
+        membership_type: plan,
+        premium_plan: period,
+        premium_price: amount,
+        premium_since: new Date().toISOString(),
+        premium_until: new Date(Date.now() + ((period === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000)).toISOString(),
+        updated_at: new Date().toISOString(),
+        last_order_id: null // Clear it
+    };
+
+    await supabase.from('users').update(updateData).eq('uid', user.uid);
+
+    console.log(`🎉 User ${user.uid} upgraded via 3D Secure!`);
+    res.redirect('https://avukatagi.net/odeme/basarili');
 });
 
 app.get("/api/garanti/test-sale", (req, res) => {

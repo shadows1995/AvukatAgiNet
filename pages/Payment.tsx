@@ -42,103 +42,91 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
 
     const handlePayment = async () => {
         if (!agreementAccepted) {
-            showAlert({
-                title: "Uyarı",
-                message: "Lütfen Mesafeli Satış Sözleşmesi ve Kullanım Şartları'nı onaylayınız.",
-                type: "warning",
-                confirmText: "Tamam"
-            });
+            showAlert({ title: "Uyarı", message: "Lütfen Mesafeli Satış Sözleşmesi ve Kullanım Şartları'nı onaylayınız.", type: "warning", confirmText: "Tamam" });
             return;
         }
 
         if (!billingInfo.fullName || !billingInfo.address || !billingInfo.tcId) {
-            showAlert({
-                title: "Eksik Bilgi",
-                message: "Lütfen tüm fatura bilgilerini doldurunuz.",
-                type: "warning",
-                confirmText: "Tamam"
-            });
+            showAlert({ title: "Eksik Bilgi", message: "Lütfen tüm fatura bilgilerini doldurunuz.", type: "warning", confirmText: "Tamam" });
             return;
         }
 
         if (!cardInfo.holderName || !cardInfo.number || !cardInfo.expDate || !cardInfo.cvc) {
-            showAlert({
-                title: "Eksik Bilgi",
-                message: "Lütfen tüm kart bilgilerini doldurunuz.",
-                type: "warning",
-                confirmText: "Tamam"
-            });
+            showAlert({ title: "Eksik Bilgi", message: "Lütfen tüm kart bilgilerini doldurunuz.", type: "warning", confirmText: "Tamam" });
             return;
         }
 
         setLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-            showAlert({
-                title: "Hata",
-                message: "Oturum açmanız gerekiyor.",
-                type: "error",
-                confirmText: "Tamam"
-            });
+            showAlert({ title: "Hata", message: "Oturum açmanız gerekiyor.", type: "error", confirmText: "Tamam" });
             setLoading(false);
             return;
         }
 
         try {
             const [expMonth, expYear] = cardInfo.expDate.split('/');
-
             if (!expMonth || !expYear || expMonth.length !== 2 || expYear.length !== 2) {
                 throw new Error("Son kullanma tarihi AA/YY formatında olmalıdır.");
             }
 
             const apiUrl = import.meta.env.VITE_API_URL || '';
-            // if (!apiUrl) {
-            //     console.error("VITE_API_URL is not defined!");
-            //     throw new Error("Sistem yapılandırma hatası: API URL bulunamadı.");
-            // }
-            const response = await axios.post(`${apiUrl}/api/garanti/test-sale`, {
-                amount: price.toString(),
-                cardNumber: cardInfo.number.replace(/\s/g, ''),
-                expMonth,
-                expYear,
-                cvv: cardInfo.cvc,
-                email: user.email,
-                userId: user.id, // Pass user ID for backend update
+
+            // 1. Initiate Payment on Backend (Get Form Data)
+            const response = await axios.post(`${apiUrl}/api/payment/initiate`, {
+                price: price.toString(),
+                cardData: {
+                    number: cardInfo.number.replace(/\s/g, ''),
+                    expiry: cardInfo.expDate,
+                    cvc: cardInfo.cvc,
+                    name: cardInfo.holderName
+                },
+                billingInfo,
+                userId: user.id,
                 plan,
-                period,
-                billingInfo
+                period
             });
 
-            const result = response.data;
-
-            if (!result.approved) {
-                throw new Error(result.errorMsg || result.message || "Ödeme reddedildi.");
+            const formData = response.data;
+            if (!formData || !formData.secure3dhash) {
+                throw new Error("Ödeme başlatılamadı (Hash hatası).");
             }
 
-            // Client-side update removed as it is now handled by the backend securely.
-            // We just show success message.
+            // 2. Auto-Submit Form to Garanti
+            // Determine Gateway URL
+            const isProd = formData.mode === "PROD";
+            const gatewayUrl = isProd
+                ? "https://sanalposprov.garantibbva.com.tr/servlet/gt3dengine"
+                : "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine";
 
-            showAlert({
-                title: "Ödeme Başarılı!",
-                message: "Üyeliğiniz başarıyla güncellendi.",
-                type: "success",
-                confirmText: "Tamam",
-                onConfirm: () => {
-                    if (onPaymentSuccess) onPaymentSuccess();
-                    navigate('/payment-success', {
-                        state: { plan, period }
-                    });
-                }
+            console.log("Redirecting to Garanti 3D Secure...", gatewayUrl);
+
+            // Create Form
+            const form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", gatewayUrl);
+            form.setAttribute("role", "form"); // Optional but good practice
+
+            // Add Inputs
+            Object.keys(formData).forEach(key => {
+                const hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", key);
+                hiddenField.setAttribute("value", formData[key]);
+                form.appendChild(hiddenField);
             });
+
+            document.body.appendChild(form);
+            form.submit();
+
         } catch (error: any) {
-            console.error("Payment error:", error);
+            console.error("Payment Init Error:", error);
             showAlert({
-                title: "Ödeme Başarısız",
-                message: error.message || "Ödeme sırasında bir hata oluştu.",
+                title: "Ödeme Başlatılamadı",
+                message: error.response?.data?.error || error.message || "Bir hata oluştu.",
                 type: "error",
                 confirmText: "Tamam"
             });
-        } finally {
             setLoading(false);
         }
     };
