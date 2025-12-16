@@ -305,6 +305,15 @@ app.get('/rss', async (req, res) => {
                             locationLine = `<strong>Adliye:</strong> ${job.courthouse}`;
                         }
 
+                        // Format date to DD/MM/YYYY
+                        let formattedDate = job.date;
+                        if (job.date && job.date.includes('-')) {
+                            const parts = job.date.split('-');
+                            if (parts.length === 3) {
+                                formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                            }
+                        }
+
                         return {
                             title: title,
                             link: `https://avukatagi.net/job/${job.job_id}`,
@@ -312,7 +321,7 @@ app.get('/rss', async (req, res) => {
                                 <strong>Şehir:</strong> ${job.city}<br>
                                 ${locationLine}<br>
                                 <strong>Görev Türü:</strong> ${job.job_type}<br>
-                                <strong>Tarih:</strong> ${job.date} ${job.time}<br>
+                                <strong>Tarih:</strong> ${formattedDate} ${job.time}<br>
                                 <strong>Ücret:</strong> ${job.offered_fee} TL
                             `.trim(),
                             pubDate: new Date(job.created_at).toUTCString(),

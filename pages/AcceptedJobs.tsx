@@ -23,6 +23,19 @@ const AcceptedJobs = () => {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
   useEffect(() => {
     fetchAcceptedJobs();
   }, []);
@@ -294,7 +307,7 @@ const AcceptedJobs = () => {
               </span>
               <span className="flex items-center bg-white/10 backdrop-blur-md rounded-lg px-3 py-1.5 border border-white/10">
                 <Calendar className="w-4 h-4 mr-2 text-primary-200" />
-                {job.date}
+                {formatDate(job.date)}
               </span>
               <span className="flex items-center bg-white/10 backdrop-blur-md rounded-lg px-3 py-1.5 border border-white/10">
                 <Clock className="w-4 h-4 mr-2 text-primary-200" />
@@ -506,7 +519,7 @@ const AcceptedJobs = () => {
                   </div>
                   <div className="flex items-center text-slate-500 text-sm">
                     <Calendar className="w-4 h-4 mr-2 text-slate-400" />
-                    {data.job.date} &bull; {data.job.time}
+                    {formatDate(data.job.date)} &bull; {data.job.time}
                   </div>
                 </div>
 
