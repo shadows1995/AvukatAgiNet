@@ -122,9 +122,8 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // MD: 7 with empty string on Credit Card means strictly mismatched.
-    // Setting to "0" (Single Shot) is the standard fix.
-    const installment = request.installmentCount || "0";
+    // Revert to empty for single shot. The MD:7 error is likely due to StoreKey, not installment.
+    const installment = request.installmentCount || "";
     const type = "sales";
 
     const terminalId = config.terminalId;
