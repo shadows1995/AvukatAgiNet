@@ -21,6 +21,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the dist directory (one level up from src where server.js resides)
 const staticPath = path.join(__dirname, '../dist');
@@ -225,10 +226,13 @@ app.post('/api/payment/initiate', async (req, res) => {
 
 // Endpoint: Payment Callback FAIL
 app.post('/api/payment/callback/fail', async (req, res) => {
-    console.log('❌ Payment Failed Callback:', req.body);
-    const { mderrormessage, errmsg } = req.body;
+    console.log('❌ Payment Failed Callback Body:', req.body);
+    console.log('❌ Payment Failed Callback Headers:', req.headers);
+
+    const body = req.body || {};
+    const errorMsg = body.mderrormessage || body.errmsg || 'Ödeme başarısız oldu (Bilinmeyen Hata).';
+
     // Redirect to frontend error page
-    const errorMsg = mderrormessage || errmsg || 'Ödeme başarısız oldu.';
     res.redirect(`https://avukatagi.net/odeme/hatali?msg=${encodeURIComponent(errorMsg)}`);
 });
 
