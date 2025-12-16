@@ -79,15 +79,15 @@ interface GarantiFormData {
 function getConfig(): GarantiConfig {
     return {
         mode: (process.env.GARANTI_MODE as "TEST" | "PROD") || "TEST",
-        version: process.env.GARANTI_VERSION || "512",
-        terminalId: process.env.GARANTI_TERMINAL_ID || "",
-        terminalUserId: process.env.GARANTI_PROV_USER_ID || "GARANTI", // Use ProvUserID as default
-        terminalMerchantId: process.env.GARANTI_MERCHANT_ID || "",
-        provUserId: process.env.GARANTI_PROV_USER_ID || "",
-        provPassword: process.env.GARANTI_PROV_PASSWORD || "",
-        storeKey: process.env.GARANTI_STORE_KEY || "12345678", // Specific for 3D Key
-        successUrl: process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success",
-        errorUrl: process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail",
+        version: (process.env.GARANTI_VERSION || "512").trim(),
+        terminalId: (process.env.GARANTI_TERMINAL_ID || "").trim(),
+        terminalUserId: (process.env.GARANTI_PROV_USER_ID || "GARANTI").trim(),
+        terminalMerchantId: (process.env.GARANTI_MERCHANT_ID || "").trim(),
+        provUserId: (process.env.GARANTI_PROV_USER_ID || "").trim(),
+        provPassword: (process.env.GARANTI_PROV_PASSWORD || "").trim(),
+        storeKey: (process.env.GARANTI_STORE_KEY || "12345678").trim(),
+        successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
+        errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
     };
 }
 
