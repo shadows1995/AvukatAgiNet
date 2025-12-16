@@ -514,11 +514,32 @@ app.post('/api/telegram/link-code', async (req, res) => {
 
         const userId = user.id;
 
-        // Generate 6-digit random code
+        // 1. Check if there is already an active code
+        const { data: existingCode } = await supabase
+            .from('telegram_link_codes')
+            .select('code, expires_at')
+            .eq('user_id', userId)
+            .is('used_at', null)
+            .gt('expires_at', new Date().toISOString())
+            .maybeSingle();
+
+        if (existingCode) {
+            console.log(`♻️ Reusing existing active code for user ${userId}`);
+            return res.json({ code: existingCode.code, expiresAt: existingCode.expires_at });
+        }
+
+        // 2. Clean up old unused codes for this user to keep DB clean
+        await supabase
+            .from('telegram_link_codes')
+            .delete()
+            .eq('user_id', userId)
+            .is('used_at', null);
+
+        // 3. Generate new 6-digit random code
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-        // Insert into DB
+        // 4. Insert into DB
         const { error: insertError } = await supabase
             .from('telegram_link_codes')
             .insert({

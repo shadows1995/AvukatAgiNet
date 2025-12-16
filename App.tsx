@@ -74,7 +74,11 @@ const AppContent = () => {
           jobStatus: userData.job_status,
           aboutMe: userData.about_me,
           title: userData.title,
-          address: userData.address
+          address: userData.address,
+          sms_notifications_enabled: userData.sms_notifications_enabled,
+          telegram_chat_id: userData.telegram_chat_id,
+          telegram_notifications_enabled: userData.telegram_notifications_enabled,
+          telegram_connected_at: userData.telegram_connected_at
         };
         setUser(mappedUser);
       }

@@ -76,14 +76,11 @@ export async function notifyNewJob(
 
     try {
         // 1. Find Users (Fetch Telegram fields too)
+        // Fixed: Added sms_notifications_enabled to select
         let query = supabase
             .from('users')
-            .select('uid, phone, full_name, membership_type, preferred_courthouses, telegram_chat_id, telegram_notifications_enabled')
-            // .in('membership_type', ['premium', 'premium_plus']) // REMOVED: SMS/Telegram for everyone configured
-            .neq('uid', createdBy) // Exclude the job creator
-            .or(`sms_notifications_enabled.eq.true,telegram_notifications_enabled.eq.true`) // Fetch if EITHER is enabled
-            // We'll filter null phones/chatIds in code or assume the flag implies existence
-            ;
+            .select('uid, phone, full_name, membership_type, preferred_courthouses, telegram_chat_id, telegram_notifications_enabled, sms_notifications_enabled')
+            .neq('uid', createdBy); // Exclude the job creator
 
         const { data: users, error } = await query;
 
@@ -112,7 +109,6 @@ export async function notifyNewJob(
         let usersToNotify: any[] = [];
         const targetCourthouse = normalizeString(courthouse);
 
-        // ... Existing Filtering Logic ...
         if (isOutside) {
             // Outside Job Filtering
             const cityCourthouses = COURTHOUSES[city] || [];
@@ -162,7 +158,7 @@ export async function notifyNewJob(
                     const prefs = user.preferred_courthouses;
                     if (!prefs) return false;
                     let userCourthouses: string[] = [];
-                    // ... extraction logic ...
+
                     if (Array.isArray(prefs)) {
                         userCourthouses = prefs.map((p: any) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean);
                     } else if (typeof prefs === 'string') {
@@ -230,26 +226,15 @@ export async function notifyNewJob(
 
         for (const user of usersToNotify) {
             // SMS Logic
-            // Users have a column `sms_notifications_enabled` (we assume true for now if existing logic implies it, 
-            // but the query specifically checks filtering. 
-            // However, the query uses OR. So we must check specific flags per user.
+            // Include user if strict true, OR if legacy null (not strictly false)
+            const isSmsEnabled = user.sms_notifications_enabled !== false;
 
-            // Note: DB column is sms_notifications_enabled. 
-            // If undefined, maybe default to true? Or false? 
-            // The query `or(sms.eq.true)` implies we only fetched those who enabled it OR telegram.
-
-            // Check SMS eligibility
-            if (user.phone && user.sms_notifications_enabled !== false) {
-                // Assuming default is true if null? Or strictly true? 
-                // Let's rely on the query filtering, but since it's OR, we double check.
-                // Actually, if query is OR, a user could have SMS=false but TELEGRAM=true.
-                if (user.sms_notifications_enabled === true) {
-                    promises.push(
-                        sendSms(user.phone, smsMessage)
-                            .then(res => { if (res && res.success) sentSmsCount++; })
-                            .catch(e => console.error(`SMS fail ${user.uid}`, e))
-                    );
-                }
+            if (user.phone && isSmsEnabled) {
+                promises.push(
+                    sendSms(user.phone, smsMessage)
+                        .then(res => { if (res && res.success) sentSmsCount++; })
+                        .catch(e => console.error(`SMS fail ${user.uid}`, e))
+                );
             }
 
             // Telegram Logic

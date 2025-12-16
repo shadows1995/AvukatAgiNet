@@ -841,16 +841,30 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-sky-50 text-sky-500 rounded-full">
-                {/* Send Icon alternative or generic */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
               </div>
               <div>
                 <h4 className="font-bold text-slate-800">Telegram Bildirimleri</h4>
                 <p className="text-sm text-slate-500">
                   {isTelegramConnected
-                    ? 'Hesabınız Telegram\'a bağlı. Anında bildirim alabilirsiniz.'
+                    ? 'Hesabınız Telegram\'a bağlı. Bildirimler aktif.'
                     : 'Telegram botumuzu bağlayarak bildirimleri ücretsiz ve anında alın.'}
                 </p>
+                {isTelegramConnected && (
+                  <button onClick={async () => {
+                    if (window.confirm('Telegram hesabınızın bağlantısını kesmek istediğinize emin misiniz?')) {
+                      const { error } = await supabase.from('users').update({ telegram_chat_id: null, telegram_notifications_enabled: false }).eq('uid', user.uid);
+                      if (!error) {
+                        onProfileUpdate();
+                        showNotification('success', 'Telegram bağlantısı kesildi.');
+                      } else {
+                        showNotification('error', 'Hata oluştu.');
+                      }
+                    }
+                  }} className="text-xs text-red-500 hover:text-red-700 underline mt-1">
+                    Bağlantıyı Kes
+                  </button>
+                )}
               </div>
             </div>
 
