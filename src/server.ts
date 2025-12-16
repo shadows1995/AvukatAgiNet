@@ -267,7 +267,7 @@ app.get('/rss', async (req, res) => {
         const { data: jobs, error } = await supabase
             .from('jobs')
             .select('*')
-            .eq('status', 'pending') // Only active/pending jobs
+            .eq('status', 'open') // Only active/open jobs
             .order('created_at', { ascending: false })
             .limit(20);
 
