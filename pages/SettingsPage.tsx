@@ -723,6 +723,25 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     // Check if connected
     const isTelegramConnected = !!user.telegram_chat_id;
 
+    // Sync state with user prop changes
+    useEffect(() => {
+      setSmsEnabled(user.sms_notifications_enabled !== false);
+      setTelegramEnabled(user.telegram_notifications_enabled || false);
+    }, [user.sms_notifications_enabled, user.telegram_notifications_enabled]);
+
+    // Poll for changes when link code is active
+    useEffect(() => {
+      let interval: NodeJS.Timeout;
+      if (linkCode && !isTelegramConnected) {
+        interval = setInterval(() => {
+          onProfileUpdate();
+        }, 3000);
+      }
+      return () => {
+        if (interval) clearInterval(interval);
+      };
+    }, [linkCode, isTelegramConnected, onProfileUpdate]);
+
     const handleSmsToggle = async () => {
       const newValue = !smsEnabled;
       setSmsEnabled(newValue);
