@@ -1,6 +1,6 @@
 
 import crypto from "crypto";
-import iconv from "iconv-lite";
+import * as iconv from "iconv-lite";
 
 // --- Types ---
 
