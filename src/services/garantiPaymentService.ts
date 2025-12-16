@@ -130,9 +130,10 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // MD: 1 on Debit (working) vs MD: 7 on Credit (fail) implies Installment mismatch.
-    // Credit Card likely expects explicit "1" installment for Single Shot in 3D Pay.
-    const installment = request.installmentCount || "1";
+    // MD: 1 on Debit proves Keys are correct!
+    // MD: 7 on Credit with "1" implies "1" is wrong for Credit Card Single Shot.
+    // Reverting to "" (Empty) now that TerminalID/Keys are fixed.
+    const installment = request.installmentCount || "";
     const type = "sales";
 
     const terminalId = config.terminalId;
