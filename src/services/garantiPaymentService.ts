@@ -131,15 +131,13 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
     // MD: 7 Fix Attempt:
-    // Garanti Docs say: Form value should be "" for single shot.
-    // Garanti Java Sample uses: 'int installmentCount' for Hash. 'int' default is 0.
-    // So Hash likely expects "0", but Form expects "".
-    const installmentInput = request.installmentCount || "";
+    // Reverting Decoupling (MD:99 caused by different values).
+    // Testing "0" as the explicit value for both Hash and Form.
+    // Debit works with "", but Credit failed. "0" is the standard single-shot int value.
+    const installmentInput = request.installmentCount || "0";
 
-    // For Hash: Use "0" if empty (simulating Java int 0)
-    const hashInstallment = installmentInput === "" ? "0" : installmentInput;
-
-    // For Form: Use "" if empty (per docs)
+    // Both must be identical to pass MD:99 Security Check
+    const hashInstallment = installmentInput;
     const formInstallment = installmentInput;
 
     const type = "sales";
