@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import axios from "axios";
+import { COURTHOUSES } from "../../data/courthouses.js";
 
 // Helper to send SMS via NetGSM XML API
 export async function sendSms(phone: string, message: string) {
@@ -63,10 +64,11 @@ export async function notifyNewJob(
         createdBy: string;
         date: string;
         offeredFee: string;
+        isOutside?: boolean;
     }
 ) {
-    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee } = jobData;
-    console.log('📨 Notification Service: Processing new job:', { city, courthouse, jobType, createdBy });
+    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee, isOutside } = jobData;
+    console.log('📨 Notification Service: Processing new job:', { city, courthouse, jobType, createdBy, isOutside });
 
     if (!courthouse || !jobType) {
         console.log('❌ Notification Service: Missing required fields');
@@ -111,92 +113,155 @@ export async function notifyNewJob(
         };
 
         // 2. Filter users by courthouse preference
+        let usersToNotify: any[] = [];
         const targetCourthouse = normalizeString(courthouse);
-        console.log(`🔍 Filtering users for courthouse: '${courthouse}'`);
-        console.log(`   Normalized Target: '${targetCourthouse}'`);
 
-        // Helper: remove parentheses and their content for a more relaxed comparison
-        const stripParentheses = (str: string) => {
-            if (!str) return '';
-            return str.replace(/\([^)]*\)/g, '').trim().replace(/\s+/g, ' ');
-        };
+        if (isOutside) {
+            console.log(`🔍 Processing 'Outside' job for city: ${city}`);
+            // Get all courthouses for this city
+            // COURTHOUSES keys are city names. Values are arrays of courthouse names.
+            // We need to match the city name exactly or normalized?
+            // Assuming standard format in COURTHOUSES.
+            const cityCourthouses = COURTHOUSES[city] || [];
 
-        const targetCourthouseStripped = stripParentheses(targetCourthouse);
+            if (cityCourthouses.length === 0) {
+                console.log(`⚠️ No courthouses found for city ${city} in database.`);
+            }
 
-        const usersToNotify = users.filter((user: any) => {
-            try {
-                const prefs = user.preferred_courthouses;
+            const cityCourthousesNormalized = cityCourthouses.map(c => normalizeString(c));
 
-                if (!prefs) {
-                    return false;
-                }
+            // Add the "Adliye Dışı" location itself to the list just in case needed, 
+            // though users likely follow specific courthouses.
+            // Strategy: If user follows ANY courthouse in this city, they get notified.
 
-                let userCourthouses: string[] = [];
+            usersToNotify = users.filter((user: any) => {
+                try {
+                    const prefs = user.preferred_courthouses;
+                    if (!prefs) return false;
 
-                // Normalize user preferences into an array of plain strings
-                if (Array.isArray(prefs)) {
-                    userCourthouses = prefs.map((p: any) => {
-                        if (typeof p === 'string') return p;
-                        if (p && typeof p === 'object') {
-                            // Common patterns if JSONB is used: { name: '...' } / { label: '...' }
-                            return p.name || p.label || '';
-                        }
-                        return '';
-                    }).filter(Boolean);
-                } else if (typeof prefs === 'string') {
-                    const trimmed = prefs.trim();
-                    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-                        // JSON array as text
-                        try {
-                            const parsed = JSON.parse(trimmed);
-                            if (Array.isArray(parsed)) {
-                                userCourthouses = parsed.map((p: any) => {
-                                    if (typeof p === 'string') return p;
-                                    if (p && typeof p === 'object') return p.name || p.label || '';
-                                    return '';
-                                }).filter(Boolean);
-                            } else {
-                                userCourthouses = [trimmed];
-                            }
-                        } catch (e) {
+                    let userCourthouses: string[] = [];
+                    // ... extraction logic same as below, we can refactor extraction if we want but keeping it inline for safety ...
+                    if (Array.isArray(prefs)) {
+                        userCourthouses = prefs.map((p: any) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean);
+                    } else if (typeof prefs === 'string') {
+                        /* Same parsing logic as original */
+                        const trimmed = prefs.trim();
+                        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                            try {
+                                const parsed = JSON.parse(trimmed);
+                                userCourthouses = Array.isArray(parsed) ? parsed.map((p: any) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean) : [trimmed];
+                            } catch (e) { userCourthouses = [trimmed]; }
+                        } else if (trimmed.includes(',')) {
+                            userCourthouses = trimmed.split(',').map(s => s.trim()).filter(Boolean);
+                        } else {
                             userCourthouses = [trimmed];
                         }
-                    } else if (trimmed.includes(',')) {
-                        // Comma separated list
-                        userCourthouses = trimmed.split(',').map(s => s.trim()).filter(Boolean);
-                    } else {
-                        // Single courthouse as plain text
-                        userCourthouses = [trimmed];
                     }
-                }
 
-                // Check for match: generic rule for all courthouses (handles parentheses variations)
-                const isMatch = userCourthouses.some(c => {
-                    if (typeof c !== 'string') return false;
-                    const normalizedPref = normalizeString(c);
-                    const normalizedPrefStripped = stripParentheses(normalizedPref);
+                    // Check if ANY of user's courthouses belong to this city
+                    return userCourthouses.some(uc => {
+                        const normUc = normalizeString(uc);
+                        // Check if this user courthouse is in our city list
+                        // Or simple substring check if valid
+                        return cityCourthousesNormalized.some(cityCh => {
+                            // Match logic: standard normalize check
+                            // If user follows "İstanbul (Çağlayan)", and city list has "İstanbul (Çağlayan)", it matches.
+                            // We use the same stripParentheses logic or just includes?
+                            // Let's use includes for broader match in this specific "Outside" case
+                            return normUc.includes(cityCh) || cityCh.includes(normUc);
+                        });
+                    });
 
-                    // Exact match
-                    if (normalizedPref === targetCourthouse) return true;
+                } catch (e) { return false; }
+            });
+            console.log(`🎯 [Outside Job] Users matching ANY courthouse in '${city}': ${usersToNotify.length}`);
 
-                    // Match when one side has extra parentheses detail (e.g. "... (merkez)")
-                    if (normalizedPrefStripped && normalizedPrefStripped === targetCourthouseStripped) return true;
+        } else {
+            console.log(`🔍 Filtering users for specific courthouse: '${courthouse}'`);
+            console.log(`   Normalized Target: '${targetCourthouse}'`);
 
+            // Helper: remove parentheses and their content for a more relaxed comparison
+            const stripParentheses = (str: string) => {
+                if (!str) return '';
+                return str.replace(/\([^)]*\)/g, '').trim().replace(/\s+/g, ' ');
+            };
+
+            const targetCourthouseStripped = stripParentheses(targetCourthouse);
+
+            usersToNotify = users.filter((user: any) => {
+                try {
+                    const prefs = user.preferred_courthouses;
+
+                    if (!prefs) {
+                        return false;
+                    }
+
+                    let userCourthouses: string[] = [];
+
+                    // Normalize user preferences into an array of plain strings
+                    if (Array.isArray(prefs)) {
+                        userCourthouses = prefs.map((p: any) => {
+                            if (typeof p === 'string') return p;
+                            if (p && typeof p === 'object') {
+                                // Common patterns if JSONB is used: { name: '...' } / { label: '...' }
+                                return p.name || p.label || '';
+                            }
+                            return '';
+                        }).filter(Boolean);
+                    } else if (typeof prefs === 'string') {
+                        const trimmed = prefs.trim();
+                        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                            // JSON array as text
+                            try {
+                                const parsed = JSON.parse(trimmed);
+                                if (Array.isArray(parsed)) {
+                                    userCourthouses = parsed.map((p: any) => {
+                                        if (typeof p === 'string') return p;
+                                        if (p && typeof p === 'object') return p.name || p.label || '';
+                                        return '';
+                                    }).filter(Boolean);
+                                } else {
+                                    userCourthouses = [trimmed];
+                                }
+                            } catch (e) {
+                                userCourthouses = [trimmed];
+                            }
+                        } else if (trimmed.includes(',')) {
+                            // Comma separated list
+                            userCourthouses = trimmed.split(',').map(s => s.trim()).filter(Boolean);
+                        } else {
+                            // Single courthouse as plain text
+                            userCourthouses = [trimmed];
+                        }
+                    }
+
+                    // Check for match: generic rule for all courthouses (handles parentheses variations)
+                    const isMatch = userCourthouses.some(c => {
+                        if (typeof c !== 'string') return false;
+                        const normalizedPref = normalizeString(c);
+                        const normalizedPrefStripped = stripParentheses(normalizedPref);
+
+                        // Exact match
+                        if (normalizedPref === targetCourthouse) return true;
+
+                        // Match when one side has extra parentheses detail (e.g. "... (merkez)")
+                        if (normalizedPrefStripped && normalizedPrefStripped === targetCourthouseStripped) return true;
+
+                        return false;
+                    });
+
+                    if (isMatch) {
+                        // console.log(`   ✅ Match found: ${user.full_name} (${user.phone})`);
+                    }
+
+                    return isMatch;
+                } catch (filterError: any) {
+                    console.error(`❌ Error filtering user ${user.full_name}:`, filterError.message);
                     return false;
-                });
-
-                if (isMatch) {
-                    console.log(`   ✅ Match found: ${user.full_name} (${user.phone})`);
                 }
-
-                return isMatch;
-            } catch (filterError: any) {
-                console.error(`❌ Error filtering user ${user.full_name}:`, filterError.message);
-                return false;
-            }
-        });
-
-        console.log(`🎯 Users matching courthouse '${targetCourthouse}': ${usersToNotify.length}`);
+            });
+            console.log(`🎯 Users matching courthouse '${targetCourthouse}': ${usersToNotify.length}`);
+        }
 
         if (usersToNotify.length === 0) {
             return { success: true, message: 'No matching users for this courthouse', count: 0 };
@@ -217,7 +282,14 @@ export async function notifyNewJob(
 
         const feeStr = offeredFee ? `${offeredFee} TL ücretli ` : '';
 
-        const message = `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
+        let message = '';
+        if (isOutside) {
+            // Specific format for Outside jobs
+            message = `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${dateStr}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
+        } else {
+            // Standard format for Courthouse jobs
+            message = `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
+        }
 
         let sentCount = 0;
         for (const user of usersToNotify) {

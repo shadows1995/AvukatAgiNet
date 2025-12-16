@@ -11,6 +11,7 @@ import { runJobBot } from "./services/jobBot.js";
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { Builder } from 'xml2js';
+import { COURTHOUSES } from '../data/courthouses.js';
 
 dotenv.config();
 
@@ -61,7 +62,7 @@ import { sendSms, notifyNewJob } from "./services/notificationService.js";
 
 // Endpoint: Notify users about a new job
 app.post('/api/notify-new-job', async (req, res) => {
-    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee } = req.body;
+    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee, isOutside } = req.body;
 
     const result = await notifyNewJob(supabase, {
         city,
@@ -70,7 +71,8 @@ app.post('/api/notify-new-job', async (req, res) => {
         jobId,
         createdBy,
         date,
-        offeredFee
+        offeredFee,
+        isOutside
     });
 
     if (result.success) {
@@ -285,22 +287,41 @@ app.get('/rss', async (req, res) => {
                     description: "AvukatAğı üzerinde yayınlanan en yeni görevler.",
                     language: "tr-TR",
                     lastBuildDate: new Date().toUTCString(),
-                    item: jobs?.map(job => ({
-                        title: `${job.city} - ${job.courthouse} - ${job.job_type}`,
-                        link: `https://avukatagi.net/job/${job.job_id}`,
-                        description: `
-                            <strong>Şehir:</strong> ${job.city}<br>
-                            <strong>Adliye:</strong> ${job.courthouse}<br>
-                            <strong>Görev Türü:</strong> ${job.job_type}<br>
-                            <strong>Tarih:</strong> ${job.date} ${job.time}<br>
-                            <strong>Ücret:</strong> ${job.offered_fee} TL
-                        `.trim(),
-                        pubDate: new Date(job.created_at).toUTCString(),
-                        guid: {
-                            $: { isPermaLink: "false" },
-                            _: job.job_id
+                    item: jobs?.map(job => {
+                        const cityCourthouses = COURTHOUSES[job.city] || [];
+                        const isKnown = cityCourthouses.includes(job.courthouse);
+
+                        // If not known, treat as Outside
+                        const isOutside = !isKnown;
+
+                        let title = '';
+                        let locationLine = '';
+
+                        if (isOutside) {
+                            title = `${job.city} (Adliye Dışı) - ${job.courthouse}`;
+                            locationLine = `<strong>Görev Yeri:</strong> ${job.courthouse}`;
+                        } else {
+                            title = `${job.city} - ${job.courthouse} - ${job.job_type}`;
+                            locationLine = `<strong>Adliye:</strong> ${job.courthouse}`;
                         }
-                    }))
+
+                        return {
+                            title: title,
+                            link: `https://avukatagi.net/job/${job.job_id}`,
+                            description: `
+                                <strong>Şehir:</strong> ${job.city}<br>
+                                ${locationLine}<br>
+                                <strong>Görev Türü:</strong> ${job.job_type}<br>
+                                <strong>Tarih:</strong> ${job.date} ${job.time}<br>
+                                <strong>Ücret:</strong> ${job.offered_fee} TL
+                            `.trim(),
+                            pubDate: new Date(job.created_at).toUTCString(),
+                            guid: {
+                                $: { isPermaLink: "false" },
+                                _: job.job_id
+                            }
+                        };
+                    })
                 }
             }
         };

@@ -14,6 +14,7 @@ const CreateJob = ({ user }: { user: User }) => {
   const { showAlert } = useAlert();
   const isMobileApp = useMobileApp();
   const [isLoading, setIsLoading] = useState(false);
+  const [locationType, setLocationType] = useState<'courthouse' | 'outside'>('courthouse');
   const [formData, setFormData] = useState({
     title: '',
     type: JobType.DURUSMA,
@@ -27,11 +28,18 @@ const CreateJob = ({ user }: { user: User }) => {
   });
 
   useEffect(() => {
-    const cityCourthouses = COURTHOUSES[formData.city] || [];
-    if (!cityCourthouses.includes(formData.courthouse)) {
-      setFormData(prev => ({ ...prev, courthouse: cityCourthouses[0] || '' }));
+    // Only reset courthouse if in dropdown mode
+    if (locationType === 'courthouse') {
+      const cityCourthouses = COURTHOUSES[formData.city] || [];
+      if (!cityCourthouses.includes(formData.courthouse)) {
+        setFormData(prev => ({ ...prev, courthouse: cityCourthouses[0] || '' }));
+      }
+    } else {
+      // In outside mode, clear if it was a dropdown value, or keep as is? 
+      // Better to clear if switching modes, but user might want to keep text.
+      // Let's just ensure if we switch CITY, we might want to clear.
     }
-  }, [formData.city]);
+  }, [formData.city, locationType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,11 +83,15 @@ const CreateJob = ({ user }: { user: User }) => {
     }
 
     try {
+      const isOutside = locationType === 'outside';
+      // Force 'Diğer' if outside
+      const finalJobType = isOutside ? JobType.DIGER : formData.type;
+
       const { error } = await supabase.from('jobs').insert({
         title: formData.title,
-        job_type: formData.type,
+        job_type: finalJobType,
         city: formData.city,
-        courthouse: formData.courthouse,
+        courthouse: formData.courthouse, // This is text input if outside
         date: formData.date,
         time: formData.time,
         offered_fee: Number(formData.fee),
@@ -91,7 +103,6 @@ const CreateJob = ({ user }: { user: User }) => {
         applications_count: 0,
         is_urgent: formData.isUrgent,
         application_deadline: deadlineDate.toISOString(),
-        // created_at and updated_at are handled by default
       });
 
       if (error) throw error;
@@ -104,11 +115,12 @@ const CreateJob = ({ user }: { user: User }) => {
         body: JSON.stringify({
           city: formData.city,
           courthouse: formData.courthouse,
-          jobType: formData.type,
+          jobType: finalJobType,
           jobId: null,
           createdBy: user.uid,
           date: formData.date,
-          offeredFee: formData.fee
+          offeredFee: formData.fee,
+          isOutside: isOutside
         })
       }).catch(err => console.error("SMS Notification Error:", err));
 
@@ -140,18 +152,47 @@ const CreateJob = ({ user }: { user: User }) => {
           <p className="text-primary-100 mt-2 relative z-10 text-lg">Meslektaşlarınızla paylaşmak için yeni bir görev oluşturun.</p>
         </div>
         <div className="p-8 md:p-10">
+
+          {/* Location Type Toggle */}
+          <div className="flex justify-center mb-10">
+            <div className="bg-slate-100 p-1 rounded-xl inline-flex relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setLocationType('courthouse');
+                  setFormData(prev => ({ ...prev, type: JobType.DURUSMA, courthouse: (COURTHOUSES[prev.city] || [])[0] || '', fee: '' }));
+                }}
+                className={`px-8 py-3 rounded-lg text-sm font-bold transition-all duration-300 relative z-10 ${locationType === 'courthouse' ? 'bg-white text-primary-700 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                Adliye İçi
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLocationType('outside');
+                  setFormData(prev => ({ ...prev, type: JobType.DIGER, courthouse: '', fee: '' }));
+                }}
+                className={`px-8 py-3 rounded-lg text-sm font-bold transition-all duration-300 relative z-10 ${locationType === 'outside' ? 'bg-white text-primary-700 shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                Adliye Dışı
+              </button>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">Görev Türü</label>
                 <select
                   required
-                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
+                  disabled={locationType === 'outside'}
+                  className={`w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white ${locationType === 'outside' ? 'opacity-70 cursor-not-allowed bg-slate-100' : ''}`}
                   value={formData.type}
                   onChange={e => setFormData({ ...formData, type: e.target.value as JobType })}
                 >
                   {Object.values(JobType).map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
+                {locationType === 'outside' && <p className="text-xs text-slate-500 mt-1">Adliye dışı görevlerde sadece "Diğer" seçeneği aktiftir.</p>}
               </div>
 
               <div>
@@ -167,18 +208,29 @@ const CreateJob = ({ user }: { user: User }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Adliye / Yer</label>
-                <select
-                  required
-                  className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
-                  value={formData.courthouse}
-                  onChange={e => setFormData({ ...formData, courthouse: e.target.value })}
-                >
-                  <option value="" disabled>Seçiniz</option>
-                  {(COURTHOUSES[formData.city] || []).map(ch => (
-                    <option key={ch} value={ch}>{ch}</option>
-                  ))}
-                </select>
+                <label className="block text-sm font-bold text-slate-700 mb-2">{locationType === 'outside' ? 'Adres / Yer' : 'Adliye / Yer'}</label>
+                {locationType === 'outside' ? (
+                  <input
+                    type="text"
+                    required
+                    placeholder="Örn: Beyoğlu 25. Noterliği"
+                    className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white px-4"
+                    value={formData.courthouse}
+                    onChange={e => setFormData({ ...formData, courthouse: e.target.value })}
+                  />
+                ) : (
+                  <select
+                    required
+                    className="w-full rounded-xl border-slate-200 bg-slate-50 shadow-sm focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
+                    value={formData.courthouse}
+                    onChange={e => setFormData({ ...formData, courthouse: e.target.value })}
+                  >
+                    <option value="" disabled>Seçiniz</option>
+                    {(COURTHOUSES[formData.city] || []).map(ch => (
+                      <option key={ch} value={ch}>{ch}</option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
@@ -187,44 +239,56 @@ const CreateJob = ({ user }: { user: User }) => {
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                     <span className="text-slate-500 sm:text-sm font-bold">₺</span>
                   </div>
-                  <select
-                    required
-                    className="block w-full rounded-xl border-slate-200 bg-slate-50 pl-10 focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
-                    value={formData.fee}
-                    onChange={e => setFormData({ ...formData, fee: e.target.value })}
-                  >
-                    <option value="" disabled>Seçiniz</option>
-                    {(() => {
-                      let minFee = 0;
-                      switch (formData.type) {
-                        case JobType.DURUSMA: minFee = 800; break;
-                        case JobType.ICRA:
-                        case JobType.DOSYA_INCELEME:
-                        case JobType.HACIZ:
-                        case JobType.DILEKCE:
-                          minFee = 700; break;
-                        case JobType.DIGER: minFee = 0; break;
-                        default: minFee = 0;
-                      }
-
-                      const options = [];
-                      // Special case for 0 start
-                      if (minFee === 0) {
-                        options.push(0);
-                        for (let i = 100; i <= 1500; i += 100) {
-                          options.push(i);
+                  {locationType === 'outside' ? (
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      placeholder="0"
+                      className="block w-full rounded-xl border-slate-200 bg-slate-50 pl-10 focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
+                      value={formData.fee}
+                      onChange={e => setFormData({ ...formData, fee: e.target.value })}
+                    />
+                  ) : (
+                    <select
+                      required
+                      className="block w-full rounded-xl border-slate-200 bg-slate-50 pl-10 focus:border-primary-500 focus:ring-primary-500 h-12 font-medium text-slate-700 transition-all duration-200 hover:bg-white"
+                      value={formData.fee}
+                      onChange={e => setFormData({ ...formData, fee: e.target.value })}
+                    >
+                      <option value="" disabled>Seçiniz</option>
+                      {(() => {
+                        let minFee = 0;
+                        switch (formData.type) {
+                          case JobType.DURUSMA: minFee = 800; break;
+                          case JobType.ICRA:
+                          case JobType.DOSYA_INCELEME:
+                          case JobType.HACIZ:
+                          case JobType.DILEKCE:
+                            minFee = 700; break;
+                          case JobType.DIGER: minFee = 0; break;
+                          default: minFee = 0;
                         }
-                      } else {
-                        for (let i = minFee; i <= 1500; i += 100) {
-                          options.push(i);
-                        }
-                      }
 
-                      return options.map(amount => (
-                        <option key={amount} value={amount}>{amount}</option>
-                      ));
-                    })()}
-                  </select>
+                        const options = [];
+                        // Special case for 0 start
+                        if (minFee === 0) {
+                          options.push(0);
+                          for (let i = 100; i <= 1500; i += 100) {
+                            options.push(i);
+                          }
+                        } else {
+                          for (let i = minFee; i <= 1500; i += 100) {
+                            options.push(i);
+                          }
+                        }
+
+                        return options.map(amount => (
+                          <option key={amount} value={amount}>{amount}</option>
+                        ));
+                      })()}
+                    </select>
+                  )}
                 </div>
               </div>
 
