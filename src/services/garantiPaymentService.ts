@@ -122,8 +122,9 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // Change default back to "" (empty string). "0" likely caused Hash Mismatch (MD: 7).
-    const installment = request.installmentCount || "";
+    // MD: 7 with empty string on Credit Card means strictly mismatched.
+    // Setting to "0" (Single Shot) is the standard fix.
+    const installment = request.installmentCount || "0";
     const type = "sales";
 
     const terminalId = config.terminalId;
