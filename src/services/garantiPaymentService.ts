@@ -130,8 +130,9 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // Revert to empty for single shot. The MD:7 error is likely due to StoreKey, not installment.
-    const installment = request.installmentCount || "";
+    // MD: 1 on Debit (working) vs MD: 7 on Credit (fail) implies Installment mismatch.
+    // Credit Card likely expects explicit "1" installment for Single Shot in 3D Pay.
+    const installment = request.installmentCount || "1";
     const type = "sales";
 
     const terminalId = config.terminalId;
