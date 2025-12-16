@@ -9,9 +9,9 @@ interface GarantiConfig {
     mode: "TEST" | "PROD";
     version: string;
     terminalId: string;
-    terminalUserId: string;
+    terminalUserId: string; // Specific for 3D Secure Service
     terminalMerchantId: string;
-    provUserId: string;
+    provUserId: string; // For Provisioning
     provPassword: string;
     storeKey: string; // 3D Pay Store Key for hash calculation
     successUrl: string;
@@ -169,7 +169,7 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         apiversion: config.version,
         secure3dsecuritylevel: "3D_PAY", // Standard 3D Pay
         terminalprovuserid: config.provUserId,
-        terminaluserid: config.terminalUserId,
+        terminaluserid: config.terminalUserId || "GARANTI", // Fallback for TEST
         terminalmerchantid: config.terminalMerchantId,
         terminalid: terminalId,
         orderid: orderId,
@@ -179,7 +179,11 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         customeripaddress: request.customerIp,
         companyname: "AvukatAgi",
         lang: "tr",
-        txntimestamp: new Date().toISOString(), // This might need specific format, but usually just for logging
+        txntimestamp: (() => {
+            const d = new Date();
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+        })(), // YYYYMMDDHHmmss
         refreshtime: "1",
         secure3dhash: secure3dhash,
         txnamount: amountMinor.toString(),

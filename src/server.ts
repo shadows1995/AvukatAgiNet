@@ -21,7 +21,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false })); // Critical for Garanti Callback
+// app.use(express.urlencoded({ extended: true })); // Removed in favor of bodyParser above
 
 // Serve static files from the dist directory (one level up from src where server.js resides)
 const staticPath = path.join(__dirname, '../dist');
