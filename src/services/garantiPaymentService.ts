@@ -81,7 +81,7 @@ function getConfig(): GarantiConfig {
         mode: (process.env.GARANTI_MODE as "TEST" | "PROD") || "TEST",
         version: process.env.GARANTI_VERSION || "512",
         terminalId: process.env.GARANTI_TERMINAL_ID || "",
-        terminalUserId: "GARANTI", // Often fixed or same as ProvUser
+        terminalUserId: process.env.GARANTI_PROV_USER_ID || "GARANTI", // Use ProvUserID as default
         terminalMerchantId: process.env.GARANTI_MERCHANT_ID || "",
         provUserId: process.env.GARANTI_PROV_USER_ID || "",
         provPassword: process.env.GARANTI_PROV_PASSWORD || "",
@@ -122,8 +122,8 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // Change default to "0". Explicit single shot.
-    const installment = request.installmentCount || "0";
+    // Change default back to "" (empty string). "0" likely caused Hash Mismatch (MD: 7).
+    const installment = request.installmentCount || "";
     const type = "sales";
 
     const terminalId = config.terminalId;
