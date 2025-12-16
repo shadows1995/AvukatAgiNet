@@ -233,7 +233,7 @@ app.post('/api/payment/callback/fail', async (req, res) => {
     const errorMsg = body.mderrormessage || body.errmsg || 'Ödeme başarısız oldu (Bilinmeyen Hata).';
 
     // Redirect to frontend error page
-    res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(errorMsg)}`);
+    res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(errorMsg)}&code=${body.procreturncode}&md=${body.mdstatus}`);
 });
 
 // Endpoint: Payment Callback SUCCESS
@@ -250,7 +250,7 @@ app.post('/api/payment/callback/success', async (req, res) => {
     // 2. Check ProcReturnCode (must be 00)
     if (req.body.procreturncode !== '00') {
         console.error('❌ ProcReturnCode Not 00:', req.body.procreturncode);
-        return res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}`);
+        return res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}&code=${req.body.procreturncode}`);
     }
 
     // 3. Fulfill Order
