@@ -130,10 +130,18 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // MD: 1 on Debit proves Keys are correct!
-    // MD: 7 on Credit with "1" implies "1" is wrong for Credit Card Single Shot.
-    // Reverting to "" (Empty) now that TerminalID/Keys are fixed.
-    const installment = request.installmentCount || "";
+    // MD: 7 Fix Attempt:
+    // Garanti Docs say: Form value should be "" for single shot.
+    // Garanti Java Sample uses: 'int installmentCount' for Hash. 'int' default is 0.
+    // So Hash likely expects "0", but Form expects "".
+    const installmentInput = request.installmentCount || "";
+
+    // For Hash: Use "0" if empty (simulating Java int 0)
+    const hashInstallment = installmentInput === "" ? "0" : installmentInput;
+
+    // For Form: Use "" if empty (per docs)
+    const formInstallment = installmentInput;
+
     const type = "sales";
 
     const terminalId = config.terminalId;
@@ -155,7 +163,7 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         config.successUrl +
         config.errorUrl +
         type +
-        installment +
+        hashInstallment + // Use "0" for Single Shot
         storeKey +
         hashedPassword;
 
@@ -189,7 +197,7 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         txnamount: amountMinor.toString(),
         txntype: type,
         txncurrencycode: currency,
-        txninstallmentcount: installment, // This must match exactly what's in Hash String
+        txninstallmentcount: formInstallment, // Use "" for Single Shot
         cardholdername: request.cardHolderName,
         cardnumber: request.cardNumber,
         cardexpiredatemonth: request.expMonth,
