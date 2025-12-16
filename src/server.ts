@@ -233,7 +233,7 @@ app.post('/api/payment/callback/fail', async (req, res) => {
     const errorMsg = body.mderrormessage || body.errmsg || 'Ödeme başarısız oldu (Bilinmeyen Hata).';
 
     // Redirect to frontend error page
-    res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(errorMsg)}&code=${body.procreturncode}&md=${body.mdstatus}`);
+    res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(errorMsg)}&code=${body.procreturncode}&md=${body.mdstatus}&hashparams=${encodeURIComponent(body.hashparams || '')}&oid=${body.orderid}`);
 });
 
 // Endpoint: Payment Callback SUCCESS
