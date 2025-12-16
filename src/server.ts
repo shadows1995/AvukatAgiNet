@@ -181,20 +181,57 @@ app.post('/api/delete-account', async (req, res) => {
             }
         }
 
-        console.log(`🗑️ Deleting user account: ${uid}`);
+        console.log(`🗑️ Soft Deleting user account: ${uid}`);
 
-        // Delete the user from Supabase Auth
-        const { error } = await supabase.auth.admin.deleteUser(uid);
+        // 1. Generate Dummy Credentials to release the real ones
+        const dummyEmail = `deleted_${uid}@avukatagi.net`;
+        const dummyPhone = `deleted_${uid}`; // or null if we want to nullify
 
-        if (error) {
-            console.error('❌ Error deleting user:', error);
-            return res.status(500).json({ error: error.message });
+        // 2. Anonymize Public Data & Release Constraints (public.users)
+        const { error: publicError } = await supabase
+            .from('users')
+            .update({
+                full_name: 'Silinmiş Kullanıcı',
+                email: dummyEmail,
+                phone: dummyPhone, // Release phone constraint
+                avatar_url: null,
+                baro_number: null,
+                baro_city: null,
+                address: null,
+                about_me: null,
+                sms_notifications_enabled: false,
+                job_status: 'passive',
+                updated_at: new Date().toISOString()
+            })
+            .eq('uid', uid);
+
+        if (publicError) {
+            console.error('❌ Error anonymizing public user:', publicError);
+            return res.status(500).json({ error: 'Failed to anonymize public profile: ' + publicError.message });
         }
 
-        console.log(`✅ User deleted successfully: ${uid}`);
-        res.json({ message: 'Account deleted successfully' });
+        // 3. Update Auth User (Release Email & Ban)
+        const { error: authError } = await supabase.auth.admin.updateUserById(
+            uid,
+            {
+                email: dummyEmail,
+                phone: null, // Release phone in Auth
+                user_metadata: { full_name: 'Silinmiş Kullanıcı' },
+                ban_duration: '876000h' // ~100 years ban
+            }
+        );
 
-    } catch (err) {
+        if (authError) {
+            console.error('❌ Error updating/banning auth user:', authError);
+            // Revert public update if auth fails? (Optional but good practice, though complex here. 
+            // For now, logging error is sufficient as public is already safe)
+            return res.status(500).json({ error: 'Failed to ban/update auth user: ' + authError.message });
+        }
+
+        console.log(`✅ User soft deleted & banned successfully: ${uid}`);
+        res.json({ message: 'Account soft deleted successfully' });
+
+    } catch (err: any) {
         console.error('Server error:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
