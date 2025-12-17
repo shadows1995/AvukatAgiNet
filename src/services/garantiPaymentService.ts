@@ -79,6 +79,8 @@ interface GarantiFormData {
 // --- Configuration Loader ---
 
 function getConfig(): GarantiConfig {
+    const isTest = (process.env.GARANTI_MODE as "TEST" | "PROD" || "TEST") === "TEST";
+
     if (isTest) {
         // Enforce Correct Test Keys from User Doc for 3D_PAY
         // Model: 3D_PAY -> TerminalID: 30691298, MerchantID: 7000679
@@ -96,6 +98,21 @@ function getConfig(): GarantiConfig {
             gatewayUrl: "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine"
         };
     }
+
+    // PROD Configuration
+    return {
+        mode: "PROD",
+        version: (process.env.GARANTI_VERSION || "512").trim(),
+        terminalId: (process.env.GARANTI_TERMINAL_ID || "").trim(),
+        terminalUserId: (process.env.GARANTI_TERMINAL_USER_ID || "").trim(),
+        terminalMerchantId: (process.env.GARANTI_MERCHANT_ID || "").trim(),
+        provUserId: (process.env.GARANTI_PROV_USER_ID || "").trim(),
+        provPassword: (process.env.GARANTI_PROV_PASSWORD || "").trim(),
+        storeKey: (process.env.GARANTI_STORE_KEY || "").trim(),
+        successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
+        errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
+        gatewayUrl: "https://sanalposprov.garanti.com.tr/servlet/gt3dengine"
+    };
 }
 
 // --- Hashing Helpers ---
