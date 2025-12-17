@@ -131,12 +131,11 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
     // MD: 7 Fix Attempt:
-    // Reverting Decoupling (MD:99 caused by different values).
-    // Testing "0" as the explicit value for both Hash and Form.
-    // Debit works with "", but Credit failed. "0" is the standard single-shot int value.
-    const installmentInput = request.installmentCount || "0";
+    // Reverting "0" which caused MD:99.
+    // Back to "" (Empty) which yielded MD:1 (Success) on Debit.
+    const installmentInput = request.installmentCount || "";
 
-    // Both must be identical to pass MD:99 Security Check
+    // Both must be identical
     const hashInstallment = installmentInput;
     const formInstallment = installmentInput;
 
@@ -185,11 +184,7 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         customeripaddress: request.customerIp,
         companyname: "AvukatAgi",
         lang: "tr",
-        txntimestamp: (() => {
-            const d = new Date();
-            const pad = (n: number) => n.toString().padStart(2, '0');
-            return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-        })(), // YYYYMMDDHHmmss
+        txntimestamp: new Date().toISOString(), // Reverted to ISO as MD:99 occurred with compact format
         refreshtime: "1",
         secure3dhash: secure3dhash,
         txnamount: amountMinor.toString(),
