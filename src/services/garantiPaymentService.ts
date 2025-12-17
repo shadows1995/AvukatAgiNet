@@ -82,14 +82,14 @@ function getConfig(): GarantiConfig {
     const isTest = (process.env.GARANTI_MODE as "TEST" | "PROD" || "TEST") === "TEST";
 
     if (isTest) {
-        // Enforce "Working" Test Keys (MD:1 on Debit)
-        // MD:7 on Credit might be due to "GARANTI" user ID mismatch?
-        // User's ASP snippet says: strUserID = "PROVAUT"
+        // Enforce Correct 3D_PAY Terminal (30691298) with Correct User (PROVAUT)
+        // Previous attempt with 30691298 gave MD:0 because we used "GARANTI".
+        // Now putting the pieces together: 30691298 + PROVAUT.
         return {
             mode: "TEST",
             version: (process.env.GARANTI_VERSION || "512").trim(),
-            terminalId: "30691297", // Reverted to working ID
-            terminalUserId: "PROVAUT", // Changed from "GARANTI" to match ASP sample
+            terminalId: "30691298", // 3D_PAY Terminal
+            terminalUserId: "PROVAUT", // Correct User
             terminalMerchantId: "7000679",
             provUserId: (process.env.GARANTI_PROV_USER_ID || "PROVAUT").trim(),
             provPassword: (process.env.GARANTI_PROV_PASSWORD || "123qweASD/").trim(),
