@@ -79,24 +79,23 @@ interface GarantiFormData {
 // --- Configuration Loader ---
 
 function getConfig(): GarantiConfig {
-    const isTest = (process.env.GARANTI_MODE as "TEST" | "PROD" || "TEST") === "TEST";
-    return {
-        mode: isTest ? "TEST" : "PROD",
-        version: (process.env.GARANTI_VERSION || "512").trim(),
-        terminalId: (process.env.GARANTI_TERMINAL_ID || "").trim(),
-        // Critical Fix: Separate Terminal User ID from Prov User ID.
-        // Test Env requires: "GARANTI". Prod usually ProvUser.
-        terminalUserId: (process.env.GARANTI_TERMINAL_USER_ID || "GARANTI").trim(),
-        terminalMerchantId: (process.env.GARANTI_MERCHANT_ID || "").trim(),
-        provUserId: (process.env.GARANTI_PROV_USER_ID || "").trim(),
-        provPassword: (process.env.GARANTI_PROV_PASSWORD || "").trim(),
-        storeKey: (process.env.GARANTI_STORE_KEY || "12345678").trim(),
-        successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
-        errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
-        gatewayUrl: isTest
-            ? "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine"
-            : "https://sanalposprov.garanti.com.tr/servlet/gt3dengine"
-    };
+    if (isTest) {
+        // Enforce Correct Test Keys from User Doc for 3D_PAY
+        // Model: 3D_PAY -> TerminalID: 30691298, MerchantID: 7000679
+        return {
+            mode: "TEST",
+            version: (process.env.GARANTI_VERSION || "512").trim(),
+            terminalId: "30691298", // Correct ID for 3D_PAY
+            terminalUserId: "GARANTI", // Default to GARANTI
+            terminalMerchantId: "7000679",
+            provUserId: (process.env.GARANTI_PROV_USER_ID || "PROVAUT").trim(),
+            provPassword: (process.env.GARANTI_PROV_PASSWORD || "123qweASD/").trim(),
+            storeKey: (process.env.GARANTI_STORE_KEY || "12345678").trim(),
+            successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
+            errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
+            gatewayUrl: "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine"
+        };
+    }
 }
 
 // --- Hashing Helpers ---
