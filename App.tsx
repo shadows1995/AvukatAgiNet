@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { User } from './types';
 import { supabase } from './supabaseClient';
@@ -46,6 +46,7 @@ const AppContent = () => {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const fetchUserProfile = async (uid: string) => {
     try {
@@ -105,7 +106,7 @@ const AppContent = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         // Redirect to reset password page when recovery link is clicked
-        window.location.hash = '#/reset-password';
+        navigate('/reset-password');
       }
 
       if (session?.user) {
@@ -197,13 +198,13 @@ import { HelmetProvider } from 'react-helmet-async';
 const App = () => {
   return (
     <HelmetProvider>
-      <HashRouter>
+      <BrowserRouter>
         <NotificationProvider>
           <AlertProvider>
             <AppContent />
           </AlertProvider>
         </NotificationProvider>
-      </HashRouter>
+      </BrowserRouter>
     </HelmetProvider>
   );
 };
