@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Briefcase, CheckCircle, Users, TrendingUp,
-    Activity, AlertCircle, Bot, Power
+    Activity, AlertCircle, Bot, Power, Bell, Send, Loader2
 } from 'lucide-react';
 import { adminApi } from '../../services/adminApi';
 
@@ -212,8 +212,17 @@ const AdminDashboard = () => {
 const PushNotificationSender = () => {
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
-    const [target, setTarget] = useState<'all' | 'premium' | 'single'>('all');
-    const [targetUserId, setTargetUserId] = useState('');
+
+    // Segment logic
+    const [segmentMode, setSegmentMode] = useState<'ids' | 'filters'>('filters');
+
+    // ID Mode
+    const [targetUserIdsStr, setTargetUserIdsStr] = useState('');
+
+    // Filter Mode
+    const [filterIsPremium, setFilterIsPremium] = useState<'all' | 'premium' | 'standard'>('all');
+    const [filterCity, setFilterCity] = useState('');
+
     const [sending, setSending] = useState(false);
     const [result, setResult] = useState('');
 
@@ -223,126 +232,194 @@ const PushNotificationSender = () => {
             return;
         }
 
-        if (target === 'single' && !targetUserId) {
-            alert("Lütfen kullanıcı ID giriniz.");
-            return;
-        }
-
         setSending(true);
         setResult('');
 
         try {
-            // In a real app, we might want to fetch user IDs first based on 'target' 
-            // OR let the backend handle the 'all'/'premium' logic query.
-            // For now, let's keep it simple: Admin enters specific ID or we need a way to selecting users.
-            // Backend endpoint expects { userIds: [] }.
-            // So if 'all', we should probably add a boolean flag to backend endpoint?
-            // "6) belli şartlar seçilebilmeli"
-
-            // NOTE: The current backend endpoint expects `userIds`.
-            // To support 'all' or 'premium', we should update the backend or fetch IDs here.
-            // Fetching 1000s of IDs here is bad. Better to send filter to backend.
-            // But let's assume we update backend to handle `filter: 'all'`.
-
-            // Wait, I implemented the backend to take `userIds`.
-            // Let's quickly update the backend payload to support filter.
-            // Actually, for this iteration, let's assume Admin enters IDs manually or we implementing a simple 'fetch users' logic?
-            // User asked: "belli şartlar seçilebilmeli"
-
-            // Let's try to fetch IDs first if "All" is selected? No, that's heavy.
-            // I will update the frontend to strictly require IDs for now OR implemented a 'fetch' helper.
-            // But wait, I can pass a special flag.
-
-            // Let's implement:
-            // If Single -> [uid]
-            // If All -> Fetch all UIDs from adminApi first? 
-            // For Safety, let's just stick to Single User ID for now or comma separated.
-            // Or better: Let's modify `adminApi` to support this.
-
-            // Actually, I'll update the UI to just be ID based for safety first, OR
-            // I'll add a 'filter' field to the backend. The user approved the plan.
-            // Plan said: "Filter users (All, Premium, specific IDs) -> Fetch Tokens -> Send."
-
-            // Let's assume for this step we only support "Single User" via UI to avoid complexity,
-            // or we add a text area for "User IDs (comma separated)".
-
-            let userIdsToSend: string[] = [];
-
-            if (target === 'single') {
-                userIdsToSend = [targetUserId.trim()];
-            } else {
-                // Fetch from API? "Get All User IDs"?
-                // Creating a 'filter' aware endpoint is better.
-                // let's pass a special param to the backend if I can modify it.
-                // I already wrote backend. It expects userIds. 
-
-                // Let's start with Single User / Comma Separated ID support.
-                userIdsToSend = targetUserId.split(',').map(id => id.trim()).filter(id => id);
-            }
-
-            await adminApi.sendPushNotification({
-                userIds: userIdsToSend,
+            let payload: any = {
                 title,
                 body
-            });
+            };
 
-            setResult('Bildirim başarıyla gönderildi!');
-            setTitle('');
-            setBody('');
-        } catch (err) {
+            if (segmentMode === 'ids') {
+                if (!targetUserIdsStr) {
+                    alert("Lütfen kullanıcı ID'lerini giriniz.");
+                    setSending(false);
+                    return;
+                }
+                const ids = targetUserIdsStr.split(',').map(id => id.trim()).filter(id => id);
+                payload.userIds = ids;
+            } else {
+                // Filters
+                payload.filters = {};
+
+                if (filterIsPremium === 'premium') payload.filters.isPremium = true;
+                if (filterIsPremium === 'standard') payload.filters.isPremium = false;
+                // 'all' means don't send isPremium filter
+
+                if (filterCity) {
+                    payload.filters.city = filterCity;
+                }
+            }
+
+            const response = await adminApi.sendPushNotification(payload);
+            setResult(`Başarılı! ${response.sent} kişiye gönderildi.`);
+        } catch (err: any) {
             console.error(err);
-            setResult('Gönderim başarısız.');
+            setResult(`Hata: ${err.message}`);
         } finally {
             setSending(false);
         }
     };
 
     return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                    className="border p-2 rounded"
-                    placeholder="Bildirim Başlığı"
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                />
-                <input
-                    className="border p-2 rounded"
-                    placeholder="Bildirim Mesajı"
-                    value={body}
-                    onChange={e => setBody(e.target.value)}
-                />
-            </div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                <Bell className="w-5 h-5 mr-2 text-primary-600" /> Push Bildirimi Gönder
+            </h2>
 
-            <div className="flex items-center space-x-4">
-                <select
-                    className="border p-2 rounded"
-                    value={target}
-                    onChange={e => setTarget(e.target.value as any)}
-                >
-                    <option value="single">Tek Kullanıcı / Virgülle Çoklu</option>
-                    {/* <option value="all">Tüm Kullanıcılar (Dev Dışı)</option> */}
-                    {/* <option value="premium">Premium Üyeler (Dev Dışı)</option> */}
-                </select>
-
-                {target === 'single' && (
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Başlık</label>
                     <input
-                        className="border p-2 rounded flex-grow"
-                        placeholder="Kullanıcı ID (örn: user_123, user_456)"
-                        value={targetUserId}
-                        onChange={e => setTargetUserId(e.target.value)}
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Örn: Yeni Özellik Yayında!"
                     />
-                )}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Mesaj İçeriği</label>
+                    <textarea
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 h-24"
+                        placeholder="Bildirim detaylarını buraya yazınız..."
+                    />
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Hedef Kitle Seçimi</label>
+
+                    <div className="flex space-x-4 mb-4">
+                        <button
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition ${segmentMode === 'filters' ? 'bg-primary-100 text-primary-700 ring-2 ring-primary-500' : 'bg-white border text-slate-600'}`}
+                            onClick={() => setSegmentMode('filters')}
+                        >
+                            Filtrele (Segment)
+                        </button>
+                        <button
+                            className={`px-3 py-1 rounded-full text-sm font-medium transition ${segmentMode === 'ids' ? 'bg-primary-100 text-primary-700 ring-2 ring-primary-500' : 'bg-white border text-slate-600'}`}
+                            onClick={() => setSegmentMode('ids')}
+                        >
+                            Özel Kullanıcı ID
+                        </button>
+                    </div>
+
+                    {segmentMode === 'ids' ? (
+                        <div>
+                            <input
+                                type="text"
+                                value={targetUserIdsStr}
+                                onChange={(e) => setTargetUserIdsStr(e.target.value)}
+                                className="w-full px-3 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                placeholder="Kullanıcı ID (virgülle ayırarak birden fazla girebilirsiniz)"
+                            />
+                            <p className="text-xs text-slate-500 mt-1">Örn: uid1, uid2, uid3</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Premium Status Filter */}
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Üyelik Tipi</label>
+                                <div className="space-y-2">
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="premiumFilter"
+                                            checked={filterIsPremium === 'all'}
+                                            onChange={() => setFilterIsPremium('all')}
+                                            className="text-primary-600 focus:ring-primary-500"
+                                        />
+                                        <span className="text-sm text-slate-700">Tümü</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="premiumFilter"
+                                            checked={filterIsPremium === 'premium'}
+                                            onChange={() => setFilterIsPremium('premium')}
+                                            className="text-primary-600 focus:ring-primary-500"
+                                        />
+                                        <span className="text-sm text-slate-700">Sadece Premium Üyeler</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="premiumFilter"
+                                            checked={filterIsPremium === 'standard'}
+                                            onChange={() => setFilterIsPremium('standard')}
+                                            className="text-primary-600 focus:ring-primary-500"
+                                        />
+                                        <span className="text-sm text-slate-700">Sadece Standart Üyeler</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* City Filter */}
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Şehir</label>
+                                <select
+                                    value={filterCity}
+                                    onChange={(e) => setFilterCity(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:ring-primary-500 focus:border-primary-500 text-sm"
+                                >
+                                    <option value="">Tüm Şehirler</option>
+                                    <option value="İstanbul">İstanbul</option>
+                                    <option value="Ankara">Ankara</option>
+                                    <option value="İzmir">İzmir</option>
+                                    <option value="Antalya">Antalya</option>
+                                    <option value="Bursa">Bursa</option>
+                                    <option value="Adana">Adana</option>
+                                    <option value="Konya">Konya</option>
+                                    <option value="Gaziantep">Gaziantep</option>
+                                    <option value="Şanlıurfa">Şanlıurfa</option>
+                                    <option value="Mersin">Mersin</option>
+                                    <option value="Trabzon">Trabzon</option>
+                                    <option value="Samsun">Samsun</option>
+                                    <option value="Diyarbakır">Diyarbakır</option>
+                                    <option disabled>──────────</option>
+                                </select>
+                                <p className="text-xs text-slate-400 mt-1">*Sadece ana şehirler listelenmiştir.</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <button
                     onClick={handleSend}
                     disabled={sending}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
+                    className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg shadow-md hover:shadow-lg transition flex justify-center items-center disabled:opacity-50"
                 >
-                    {sending ? 'Gönderiliyor...' : 'Gönder'}
+                    {sending ? (
+                        <>
+                            <Loader2 className="animate-spin w-5 h-5 mr-2" /> Gönderiliyor...
+                        </>
+                    ) : (
+                        <>
+                            <Send className="w-5 h-5 mr-2" /> Bildirimi Gönder
+                        </>
+                    )}
                 </button>
+
+                {result && (
+                    <div className={`p-4 rounded-lg mt-4 ${result.startsWith('Hata') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                        {result}
+                    </div>
+                )}
             </div>
-            {result && <p className="text-green-600 text-sm">{result}</p>}
         </div>
     );
 };

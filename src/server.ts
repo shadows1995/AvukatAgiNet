@@ -818,7 +818,7 @@ async function sendNewJobPush(parsedJob: any) {
 
 // --- Admin Push Endpoint ---
 app.post('/api/admin/send-push', async (req, res) => {
-    const { userIds, title, body } = req.body;
+    const { userIds, title, body, filters } = req.body;
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -833,17 +833,54 @@ app.post('/api/admin/send-push', async (req, res) => {
             return res.status(401).json({ error: 'Invalid token' });
         }
 
-        // Optional: Check if user is admin (if you have roles)
-        // const { data: profile } = await supabase.from('users').select('role').eq('uid', user.id).single();
-        // if (profile?.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+        // Logic: EITHER userIds OR filters must be provided
+        let targetUserIds: string[] = [];
 
-        if (!userIds || !Array.isArray(userIds) || !title || !body) {
-            return res.status(400).json({ error: 'Invalid payload' });
+        if (userIds && Array.isArray(userIds) && userIds.length > 0) {
+            targetUserIds = userIds;
+        } else if (filters) {
+            // Build query based on filters
+            let query = supabase.from('users').select('uid');
+
+            if (filters.isPremium !== undefined && filters.isPremium !== 'all') {
+                // Assuming isPremium is boolean or 'true'/'false' string from frontend
+                const isPremiumBool = filters.isPremium === true || filters.isPremium === 'true';
+                query = query.eq('is_premium', isPremiumBool);
+            }
+
+            if (filters.city && filters.city !== '' && filters.city !== 'all') {
+                query = query.eq('city', filters.city);
+            }
+
+            // Fetch users
+            const { data: usersData, error: usersError } = await query;
+
+            if (usersError) {
+                console.error("Error fetching filtered users:", usersError);
+                return res.status(500).json({ error: 'Error fetching users' });
+            }
+
+            if (usersData) {
+                targetUserIds = usersData.map(u => u.uid);
+            }
+        } else {
+            return res.status(400).json({ error: 'Invalid payload: Provide userIds or filters' });
         }
 
-        console.log(`👮 Admin Push: Sending to ${userIds.length} users (Requested by ${user.email}).`);
 
-        const results = await Promise.all(userIds.map(uid =>
+        if (!title || !body) {
+            return res.status(400).json({ error: 'Invalid payload: Missing title or body' });
+        }
+
+        if (targetUserIds.length === 0) {
+            return res.json({ sent: 0, message: "No users matching criteria found." });
+        }
+
+        console.log(`👮 Admin Push: Sending to ${targetUserIds.length} users (Requested by ${user.email}).`);
+
+        // Chunking recommended for large batches, but Promise.all is okay for < 1000 for now.
+        // Actually, let's limit it or chunk it if massive. For now, simple loop is fine.
+        const results = await Promise.all(targetUserIds.map(uid =>
             sendPushNotification({
                 user_id: uid,
                 title,

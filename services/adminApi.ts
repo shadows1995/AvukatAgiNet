@@ -363,7 +363,7 @@ export const adminApi = {
     },
 
     // Push Notifications
-    async sendPushNotification(payload: { userIds: string[], title: string, body: string }) {
+    async sendPushNotification(payload: { userIds?: string[], filters?: { isPremium?: boolean | 'all', city?: string }, title: string, body: string }) {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) throw new Error("Unauthorized");
 
@@ -376,20 +376,12 @@ export const adminApi = {
             body: JSON.stringify(payload)
         });
 
-        // RE-EVALUATE: 
-        // I implemented `/api/admin/send-push` requiring `secret`.
-        // This acts like a protected internal API.
-        // But `AdminDashboard` is a frontend page.
-        // It cannot send the service role key.
-        // I MUST UPDATE THE BACKEND to verify the Supabase Auth Token instead of a hardcoded secret.
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error || 'Failed to send push notification');
+        }
 
-        // For now, I will complete this addition, but I MUST FIX backend `server.ts`.
-        // I will update the backend to check `req.headers.authorization`.
-
-        // Let's add the fetch call here assuming I fix the backend.
-        // I will send the session access token.
-
-        // Update headers to include Authorization
+        return response.json();
     }
 };
 
