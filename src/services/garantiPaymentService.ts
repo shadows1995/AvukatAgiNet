@@ -82,13 +82,13 @@ function getConfig(): GarantiConfig {
     const isTest = (process.env.GARANTI_MODE as "TEST" | "PROD" || "TEST") === "TEST";
 
     if (isTest) {
-        // Enforce Correct Test Keys from User Doc for 3D_PAY
-        // Model: 3D_PAY -> TerminalID: 30691298, MerchantID: 7000679
+        // Enforce "Working" Test Keys (MD:1 on Debit)
+        // Reverting 30691298 (MD:0) back to 30691297.
         return {
             mode: "TEST",
             version: (process.env.GARANTI_VERSION || "512").trim(),
-            terminalId: "30691298", // Correct ID for 3D_PAY
-            terminalUserId: "GARANTI", // Default to GARANTI
+            terminalId: "30691297", // Reverted to working ID
+            terminalUserId: "GARANTI",
             terminalMerchantId: "7000679",
             provUserId: (process.env.GARANTI_PROV_USER_ID || "PROVAUT").trim(),
             provPassword: (process.env.GARANTI_PROV_PASSWORD || "123qweASD/").trim(),
