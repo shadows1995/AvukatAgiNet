@@ -308,7 +308,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
                                 </div>
                                 <div className="ml-3 text-sm leading-relaxed">
                                     <label htmlFor="agreement" className="font-medium text-slate-600 cursor-pointer">
-                                        <a href="#/distance-sales-agreement" target="_blank" className="text-primary-600 hover:text-primary-700 hover:underline font-bold">Mesafeli Satış Sözleşmesi</a>'ni ve <a href="#/terms" target="_blank" className="text-primary-600 hover:text-primary-700 hover:underline font-bold">Kullanım Şartları</a>'nı okudum ve kabul ediyorum.
+                                        <a href="/distance-sales-agreement" target="_blank" className="text-primary-600 hover:text-primary-700 hover:underline font-bold">Mesafeli Satış Sözleşmesi</a>'ni ve <a href="/terms" target="_blank" className="text-primary-600 hover:text-primary-700 hover:underline font-bold">Kullanım Şartları</a>'nı okudum ve kabul ediyorum.
                                     </label>
                                 </div>
                             </div>

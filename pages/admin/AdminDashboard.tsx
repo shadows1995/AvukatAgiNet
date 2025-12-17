@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Briefcase, CheckCircle, Users, TrendingUp,
     Activity, AlertCircle, Bot, Power
@@ -22,6 +23,7 @@ interface DashboardStats {
 }
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [botEnabled, setBotEnabled] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(true);
@@ -185,7 +187,7 @@ const AdminDashboard = () => {
                         <p className="text-sm text-gray-500 mb-1">Açık Görevler</p>
                         <p className="text-xl font-bold text-green-600">{stats.totals.activeJobs}</p>
                     </div>
-                    <div className="p-4 bg-red-50 rounded-lg text-center cursor-pointer hover:bg-red-100 transition" onClick={() => window.location.hash = '#/admin/disputes'}>
+                    <div className="p-4 bg-red-50 rounded-lg text-center cursor-pointer hover:bg-red-100 transition" onClick={() => navigate('/admin/disputes')}>
                         <p className="text-sm text-red-600 mb-1 flex items-center justify-center font-medium">
                             <AlertCircle className="w-4 h-4 mr-1" /> Açık Şikayetler
                         </p>

@@ -125,7 +125,7 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                 <span className="text-sm text-amber-600 ml-1">/ 5.0</span>
               </div>
               {currentUser.uid === profileUser.uid && (
-                <a href="#/settings" className="mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium shadow-sm hover:bg-primary-700 transition flex items-center">
+                <a href="/settings" className="mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium shadow-sm hover:bg-primary-700 transition flex items-center">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Profili Düzenle
                 </a>

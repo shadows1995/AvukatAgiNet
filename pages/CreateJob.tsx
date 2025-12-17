@@ -352,7 +352,7 @@ const CreateJob = ({ user }: { user: User }) => {
                           type: "confirm",
                           confirmText: "Premium'a Geç",
                           cancelText: "Vazgeç",
-                          onConfirm: () => window.location.hash = "#/premium"
+                          onConfirm: () => navigate('/premium')
                         });
                         return;
                       }

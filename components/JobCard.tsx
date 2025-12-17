@@ -73,7 +73,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
         type: "confirm",
         confirmText: "Premium'a Geç",
         cancelText: "Vazgeç",
-        onConfirm: () => window.location.hash = "#/premium"
+        onConfirm: () => navigate('/premium')
       });
       return;
     }

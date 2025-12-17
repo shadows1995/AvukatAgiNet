@@ -234,64 +234,30 @@ app.post('/api/payment/callback/fail', async (req, res) => {
     const errorMsg = body.mderrormessage || body.errmsg || 'Ödeme başarısız oldu (Bilinmeyen Hata).';
 
     // Redirect to frontend error page
-    res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(errorMsg)}&code=${body.procreturncode}&md=${body.mdstatus}&hashparams=${encodeURIComponent(body.hashparams || '')}&oid=${body.orderid}`);
+    res.redirect(`https://avukatagi.net/payment-failed?msg=${encodeURIComponent(errorMsg)}&code=${body.procreturncode}&md=${body.mdstatus}&hashparams=${encodeURIComponent(body.hashparams || '')}&oid=${body.orderid}`);
 });
 
-// Endpoint: Payment Callback SUCCESS
-app.post('/api/payment/callback/success', async (req, res) => {
-    console.log('✅ Payment Success Callback:', req.body);
+// ... (lines 240-246)
+if (!isValid) {
+    console.error('❌ Hash Mismatch! Possible Fraud.');
+    return res.redirect('https://avukatagi.net/payment-failed?msg=Guvenlik_Hatasi');
+}
 
-    // 1. Verify Hash
-    const isValid = verifyGarantiCallback(req.body);
-    if (!isValid) {
-        console.error('❌ Hash Mismatch! Possible Fraud.');
-        return res.redirect('https://avukatagi.net/#/payment-failed?msg=Guvenlik_Hatasi');
-    }
+// 2. Check ProcReturnCode (must be 00)
+if (req.body.procreturncode !== '00') {
+    console.error('❌ ProcReturnCode Not 00:', req.body.procreturncode);
+    return res.redirect(`https://avukatagi.net/payment-failed?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}&code=${req.body.procreturncode}`);
+}
 
-    // 2. Check ProcReturnCode (must be 00)
-    if (req.body.procreturncode !== '00') {
-        console.error('❌ ProcReturnCode Not 00:', req.body.procreturncode);
-        return res.redirect(`https://avukatagi.net/#/payment-failed?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}&code=${req.body.procreturncode}`);
-    }
+// ... (lines 268-270)
+if (error || !user) {
+    console.error('❌ Could not find user for OrderID:', orderId);
+    return res.redirect('https://avukatagi.net/payment-failed?msg=Kullanici_Bulunamadi');
+}
 
-    // 3. Fulfill Order
-    const orderId = req.body.orderid; // "AVG-..."
-
-    // Find who this order belongs to
-    // We stored `last_order_id` in users table.
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('last_order_id', orderId)
-        .single();
-
-    if (error || !user) {
-        console.error('❌ Could not find user for OrderID:', orderId);
-        return res.redirect('https://avukatagi.net/#/payment-failed?msg=Kullanici_Bulunamadi');
-    }
-
-    // Update Premium Status
-    const plan = user.last_order_plan || 'pro';
-    const period = user.last_order_period || 'monthly';
-    const amount = parseFloat(req.body.txnamount) / 100; // Convert back to Major
-
-    const updateData = {
-        is_premium: true,
-        membership_type: plan,
-        premium_plan: period,
-        premium_price: amount,
-        premium_since: new Date().toISOString(),
-        premium_until: new Date(Date.now() + ((period === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000)).toISOString(),
-        updated_at: new Date().toISOString(),
-        last_order_id: null // Clear it
-    };
-
-    await supabase.from('users').update(updateData).eq('uid', user.uid);
-
-    console.log(`🎉 User ${user.uid} upgraded via 3D Secure!`);
-
-    // Redirect to HashRouter path
-    res.redirect('https://avukatagi.net/#/payment-success');
+// ... (lines 293-294)
+// Redirect to BrowserRouter path
+res.redirect('https://avukatagi.net/payment-success');
 });
 
 app.get("/api/garanti/test-sale", (req, res) => {
