@@ -118,7 +118,7 @@ function buildSaleXml(req) {
 }
 async function sendSaleRequest(req) {
     const { xml } = buildSaleXml(req);
-    const { xml } = buildSaleXml(req);
+
     // Determine URL based on mode
     const isProd = process.env.GARANTI_MODE === 'PROD';
     const url = isProd
