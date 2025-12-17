@@ -213,6 +213,7 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
         cardexpiredatemonth: request.expMonth,
         cardexpiredateyear: request.expYear,
         cardcvv2: request.cvv,
+        gatewayUrl: config.gatewayUrl
     };
 }
 

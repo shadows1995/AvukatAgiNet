@@ -98,7 +98,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
 
 
             const gatewayUrl = formData.gatewayUrl || (isProd
-                ? "https://sanalposprov.garantibbva.com.tr/servlet/gt3dengine"
+                ? "https://sanalposprov.garanti.com.tr/servlet/gt3dengine"
                 : "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine");
 
             console.log("Redirecting to Garanti 3D Secure...", gatewayUrl);
