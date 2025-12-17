@@ -360,6 +360,36 @@ export const adminApi = {
         if (error) throw error;
         await createAuditLog('DISPUTE_RESOLVED', 'dispute', disputeId, { resolution });
         return { success: true };
+    },
+
+    // Push Notifications
+    async sendPushNotification(payload: { userIds: string[], title: string, body: string }) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error("Unauthorized");
+
+        const response = await fetch('/api/admin/send-push', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // RE-EVALUATE: 
+        // I implemented `/api/admin/send-push` requiring `secret`.
+        // This acts like a protected internal API.
+        // But `AdminDashboard` is a frontend page.
+        // It cannot send the service role key.
+        // I MUST UPDATE THE BACKEND to verify the Supabase Auth Token instead of a hardcoded secret.
+
+        // For now, I will complete this addition, but I MUST FIX backend `server.ts`.
+        // I will update the backend to check `req.headers.authorization`.
+
+        // Let's add the fetch call here assuming I fix the backend.
+        // I will send the session access token.
+
+        // Update headers to include Authorization
     }
 };
 
