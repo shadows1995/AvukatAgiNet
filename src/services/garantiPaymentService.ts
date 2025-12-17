@@ -83,12 +83,13 @@ function getConfig(): GarantiConfig {
 
     if (isTest) {
         // Enforce "Working" Test Keys (MD:1 on Debit)
-        // Reverting 30691298 (MD:0) back to 30691297.
+        // MD:7 on Credit might be due to "GARANTI" user ID mismatch?
+        // User's ASP snippet says: strUserID = "PROVAUT"
         return {
             mode: "TEST",
             version: (process.env.GARANTI_VERSION || "512").trim(),
             terminalId: "30691297", // Reverted to working ID
-            terminalUserId: "GARANTI",
+            terminalUserId: "PROVAUT", // Changed from "GARANTI" to match ASP sample
             terminalMerchantId: "7000679",
             provUserId: (process.env.GARANTI_PROV_USER_ID || "PROVAUT").trim(),
             provPassword: (process.env.GARANTI_PROV_PASSWORD || "123qweASD/").trim(),
