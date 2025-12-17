@@ -169,7 +169,7 @@ app.post('/api/send-sms', async (req, res) => {
 });
 
 // --- Payment Endpoints (3D Secure) ---
-import { generateDtPaymentForm, verifyGarantiCallback } from "./services/garantiPaymentService.js";
+import { generateDtPaymentForm } from "./services/garantiPaymentService.js";
 
 // Endpoint: Initiate 3D Payment
 app.post('/api/payment/initiate', async (req, res) => {
