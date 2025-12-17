@@ -118,7 +118,15 @@ function buildSaleXml(req) {
 }
 async function sendSaleRequest(req) {
     const { xml } = buildSaleXml(req);
-    const url = process.env.GARANTI_TEST_URL;
+    const { xml } = buildSaleXml(req);
+    // Determine URL based on mode
+    const isProd = process.env.GARANTI_MODE === 'PROD';
+    const url = isProd
+        ? "https://sanalposprov.garanti.com.tr/VPServlet"
+        : (process.env.GARANTI_TEST_URL || "https://sanalposprovtest.garantibbva.com.tr/VPServlet");
+
+    console.log(`🔌 Payment Request to: ${url} (Mode: ${process.env.GARANTI_MODE})`);
+
     const { data } = await axios_1.default.post(url, xml, {
         headers: {
             "Content-Type": "text/xml; charset=ISO-8859-9",

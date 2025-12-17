@@ -257,7 +257,12 @@ export function verifyGarantiCallback(params: any): boolean {
     }
 
     // 3. Append Store Key
-    digestData += config.storeKey;
+    // 3. Append Store Key
+    const storeKey = config.storeKey;
+    digestData += storeKey;
+
+    // Debug Log
+    // console.log('Store Key Used:', storeKey); // Do not log in PROD for security
 
     // 4. Calculate SHA512
     // var sha = new System.Security.Cryptography.SHA512CryptoServiceProvider();
