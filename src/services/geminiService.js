@@ -44,13 +44,17 @@ export const generateJobDetails = async (courthouse, allowedJobTypes) => {
         - Durumu net bir şekilde ifade et ve yardım iste.
         - Örnek: "Duruşmaya katılım sağlayamayacağız. Önemli bir duruşma, meslektaş desteği rica olunur."
         - Örnek: "İcra dairesinde dosya fotokopisi alınması gerekmektedir. Yardımcı olabilecek meslektaşımız var mı?"
+
+        ÜCRET KURALI:
+        - Genelde 800 - 1500 TL arası makul bir ücret ver.
+        - ANCAK "Duruşma" görevi ise ücret KESİNLİKLE 900 TL'den az olamaz (En az 900 TL).
         
         Lütfen aşağıdaki formatta geçerli bir JSON çıktısı ver (Markdown yok, sadece JSON):
         {
             "title": "Kısa ve genel başlık (Yukarıdaki kurallara uygun)",
             "description": "2 cümlelik, samimi, insansı açıklama.",
             "jobType": "Duruşma" | "İcra İşlemi" | "Dosya İnceleme" | "Haciz" | "Dilekçe" | "Diğer",
-            "offeredFee": 1000,
+            "offeredFee": 1200,
             "ownerName": "Rastgele Ad Soyad"
         }
         `;
