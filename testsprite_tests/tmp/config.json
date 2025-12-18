@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "vahdetbicak@gmail.com",
+  "loginPassword": "Vahdet123",
+  "executionArgs": {
+    "projectName": "AvukatAgiNet",
+    "projectPath": "c:\\Users\\Talha\\Desktop\\Projelerim\\Gemini3 Avukat Ağı\\AvukatAgi Sitesi - Ödeme Sistemi Denemesi\\AvukatAgiNet",
+    "testIds": [],
+    "additionalInstruction": "Test all critical user flows including authentication, job creation, payment processing, and admin dashboard. Server is running on port 3000.",
+    "envs": {
+      "API_KEY": "sk-user-qKW_UHpRS2GvfKxDzW1XHr4sh7PwX-3iePwkw2lfa7QPUKPQ9n1NFEJIZjKp8BuX3ZH_1VCWssLbzGUapxkBno3n1n3CrklFGTlUOODAbIOfyUE5YsTMh-SBGlTOtZ1qvv0"
+    }
+  },
+  "proxy": "http://11974b82-6e4d-4b28-909d-5cd0c56e278c:zzzkIm9SDEYA95pnPWilzPw6Z1B37asb@tun.testsprite.com:8080"
+}

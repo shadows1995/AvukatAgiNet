@@ -1,0 +1,142 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React 19",
+    "Vite",
+    "Supabase",
+    "TailwindCSS",
+    "React Router DOM",
+    "Axios",
+    "Recharts",
+    "Lucide React Icons",
+    "Express.js (Backend)",
+    "Garanti BBVA Payment Gateway"
+  ],
+  "features": [
+    {
+      "name": "Authentication",
+      "description": "User registration, login, logout, password reset with Supabase Auth integration",
+      "files": ["pages/AuthPages.tsx", "supabaseClient.ts"]
+    },
+    {
+      "name": "Job Creation",
+      "description": "Create new lawyer jobs with courthouse selection, job types, fees, and urgent marking",
+      "files": ["pages/CreateJob.tsx", "types.ts", "data/courthouses.ts"]
+    },
+    {
+      "name": "Job Management",
+      "description": "View, manage, and track created jobs and their status",
+      "files": ["pages/MyJobs.tsx", "pages/JobDetails.tsx", "components/JobCard.tsx"]
+    },
+    {
+      "name": "Job Application",
+      "description": "Apply for jobs, view applications, and manage accepted jobs",
+      "files": ["pages/AcceptedJobs.tsx", "components/ApplyModal.tsx"]
+    },
+    {
+      "name": "Payment Processing",
+      "description": "Premium subscription payments with Garanti BBVA 3D Secure integration",
+      "files": ["pages/Payment.tsx", "pages/PaymentSuccessPage.tsx", "pages/PaymentFailedPage.tsx", "src/services/garantiPaymentService.ts"]
+    },
+    {
+      "name": "Premium Subscription",
+      "description": "Premium membership plans and features for lawyers",
+      "files": ["pages/PremiumPage.tsx", "pages/Premium.tsx"]
+    },
+    {
+      "name": "User Dashboard",
+      "description": "Main dashboard showing user statistics and recent activity",
+      "files": ["pages/Dashboard.tsx"]
+    },
+    {
+      "name": "User Profile",
+      "description": "View and edit user profile information",
+      "files": ["pages/ProfilePage.tsx", "components/ProfileCompletionModal.tsx"]
+    },
+    {
+      "name": "User Settings",
+      "description": "Notification preferences and account settings",
+      "files": ["pages/SettingsPage.tsx"]
+    },
+    {
+      "name": "Admin Dashboard",
+      "description": "Admin panel for system monitoring, user management, and job oversight",
+      "files": ["pages/admin/AdminDashboard.tsx", "pages/admin/AdminLayout.tsx"]
+    },
+    {
+      "name": "Admin User Management",
+      "description": "View, filter, and manage user accounts including suspension",
+      "files": ["pages/admin/AdminUsers.tsx", "pages/admin/AdminUserDetail.tsx"]
+    },
+    {
+      "name": "Admin Job Management",
+      "description": "Monitor and manage all jobs in the system",
+      "files": ["pages/admin/AdminJobs.tsx", "pages/admin/AdminJobDetail.tsx"]
+    },
+    {
+      "name": "Admin Security",
+      "description": "Security settings and audit logs for administrators",
+      "files": ["pages/admin/AdminSecurity.tsx"]
+    },
+    {
+      "name": "Admin Disputes",
+      "description": "Handle and resolve user disputes",
+      "files": ["pages/admin/AdminDisputes.tsx", "pages/TaskDisputePage.tsx"]
+    },
+    {
+      "name": "Navigation",
+      "description": "Main navigation bar with responsive mobile menu and notifications",
+      "files": ["components/Navbar.tsx", "components/Footer.tsx"]
+    },
+    {
+      "name": "Notifications",
+      "description": "Real-time notification system with Supabase subscriptions",
+      "files": ["contexts/NotificationContext.tsx", "components/Toast.tsx"]
+    },
+    {
+      "name": "Alert System",
+      "description": "Global alert and confirmation dialogs",
+      "files": ["contexts/AlertContext.tsx"]
+    },
+    {
+      "name": "Access Control",
+      "description": "Role-based access control for admin routes",
+      "files": ["components/RequireAdmin.tsx"]
+    },
+    {
+      "name": "Rating System",
+      "description": "User rating and review functionality",
+      "files": ["components/RatingModal.tsx"]
+    },
+    {
+      "name": "SMS Notifications",
+      "description": "SMS notification service for job alerts",
+      "files": ["src/server.ts", "scripts/test-live-sms.ts"]
+    },
+    {
+      "name": "Admin API",
+      "description": "API services for admin operations",
+      "files": ["services/adminApi.ts"]
+    },
+    {
+      "name": "Landing Page",
+      "description": "Public landing page with feature showcase",
+      "files": ["pages/HomePage.tsx", "components/InteractiveSphere.tsx"]
+    },
+    {
+      "name": "Legal Pages",
+      "description": "Terms of use, privacy policy, and legal compliance pages",
+      "files": ["pages/TermsOfUse.tsx", "pages/PrivacyPolicy.tsx", "pages/LegalCompliancePage.tsx", "pages/DistanceSalesAgreementPage.tsx"]
+    },
+    {
+      "name": "SEO",
+      "description": "Search engine optimization component",
+      "files": ["components/SEO.tsx"]
+    },
+    {
+      "name": "Mobile App Detection",
+      "description": "Hook for detecting mobile app context",
+      "files": ["hooks/useMobileApp.ts"]
+    }
+  ]
+}

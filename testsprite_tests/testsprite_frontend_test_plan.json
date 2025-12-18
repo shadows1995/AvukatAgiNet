@@ -1,0 +1,678 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Registration with Email and SMS Phone Verification",
+    "description": "Verify that a new user can successfully register with valid email and password, complete phone verification via SMS, and receive confirmation email.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to registration page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid email, password, and phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit registration form"
+      },
+      {
+        "type": "assertion",
+        "description": "Check confirmation email is sent"
+      },
+      {
+        "type": "action",
+        "description": "Enter correct SMS verification code received on phone"
+      },
+      {
+        "type": "assertion",
+        "description": "Check phone number is verified successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Check user is able to login after verification"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Login Success with Correct Credentials",
+    "description": "Verify that users can log in with correct email and password and session tokens are issued securely.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid registered email and correct password"
+      },
+      {
+        "type": "action",
+        "description": "Click login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Check user is redirected to dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Check secure session token is granted"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Login Failure with Incorrect Password",
+    "description": "Verify system prevents login with incorrect password and shows appropriate error message without revealing sensitive information.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid registered email and incorrect password"
+      },
+      {
+        "type": "action",
+        "description": "Click login button"
+      },
+      {
+        "type": "assertion",
+        "description": "Check login fails"
+      },
+      {
+        "type": "assertion",
+        "description": "Check error message displayed is generic and non-revealing"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Profile Completion and Avatar Upload",
+    "description": "Verify that a lawyer can successfully complete profile including Baro Number, City, Specializations and upload a valid avatar image.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as registered lawyer user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to profile completion/editing page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid Baro Number, City, and Specializations"
+      },
+      {
+        "type": "action",
+        "description": "Upload valid avatar image file"
+      },
+      {
+        "type": "action",
+        "description": "Save profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that profile details are saved and appear correctly on profile page"
+      },
+      {
+        "type": "assertion",
+        "description": "Check avatar image is displayed properly"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Job Creation with Urgent Marking and Location Selection",
+    "description": "Verify lawyers can create new jobs specifying type, location, fee, and mark jobs as urgent with correct input validation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as lawyer user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to job creation page"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid job title, select courthouse/location from provided list"
+      },
+      {
+        "type": "action",
+        "description": "Set job fee and mark job as urgent"
+      },
+      {
+        "type": "action",
+        "description": "Submit job creation form"
+      },
+      {
+        "type": "assertion",
+        "description": "Check job is saved with all specified attributes including urgent flag"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify job appears in user's job list"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Job Listing with Filtering by City and Job Type",
+    "description": "Verify that job listings can be filtered by city and job type correctly and display accurate job details.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to job listings page"
+      },
+      {
+        "type": "action",
+        "description": "Select a city filter"
+      },
+      {
+        "type": "action",
+        "description": "Select a job type filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that displayed jobs match selected city and job type filters"
+      },
+      {
+        "type": "action",
+        "description": "Click on a job to view details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that job details including application deadlines and fees are shown correctly"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Job Application for Urgent and Standard Jobs within Application Windows",
+    "description": "Verify that users can apply for both urgent and standard jobs only within their respective application windows and job owners receive notifications on timeout.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as lawyer user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to job listing"
+      },
+      {
+        "type": "action",
+        "description": "Select an urgent job within application window"
+      },
+      {
+        "type": "action",
+        "description": "Submit job application"
+      },
+      {
+        "type": "assertion",
+        "description": "Check application is accepted"
+      },
+      {
+        "type": "action",
+        "description": "Select a standard job after the application window has closed"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit job application"
+      },
+      {
+        "type": "assertion",
+        "description": "Check application is rejected due to timeout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify job owner received automated notification about timeout"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Premium Subscription Purchase Success with Garanti BBVA 3D Secure",
+    "description": "Verify that premium subscription plans can be purchased securely through Garanti BBVA 3D Secure payment gateway and success flow redirects correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as registered user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to premium subscription page"
+      },
+      {
+        "type": "action",
+        "description": "Select monthly subscription plan"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to payment and complete 3D Secure authentication successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Check payment success callback is received"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user's premium status is updated and enabled"
+      },
+      {
+        "type": "assertion",
+        "description": "Check redirection to payment success page"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Premium Subscription Payment Failure Handling",
+    "description": "Verify the system properly handles payment failure scenarios during premium subscription purchase including 3D Secure failure and network errors.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as registered user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to premium subscription page"
+      },
+      {
+        "type": "action",
+        "description": "Select yearly subscription plan"
+      },
+      {
+        "type": "action",
+        "description": "Attempt payment and simulate 3D Secure authentication failure"
+      },
+      {
+        "type": "assertion",
+        "description": "Check payment failure callback is received"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify premium status remains unchanged"
+      },
+      {
+        "type": "assertion",
+        "description": "Check redirection to payment failed page"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Notification Delivery via SMS, Push, and Telegram",
+    "description": "Verify that job-related notifications are sent and received correctly on user-selected channels (SMS, Firebase push, Telegram bot).",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as user with notification preferences set for SMS, push, and Telegram"
+      },
+      {
+        "type": "action",
+        "description": "Trigger a job event such as new application received or job update"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify SMS notification is received on registered phone"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify push notification appears via Firebase/FCM"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Telegram message is received via integrated bot"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Admin Dashboard Metrics Accuracy and Access Control",
+    "description": "Verify that only admin users can access admin dashboard and metrics shown accurately reflect real-time platform data.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to admin dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Check dashboard loads without errors"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify metrics such as user count, active jobs, premium users are displayed accurately"
+      },
+      {
+        "type": "action",
+        "description": "Logout and login as a normal user"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access admin dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied with appropriate error or redirect"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Admin User Management - Suspension and Filtering",
+    "description": "Verify admin can view, filter users by criteria, and suspend user accounts successfully.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to admin user management page"
+      },
+      {
+        "type": "action",
+        "description": "Filter users by city and role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify filtered users list matches criteria"
+      },
+      {
+        "type": "action",
+        "description": "Select a user and suspend their account"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user's account status is updated and they cannot login"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Automated Cron Jobs Execution",
+    "description": "Verify cron jobs trigger at scheduled intervals to perform tasks including job bot synthetic activity, application window monitoring, and premium expiry notifications.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Ensure cron jobs scheduler is running"
+      },
+      {
+        "type": "action",
+        "description": "Simulate passing of scheduled time for job application window monitoring"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify job application windows expire as expected and timeout notifications send"
+      },
+      {
+        "type": "action",
+        "description": "Simulate premium subscription expiry approaching"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify premium expiry notification is dispatched"
+      },
+      {
+        "type": "assertion",
+        "description": "Check synthetic job creation by job bots executes as scheduled and is reflected in job list"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Security - Supabase RLS and Role-Based Access Enforcement",
+    "description": "Verify Row Level Security policies prevent unauthorized data access and role-based access restricts admin routes to admins only.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as regular user"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access another user's private job or profile data via API or UI"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied according to RLS policies"
+      },
+      {
+        "type": "action",
+        "description": "Try to access admin-restricted routes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is blocked or redirected"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Payment Security - 3D Secure Payment Hash Verification",
+    "description": "Verify the system validates payment hash with Garanti BBVA 3D Secure gateway properly to prevent tampering and fraud.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Initiate premium subscription payment"
+      },
+      {
+        "type": "action",
+        "description": "Intercept and modify payment hash in callback payload (simulate tampering)"
+      },
+      {
+        "type": "action",
+        "description": "Submit modified payment success callback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the system rejects the callback as invalid"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify premium subscription is not activated erroneously"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Password Reset Flow with Email Confirmation",
+    "description": "Verify users can successfully request password reset, receive email with reset link, and update password securely.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to password reset page"
+      },
+      {
+        "type": "action",
+        "description": "Enter registered email to request password reset"
+      },
+      {
+        "type": "assertion",
+        "description": "Check reset email is sent with valid link"
+      },
+      {
+        "type": "action",
+        "description": "Open reset link and enter new valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit new password"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify password is updated and user can login with new password"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "User Notification Preferences Management",
+    "description": "Verify users can view, update and save notification channel preferences for SMS, push, and Telegram.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to notification settings page"
+      },
+      {
+        "type": "action",
+        "description": "Toggle notification preferences for SMS, push, and Telegram"
+      },
+      {
+        "type": "action",
+        "description": "Save preferences"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify preferences are saved and reflected on reload"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Admin Dispute Resolution Workflow",
+    "description": "Verify admin can view, investigate, and resolve user disputes with appropriate status updates and notifications.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to dispute management page"
+      },
+      {
+        "type": "action",
+        "description": "Select an active dispute"
+      },
+      {
+        "type": "action",
+        "description": "Update dispute status and add resolution notes"
+      },
+      {
+        "type": "action",
+        "description": "Mark dispute as resolved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dispute status updates accordingly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify users involved receive notification of resolution"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Edge Case - Job Creation with Empty or Invalid Fields",
+    "description": "Verify system prevents job creation if required fields are empty or contain invalid data and displays appropriate error messages.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as lawyer user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to job creation page"
+      },
+      {
+        "type": "action",
+        "description": "Leave required fields empty or enter invalid fee (e.g. negative number)"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit job creation form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are displayed for each invalid field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify job is not created"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "UI Responsiveness and Navigation Bar Mobile Menu",
+    "description": "Verify that the main navigation bar renders correctly on mobile devices and mobile menu toggles as expected.",
+    "category": "ui",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the application on a mobile device or simulate mobile viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify navigation bar is responsive and content fits screen"
+      },
+      {
+        "type": "action",
+        "description": "Click on mobile menu toggle button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify mobile menu expands and shows navigation links"
+      },
+      {
+        "type": "action",
+        "description": "Click on a menu item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify navigation to selected page occurs"
+      }
+    ]
+  }
+]
