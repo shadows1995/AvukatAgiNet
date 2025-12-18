@@ -45,18 +45,19 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         - Örnekler: "Tapu İşlemi", "İcra Dosya İnceleme", "Haciz İşlemi", "Karakol İfade".
 
         AÇIKLAMA KURALI (ÇOK ÖNEMLİ):
-        - Kesinlikle "resmi" bir dil kullanma. Bir avukatın meslektaşına WhatsApp'tan yazdığı gibi samimi ve kısa yaz.
-        - SADECE 2 CÜMLE OLSUN. Daha fazlası yasak.
-        - "Tekerrür", "Müvekkil", "Dosya esas no" gibi gereksiz detayları verme. Hızlıca yardım istiyorsun.
-        - Örnek: "Yarın sabahki duruşmaya yetişemiyorum, mazeret verebilecek var mı? Yardımcı olursanız sevinirim."
-        - Örnek: "İcra dairesinde bir dosya fotokopisi lazım. Uygun olan meslektaşım ulaşabilir mi?"
+        - Kesinlikle "Abi", "Abla", "Kardeşim" gibi laubali ifadeler kullanma.
+        - Resmi, kısa ve net bir avukat dili kullan.
+        - SADECE 2 CÜMLE OLSUN. Uzatmak yasak.
+        - Durumu net bir şekilde ifade et ve yardım iste.
+        - Örnek: "Duruşmaya katılım sağlayamayacağız. Önemli bir duruşma, meslektaş desteği rica olunur."
+        - Örnek: "İcra dairesinde dosya fotokopisi alınması gerekmektedir. Yardımcı olabilecek meslektaşımız var mı?"
         
         Lütfen aşağıdaki formatta geçerli bir JSON çıktısı ver (Markdown yok, sadece JSON):
         {
             "title": "Kısa ve genel başlık (Yukarıdaki kurallara uygun)",
             "description": "2 cümlelik, samimi, insansı açıklama.",
             "jobType": "Duruşma" | "İcra İşlemi" | "Dosya İnceleme" | "Haciz" | "Dilekçe" | "Diğer",
-            "offeredFee": 800 (Genelde 800-1500 arası tamsayı),
+            "offeredFee": 1000,
             "ownerName": "Rastgele Ad Soyad"
         }
         `;

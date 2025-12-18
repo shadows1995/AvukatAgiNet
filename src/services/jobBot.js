@@ -1,15 +1,11 @@
-import { SupabaseClient } from "@supabase/supabase-js";
 import { generateJobDetails } from "./geminiService.js";
 import { COURTHOUSES } from "../../data/courthouses.js";
 import { notifyNewJob } from "./notificationService.js";
-
 // Bot User Configuration
 const BOT_EMAIL = 'bot@avukatagi.net';
 const BOT_PASSWORD = 'bot-secure-password-123!';
-
-export const runJobBot = async (supabase: SupabaseClient) => {
+export const runJobBot = async (supabase) => {
     console.log('🤖 Job Bot: Starting run...');
-
     try {
         // 1. Check if Bot is Enabled
         const { data: settings, error: settingsError } = await supabase
@@ -17,24 +13,19 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             .select('value')
             .eq('key', 'job_bot_enabled')
             .single();
-
         if (settingsError && settingsError.code !== 'PGRST116') {
             console.error('🤖 Job Bot: Error checking settings:', settingsError);
             return;
         }
-
         const isEnabled = settings?.value === true || settings?.value === 'true';
         if (!isEnabled) {
             console.log('🤖 Job Bot: Disabled in settings. Skipping.');
             return;
         }
-
         // 2. Ensure Bot User Exists
         const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-        const botUser = (users as any[])?.find(u => u.email === BOT_EMAIL);
-
+        const botUser = users?.find(u => u.email === BOT_EMAIL);
         let botUserId = botUser?.id;
-
         if (!botUser) {
             console.log('🤖 Job Bot: Bot user not found. Creating...');
             const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
@@ -46,14 +37,11 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                     is_bot: true
                 }
             });
-
             if (createError || !newUser.user) {
                 console.error('🤖 Job Bot: Failed to create bot user:', createError);
                 return;
             }
-
             botUserId = newUser.user.id;
-
             // Create public user profile
             const { error: profileError } = await supabase.from('users').insert({
                 uid: botUserId,
@@ -67,48 +55,40 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 baro_number: '00000',
                 phone: '5550000000'
             });
-
             if (profileError) {
                 console.error('🤖 Job Bot: Failed to create bot profile:', profileError);
             }
-
             console.log('🤖 Job Bot: Bot user created successfully.');
-        } else {
+        }
+        else {
             botUserId = botUser.id;
         }
-
         // 3. Check Day Rules
         const now = new Date();
         const trTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
         const dayOfWeek = trTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-
         // Rule 2: No jobs on weekends
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             console.log('🤖 Job Bot: It is weekend. No jobs will be created.');
             return;
         }
-
         // Rule 1: "Duruşma" only on Tuesday (2) and Thursday (4)
-        let allowedJobTypes: string[] = ["İcra İşlemi", "Dosya İnceleme", "Haciz", "Dilekçe", "Diğer"];
+        let allowedJobTypes = ["İcra İşlemi", "Dosya İnceleme", "Haciz", "Dilekçe", "Diğer"];
         if (dayOfWeek === 2 || dayOfWeek === 4) {
             allowedJobTypes.push("Duruşma");
         }
-
         // 4. Select Random Courthouses
-        const allCourthouses: { city: string, name: string }[] = [];
+        const allCourthouses = [];
         Object.entries(COURTHOUSES).forEach(([city, list]) => {
             list.forEach(ch => allCourthouses.push({ city, name: ch }));
         });
-
         // Pick 3 random courthouses
         const selectedCourthouses = [];
         for (let i = 0; i < 3; i++) {
             const randomIndex = Math.floor(Math.random() * allCourthouses.length);
             selectedCourthouses.push(allCourthouses[randomIndex]);
         }
-
         console.log(`🤖 Job Bot: Selected ${selectedCourthouses.length} courthouses for potential jobs. Allowed types: ${allowedJobTypes.join(', ')}`);
-
         // 5. Process Each Courthouse
         for (const ch of selectedCourthouses) {
             const now = new Date();
@@ -122,48 +102,36 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 .eq('courthouse', ch.name)
                 .eq('date', targetDate)
                 .limit(1);
-
             /*
             if (existingJobs && existingJobs.length > 0) {
                 console.log(`🤖 Job Bot: Job already exists for ${ch.name} today. Skipping.`);
                 continue;
             }
             */
-
             // Generate Content
             console.log(`🤖 Job Bot: Generating content for ${ch.name}...`);
             const jobDetails = await generateJobDetails(ch.name, allowedJobTypes);
-
             if (!jobDetails) {
                 console.error(`🤖 Job Bot: Failed to generate content for ${ch.name}.`);
                 continue;
             }
-
             // Insert Job
+            // Calculate Time (Turkey Time UTC+3)
             // Calculate Time (Business Hours: 09:00 - 17:00)
-            // Fixed random logic for next day
             const randomHour = Math.floor(Math.random() * (17 - 9)) + 9; // 9 to 16
             const randomMin = Math.floor(Math.random() * 60);
 
             const timeString = `${String(randomHour).padStart(2, '0')}:${String(randomMin).padStart(2, '0')}`;
 
-            // Calculate Application Deadline (15 minutes from creation... wait, from creation NOW)
-            // Or relative to the job time? Usually deadline is immediate relative to posting time "15 dk suren var".
-            // If the job is for tomorrow, the deadline is probably "application deadline now"? 
-            // The bot creates the job NOW (or tomorrow?), but the 'date' field is for the hearing?
-            // "Görevlerin date ve time'ı (database de) ertesi günün mesai saatleri olsun."
-            // This means the hearing date is tomorrow.
-            // The job is posted NOW.
-
+            // Calculate Application Deadline (15 minutes from creation)
             const deadlineDate = new Date();
             deadlineDate.setMinutes(deadlineDate.getMinutes() + 15);
-
             const { data: insertedJob, error: insertError } = await supabase.from('jobs').insert({
                 title: jobDetails.title,
                 description: jobDetails.description,
                 city: ch.city,
                 courthouse: ch.name,
-                date: targetDate, // Tomorrow
+                date: targetDate,
                 time: timeString,
                 job_type: jobDetails.jobType,
                 offered_fee: jobDetails.offeredFee,
@@ -176,16 +144,12 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 application_deadline: deadlineDate.toISOString()
                 // created_at and updated_at are handled by the database default value (now())
             }).select().single();
-
             if (insertError) {
                 console.error(`🤖 Job Bot: Error inserting job for ${ch.name}:`, insertError);
-            } else {
+            }
+            else {
                 console.log(`🤖 Job Bot: ✅ Job created for ${ch.name} by ${jobDetails.ownerName}`);
-
-
-
                 // ... (inside the loop)
-
                 // Trigger SMS Notification
                 try {
                     await notifyNewJob(supabase, {
@@ -198,13 +162,14 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                         offeredFee: String(jobDetails.offeredFee)
                     });
                     console.log(`🤖 Job Bot: 📨 Notification triggered for job ${insertedJob.job_id}`);
-                } catch (notifyError) {
+                }
+                catch (notifyError) {
                     console.error('🤖 Job Bot: Failed to trigger notification:', notifyError);
                 }
             }
         }
-
-    } catch (err) {
+    }
+    catch (err) {
         console.error('🤖 Job Bot: Critical error:', err);
     }
 };
