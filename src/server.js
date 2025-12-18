@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { sendSaleRequest } from "./garantiClient.cjs";
+import { sendSaleRequest, sha1Iso, sha512Iso } from "./garantiClient.cjs";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import path from "path";
@@ -155,18 +155,18 @@ app.post('/api/delete-account', async (req, res) => {
         const { error: publicError } = await supabase
             .from('users')
             .update({
-            full_name: 'Silinmiş Kullanıcı',
-            email: dummyEmail,
-            phone: dummyPhone, // Release phone constraint
-            avatar_url: null,
-            baro_number: null,
-            baro_city: null,
-            address: null,
-            about_me: null,
-            sms_notifications_enabled: false,
-            job_status: 'passive',
-            updated_at: new Date().toISOString()
-        })
+                full_name: 'Silinmiş Kullanıcı',
+                email: dummyEmail,
+                phone: dummyPhone, // Release phone constraint
+                avatar_url: null,
+                baro_number: null,
+                baro_city: null,
+                address: null,
+                about_me: null,
+                sms_notifications_enabled: false,
+                job_status: 'passive',
+                updated_at: new Date().toISOString()
+            })
             .eq('uid', uid);
         if (publicError) {
             console.error('❌ Error anonymizing public user:', publicError);
@@ -195,6 +195,98 @@ app.post('/api/delete-account', async (req, res) => {
 });
 app.get("/api/garanti/test-sale", (req, res) => {
     res.status(405).send("Method Not Allowed. Please use POST to submit a sale request.");
+});
+
+// Endpoint: Initiate 3D Payment
+app.post('/api/payment/initiate', async (req, res) => {
+    const { userId, plan, period, price, cardData, billingInfo } = req.body;
+
+    if (!userId || !cardData || !price) {
+        return res.status(400).json({ error: 'Missing required payment fields' });
+    }
+
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('email, full_name, is_premium, membership_type, premium_plan, premium_until')
+            .eq('uid', userId)
+            .single();
+        if (error || !user) return res.status(404).json({ error: 'User not found' });
+
+        // --- Price Validation Logic ---
+        let finalPrice = parseFloat(price);
+
+        // Check for Premium -> Premium Plus Discount Eligibility
+        // Conditions: Premium User, Yearly Plan, Upgrading to Premium Plus Yearly, > 4 months remaining
+        if (plan === 'premium_plus' && period === 'yearly') {
+            const isPremium = user.is_premium;
+            const isYearly = user.premium_plan === 'yearly';
+            const isPremiumMembership = user.membership_type === 'premium';
+
+            let hasTimeLeft = false;
+            // Check expiry
+            if (user.premium_until) {
+                const expiryDate = new Date(user.premium_until);
+                const now = new Date();
+                const fourMonthsLater = new Date();
+                fourMonthsLater.setMonth(now.getMonth() + 4);
+
+                if (expiryDate > fourMonthsLater) {
+                    hasTimeLeft = true;
+                }
+            }
+
+            const isEligibleForDiscount = isPremium && isYearly && isPremiumMembership && hasTimeLeft;
+
+            if (isEligibleForDiscount) {
+                console.log(`✅ User ${userId} is eligible for Premium+ Upgrade Discount. Price: 500 TL`);
+
+                if (Math.abs(finalPrice - 500) < 1) {
+                    // OK, authorized
+                } else if (Math.abs(finalPrice - 1399) < 1) {
+                    // OK, paying full price
+                } else {
+                    return res.status(400).json({ error: 'Invalid price for this plan.' });
+                }
+            } else {
+                // Not eligible, must pay full price (1399)
+                if (Math.abs(finalPrice - 500) < 1) {
+                    return res.status(400).json({ error: 'Not eligible for discount.' });
+                }
+            }
+        }
+
+        // Generate Order ID
+        const orderId = `AVG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+        // Prepare Request for Form Generation
+        const formData = generateDtPaymentForm({
+            orderId: orderId,
+            amount: parseFloat(price),
+            installmentCount: "", // No installments for now
+            cardNumber: cardData.number.replace(/\s/g, ''),
+            expMonth: cardData.expiry.split('/')[0],
+            expYear: cardData.expiry.split('/')[1],
+            cvv: cardData.cvc,
+            cardHolderName: cardData.name,
+            customerEmail: user.email || 'noreply@avukatagi.net',
+            customerIp: req.ip || '127.0.0.1',
+            userId: userId
+        });
+
+        // Save pending order
+        await supabase.from('users').update({
+            last_order_id: orderId,
+            last_order_plan: plan,
+            last_order_period: period
+        }).eq('uid', userId);
+
+        res.json(formData);
+
+    } catch (err) {
+        console.error('Payment Init Error:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 app.post("/api/garanti/test-sale", async (req, res) => {
     try {
@@ -398,10 +490,10 @@ app.post('/api/telegram/webhook', async (req, res) => {
                 const { error: updateError } = await supabase
                     .from('users')
                     .update({
-                    telegram_chat_id: chatId,
-                    telegram_notifications_enabled: true,
-                    telegram_connected_at: new Date().toISOString()
-                })
+                        telegram_chat_id: chatId,
+                        telegram_notifications_enabled: true,
+                        telegram_connected_at: new Date().toISOString()
+                    })
                     .eq('uid', avukatUserId);
                 if (updateError) {
                     console.error('❌ Failed to link Telegram user:', updateError);
@@ -445,10 +537,10 @@ app.post('/api/telegram/link-code', async (req, res) => {
         const { error: insertError } = await supabase
             .from('telegram_link_codes')
             .insert({
-            user_id: userId,
-            code: code,
-            expires_at: expiresAt.toISOString()
-        });
+                user_id: userId,
+                code: code,
+                expires_at: expiresAt.toISOString()
+            });
         if (insertError) {
             console.error('❌ Failed to generate link code:', insertError);
             return res.status(500).json({ error: 'Failed to generate code' });
@@ -484,3 +576,110 @@ const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
+
+// --- HELPER FUNCTIONS ---
+
+function getConfig() {
+    const isTest = (process.env.GARANTI_MODE || "TEST") === "TEST";
+
+    if (isTest) {
+        return {
+            mode: "TEST",
+            version: (process.env.GARANTI_VERSION || "512").trim(),
+            terminalId: "30691298", // 3D_PAY Terminal
+            terminalUserId: "PROVAUT", // Correct User
+            terminalMerchantId: "7000679",
+            provUserId: (process.env.GARANTI_PROV_USER_ID || "PROVAUT").trim(),
+            provPassword: (process.env.GARANTI_PROV_PASSWORD || "123qweASD/").trim(),
+            storeKey: (process.env.GARANTI_STORE_KEY || "12345678").trim(),
+            successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
+            errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
+            gatewayUrl: "https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine"
+        };
+    }
+
+    return {
+        mode: "PROD",
+        version: (process.env.GARANTI_VERSION || "512").trim(),
+        terminalId: (process.env.GARANTI_TERMINAL_ID || "").trim(),
+        terminalUserId: (process.env.GARANTI_TERMINAL_USER_ID || "").trim(),
+        terminalMerchantId: (process.env.GARANTI_MERCHANT_ID || "").trim(),
+        provUserId: (process.env.GARANTI_PROV_USER_ID || "").trim(),
+        provPassword: (process.env.GARANTI_PROV_PASSWORD || "").trim(),
+        storeKey: (process.env.GARANTI_STORE_KEY || "").trim(),
+        successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
+        errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
+        gatewayUrl: "https://sanalposprov.garanti.com.tr/servlet/gt3dengine"
+    };
+}
+
+function generateDtPaymentForm(request) {
+    const config = getConfig();
+
+    // 1. Format Data
+    const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
+    const currency = "949"; // TRY
+    const installmentInput = request.installmentCount || "";
+
+    const hashInstallment = installmentInput;
+    const formInstallment = installmentInput;
+
+    const type = "sales";
+    const terminalId = config.terminalId;
+    const orderId = request.orderId;
+    // Security Hash Keys
+    const password = config.provPassword;
+    const storeKey = config.storeKey;
+
+    // 2. Calculate Hash
+    // Step A: Hash Password = SHA1(Password + "0" + TerminalID)
+    const hashedPassword = sha1Iso(password + "0" + terminalId);
+
+    // Step B: Hash String
+    const hashString =
+        terminalId +
+        orderId +
+        amountMinor.toString() +
+        currency +
+        config.successUrl +
+        config.errorUrl +
+        type +
+        hashInstallment +
+        storeKey +
+        hashedPassword;
+
+    const secure3dhash = sha512Iso(hashString);
+
+    console.log(`🔑 3D Hash Gen:\nStr: ${hashString}\nHash: ${secure3dhash}`);
+
+    // 3. Construct Form Data
+    return {
+        mode: config.mode,
+        apiversion: config.version,
+        secure3dsecuritylevel: "3D_PAY",
+        terminalprovuserid: config.provUserId,
+        terminaluserid: config.terminalUserId || "GARANTI",
+        terminalmerchantid: config.terminalMerchantId,
+        terminalid: terminalId,
+        orderid: orderId,
+        successurl: config.successUrl,
+        errorurl: config.errorUrl,
+        customeremailaddress: request.customerEmail,
+        customeripaddress: request.customerIp,
+        companyname: "AvukatAgi",
+        lang: "tr",
+        txntimestamp: new Date().toISOString(),
+        refreshtime: "1",
+        secure3dhash: secure3dhash,
+        txnamount: amountMinor.toString(),
+        txntype: type,
+        txncurrencycode: currency,
+        txninstallmentcount: formInstallment,
+        cardholdername: request.cardHolderName,
+        cardnumber: request.cardNumber,
+        cardexpiredatemonth: request.expMonth,
+        cardexpiredateyear: request.expYear,
+        cardcvv2: request.cvv,
+        gatewayUrl: config.gatewayUrl
+    };
+}

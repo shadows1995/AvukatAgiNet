@@ -54,9 +54,32 @@ const PremiumPage = ({ user }: { user: User }) => {
     const navigate = useNavigate();
 
     const handleUpgrade = (plan: 'premium' | 'premium_plus') => {
-        const price = plan === 'premium'
+        let price = plan === 'premium'
             ? (billingCycle === 'monthly' ? 150 : 899)
             : (billingCycle === 'monthly' ? 250 : 1399);
+
+        // Check for discount logic again to send correct price to payment page
+        if (plan === 'premium_plus' && billingCycle === 'yearly') {
+            const isPremium = user.isPremium;
+            const isYearly = user.premiumPlan === 'yearly';
+            const isPremiumMembership = user.membershipType === 'premium';
+
+            let hasTimeLeft = false;
+            if (user.premiumUntil) {
+                const expiryDate = new Date(user.premiumUntil);
+                const now = new Date();
+                const fourMonthsLater = new Date();
+                fourMonthsLater.setMonth(now.getMonth() + 4);
+
+                if (expiryDate > fourMonthsLater) {
+                    hasTimeLeft = true;
+                }
+            }
+
+            if (isPremium && isYearly && isPremiumMembership && hasTimeLeft) {
+                price = 500;
+            }
+        }
 
         navigate('/payment', {
             state: {
@@ -159,8 +182,54 @@ const PremiumPage = ({ user }: { user: User }) => {
             type: 'premium_plus',
             title: "Premium +",
             description: "Profesyoneller için tam paket",
-            price: billingCycle === 'monthly' ? 250 : 1399 / 12,
-            originalPriceYearly: 1399,
+            price: (() => {
+                // Check if eligible for discount: Premium user, Yearly plan, > 4 months remaining
+                const isPremium = user.isPremium;
+                const isYearly = user.premiumPlan === 'yearly';
+                const isPremiumMembership = user.membershipType === 'premium';
+
+                let hasTimeLeft = false;
+                if (user.premiumUntil) {
+                    const expiryDate = new Date(user.premiumUntil);
+                    const now = new Date();
+                    const fourMonthsLater = new Date();
+                    fourMonthsLater.setMonth(now.getMonth() + 4);
+
+                    if (expiryDate > fourMonthsLater) {
+                        hasTimeLeft = true;
+                    }
+                }
+
+                const isEligibleForDiscount = isPremium && isYearly && isPremiumMembership && hasTimeLeft;
+
+                if (isEligibleForDiscount && billingCycle === 'yearly') {
+                    return 500 / 12; // Yearly price becomes 500 total
+                }
+
+                return billingCycle === 'monthly' ? 250 : 1399 / 12;
+            })(),
+            originalPriceYearly: (() => {
+                // Check if eligible for discount: Premium user, Yearly plan, > 4 months remaining
+                const isPremium = user.isPremium;
+                const isYearly = user.premiumPlan === 'yearly';
+                const isPremiumMembership = user.membershipType === 'premium';
+
+                let hasTimeLeft = false;
+                if (user.premiumUntil) {
+                    const expiryDate = new Date(user.premiumUntil);
+                    const now = new Date();
+                    const fourMonthsLater = new Date();
+                    fourMonthsLater.setMonth(now.getMonth() + 4);
+
+                    if (expiryDate > fourMonthsLater) {
+                        hasTimeLeft = true;
+                    }
+                }
+
+                const isEligibleForDiscount = isPremium && isYearly && isPremiumMembership && hasTimeLeft;
+
+                return isEligibleForDiscount ? 500 : 1399;
+            })(),
             features: [
                 "Tüm Premium Özellikleri",
                 "Görevlere başvurularda üstte yer alma",

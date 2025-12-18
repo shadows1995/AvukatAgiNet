@@ -198,13 +198,65 @@ app.post('/api/payment/initiate', async (req, res) => {
     }
 
     try {
-        const { data: user, error } = await supabase.from('users').select('email, full_name').eq('uid', userId).single();
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('email, full_name, is_premium, membership_type, premium_plan, premium_until')
+            .eq('uid', userId)
+            .single();
         if (error || !user) return res.status(404).json({ error: 'User not found' });
 
-        // Generate Order ID
-        const orderId = `AVG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        // --- Price Validation Logic ---
+        let finalPrice = parseFloat(price);
 
-        // Prepare Request for Form Generation
+        // Check for Premium -> Premium Plus Discount Eligibility
+        // Conditions: Premium User, Yearly Plan, Upgrading to Premium Plus Yearly, > 4 months remaining
+        if (plan === 'premium_plus' && period === 'yearly') {
+            const isPremium = user.is_premium;
+            const isYearly = user.premium_plan === 'yearly';
+            const isPremiumMembership = user.membership_type === 'premium';
+
+            let hasTimeLeft = false;
+            if (user.premium_until) {
+                const expiryDate = new Date(user.premium_until);
+                const now = new Date();
+                const fourMonthsLater = new Date();
+                fourMonthsLater.setMonth(now.getMonth() + 4);
+
+                if (expiryDate > fourMonthsLater) {
+                    hasTimeLeft = true;
+                }
+            }
+
+            const isEligibleForDiscount = isPremium && isYearly && isPremiumMembership && hasTimeLeft;
+
+            if (isEligibleForDiscount) {
+                console.log(`✅ User ${userId} is eligible for Premium+ Upgrade Discount. Price: 500 TL`);
+                // If the frontend sent 500, we accept it. Or we enforce it here.
+                // Let's enforce/validate.
+                // If user sent something else but IS eligible, we could technically allow 500, but let's just validate what was sent matches expectations.
+                // Actually, safer to OVERRIDE or Validate.
+                // If client says 500 and is eligible -> OK.
+                // If client says 1399 but is eligible -> OK (user pays full price, weird but allowed).
+                // If client says 500 but NOT eligible -> REJECT or Correction.
+
+                // Better approach: Trust the price sent BUT strict check if it's the discounted one.
+                if (Math.abs(finalPrice - 500) < 1) {
+                    // OK, authorized
+                } else if (Math.abs(finalPrice - 1399) < 1) {
+                    // OK, paying full price
+                } else {
+                    // Invalid price for this plan
+                    return res.status(400).json({ error: 'Invalid price for this plan.' });
+                }
+            } else {
+                // Not eligible, must pay full price (1399)
+                if (Math.abs(finalPrice - 500) < 1) {
+                    return res.status(400).json({ error: 'Not eligible for discount.' });
+                }
+            }
+        }
+
+        // Generate Order ID
         const formData = generateDtPaymentForm({
             orderId: orderId,
             amount: parseFloat(price),
