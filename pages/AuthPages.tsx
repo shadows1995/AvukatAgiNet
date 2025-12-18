@@ -36,7 +36,7 @@ export const LandingPage = () => (
       <div className="max-w-7xl mx-auto text-center relative z-10">
         <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-primary-100 text-primary-700 font-bold text-sm mb-8 shadow-glow animate-bounce">
           <span className="flex h-2.5 w-2.5 rounded-full bg-primary-500 mr-2 animate-pulse"></span>
-          Türkiye'nin Tek Tevkil Platformu
+          Türkiye'nin en büyük tevkil platformu
         </div>
 
         <div className="relative w-full max-w-5xl mx-auto">
