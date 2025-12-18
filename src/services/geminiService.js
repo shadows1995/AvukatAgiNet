@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
@@ -5,15 +6,7 @@ dotenv.config();
 
 const apiKey = process.env.GEMINI_API_KEY;
 
-interface GeneratedJob {
-    title: string;
-    description: string;
-    jobType: string;
-    offeredFee: number;
-    ownerName: string;
-}
-
-export const generateJobDetails = async (courthouse: string, allowedJobTypes?: string[]): Promise<GeneratedJob | null> => {
+export const generateJobDetails = async (courthouse, allowedJobTypes) => {
     if (!apiKey) {
         console.error("Gemini API key is missing.");
         return null;
@@ -80,7 +73,7 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         // Clean up markdown code blocks if present
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-        const data = JSON.parse(jsonStr) as GeneratedJob;
+        const data = JSON.parse(jsonStr);
         return data;
 
     } catch (error) {

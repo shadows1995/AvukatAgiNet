@@ -32,6 +32,8 @@ dist-ssr
 !jest.config.js
 !scripts/debug-sms-no-deps.js
 !src/server.js
+!src/services/geminiService.js
+
 
 # Env Files
 .env
