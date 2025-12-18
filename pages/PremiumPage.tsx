@@ -169,8 +169,8 @@ const PremiumPage = ({ user }: { user: User }) => {
             originalPriceYearly: 899,
             features: [
                 "Her Şey Dahil (Başlangıç)",
-                "Acil ilanlara başvurma Hakkı",
-                "Başvurudan Gelir Kazanma",
+
+                "Görevlerden gelir elde etme",
                 "Acil İlan Açabilme",
             ],
             icon: <Zap className="w-12 h-12 text-indigo-500" />,
