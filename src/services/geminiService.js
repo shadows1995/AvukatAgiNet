@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,7 +13,8 @@ export const generateJobDetails = async (courthouse, allowedJobTypes) => {
     }
 
     try {
-        const ai = new GoogleGenAI({ apiKey });
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const jobTypeInstruction = allowedJobTypes && allowedJobTypes.length > 0
             ? `Seçilecek görev türü SADECE şunlardan biri olabilir: ${allowedJobTypes.join(', ')}.`
@@ -53,18 +54,9 @@ export const generateJobDetails = async (courthouse, allowedJobTypes) => {
         }
         `;
 
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [
-                {
-                    parts: [
-                        { text: prompt }
-                    ]
-                }
-            ]
-        });
-
-        const text = response.text;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
         if (!text) {
             throw new Error("Empty response from Gemini");

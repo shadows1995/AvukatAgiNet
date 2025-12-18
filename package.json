@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@google/genai": "*",
+    "@google/generative-ai": "^0.24.1",
     "@netgsm/sms": "^1.1.10",
     "@supabase/supabase-js": "^2.86.0",
     "@types/canvas-confetti": "^1.9.0",
