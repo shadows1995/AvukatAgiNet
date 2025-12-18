@@ -14,7 +14,7 @@ export const generateJobDetails = async (courthouse, allowedJobTypes) => {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
         const jobTypeInstruction = allowedJobTypes && allowedJobTypes.length > 0
             ? `Seçilecek görev türü SADECE şunlardan biri olabilir: ${allowedJobTypes.join(', ')}.`
