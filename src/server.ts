@@ -257,6 +257,8 @@ app.post('/api/payment/initiate', async (req, res) => {
         }
 
         // Generate Order ID
+        const orderId = `AVG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
         const formData = generateDtPaymentForm({
             orderId: orderId,
             amount: parseFloat(price),
