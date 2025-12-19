@@ -10,7 +10,18 @@ import { useAlert } from '../contexts/AlertContext';
 import InteractiveSphere from '../components/InteractiveSphere';
 import SEO from '../components/SEO';
 
+declare global {
+  interface Window {
+    gtag: (
+      command: 'config' | 'event' | 'js',
+      targetId: string,
+      config?: Record<string, any>
+    ) => void;
+  }
+}
+
 const Logo = ({ className = "" }: { className?: string }) => (
+
   <div className={`flex items-center space-x-2 ${className}`}>
     <div className="bg-primary-600 text-white p-1.5 rounded-lg">
       <Gavel className="h-6 w-6" />
@@ -269,6 +280,15 @@ export const RegisterPage = () => {
           confirmText: "Giriş Yap",
           onConfirm: () => navigate('/login')
         });
+
+        // Google Ads / GA4 Conversion Event
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'sign_up', {
+            method: 'email',
+            description: 'User registered successfully'
+          });
+        }
+
       }
     } catch (error: any) {
       console.error("Error signing up:", error);
