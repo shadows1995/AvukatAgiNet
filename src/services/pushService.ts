@@ -19,7 +19,6 @@ export const sendPushNotification = async (payload: PushPayload) => {
     }
 
     try {
-        console.log(`📨 Sending Push to ${payload.user_id}: ${payload.title}`);
         const response = await axios.post(
             SUPABASE_FUNCTION_URL,
             payload,
@@ -33,7 +32,6 @@ export const sendPushNotification = async (payload: PushPayload) => {
         );
 
         if (response.status === 200) {
-            console.log(`✅ Push Sent Successfully to ${payload.user_id}. Response: ${JSON.stringify(response.data)}`);
             return response.data;
         } else {
             console.error(`❌ Push Error Status: ${response.status}`, response.data);
