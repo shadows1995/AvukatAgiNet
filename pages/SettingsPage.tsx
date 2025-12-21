@@ -212,6 +212,29 @@ const NotificationSettingsTab = ({ user, onProfileUpdate, showNotification }: { 
           </div>
         )}
       </div>
+
+      {/* Telegram Channel Link */}
+      <a
+        href="https://t.me/avukatagitevkil"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
+            </div>
+            <div>
+              <h4 className="font-bold text-lg">Telegram Kanalımıza Katılın</h4>
+              <p className="text-sky-100 text-sm">Tevkil ilanlarını Telegram üzerinden anlık takip edin.</p>
+            </div>
+          </div>
+          <div className="bg-white text-sky-600 px-4 py-2 rounded-lg font-bold text-sm">
+            Kanala Git
+          </div>
+        </div>
+      </a>
     </div>
   );
 };
