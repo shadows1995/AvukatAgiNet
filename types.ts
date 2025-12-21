@@ -103,3 +103,9 @@ export interface Notification {
     userId?: string;
   };
 }
+
+declare global {
+  interface Window {
+    registerPushToken?: (token: string, platform: string) => Promise<void>;
+  }
+}

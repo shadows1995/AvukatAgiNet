@@ -123,6 +123,56 @@ const AppContent = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Define registerPushToken globally for iOS webview bridge
+  useEffect(() => {
+    window.registerPushToken = async (token: string, platform: string) => {
+      console.log('📱 Push token received from native app:', { token, platform });
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session?.user) {
+          console.warn('⚠️ User not authenticated, cannot save token. Token will be saved when user logs in.');
+          // Store token in localStorage to save after login if needed
+          localStorage.setItem('pendingPushToken', token);
+          localStorage.setItem('pendingPushPlatform', platform);
+          return;
+        }
+
+        const { error } = await supabase
+          .from('user_push_tokens')
+          .upsert({
+            user_id: session.user.id,
+            token: token,
+            platform: platform,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'token'
+          });
+
+        if (error) {
+          console.error('❌ Error saving push token:', error);
+        } else {
+          console.log('✅ Push token saved successfully');
+          localStorage.removeItem('pendingPushToken');
+          localStorage.removeItem('pendingPushPlatform');
+        }
+      } catch (e) {
+        console.error('❌ Exception saving push token:', e);
+      }
+    };
+
+    // Check for pending token after login
+    if (user) {
+      const pendingToken = localStorage.getItem('pendingPushToken');
+      const pendingPlatform = localStorage.getItem('pendingPushPlatform');
+
+      if (pendingToken && pendingPlatform) {
+        window.registerPushToken(pendingToken, pendingPlatform);
+      }
+    }
+  }, [user]);
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
