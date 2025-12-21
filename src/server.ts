@@ -824,12 +824,17 @@ import { sendPushNotification } from './services/pushService.js';
 // Helper: Notify users of new job (Push)
 // Called within /api/notify-new-job logic
 async function sendNewJobPush(parsedJob: any) {
+    console.log('🔄 sendNewJobPush triggered with:', JSON.stringify(parsedJob, null, 2));
+
     // 1. Find target users (courthouse match)
     // We need to fetch users who have this courthouse in their preferred list
     try {
+        // Log the query we are about to make
+        console.log(`🔍 Looking for users interested in courthouse: "${parsedJob.courthouse}"...`);
+
         const { data: users, error } = await supabase
             .from('users')
-            .select('uid, preferred_courthouses')
+            .select('uid, preferred_courthouses, full_name')
             .contains('preferred_courthouses', [parsedJob.courthouse]);
 
         if (error) {
@@ -838,16 +843,21 @@ async function sendNewJobPush(parsedJob: any) {
         }
 
         if (!users || users.length === 0) {
-            console.log('ℹ️ No users matched for push notification.');
+            console.log(`ℹ️ No users matched for push notification for courthouse: "${parsedJob.courthouse}". Push skipped.`);
+            // DEBUG: Fetch all users to see if anyone has preferences set at all?
+            // const { count } = await supabase.from('users').select('*', { count: 'exact', head: true }).not('preferred_courthouses', 'is', null);
+            // console.log(`(Debug) Total users with any preferences: ${count}`);
             return;
         }
 
-        console.log(`📣 Sending New Job Push to ${users.length} users...`);
+        console.log(`📣 Found ${users.length} target users for push. (First user: ${users[0].full_name})`);
 
         // Send in batches or parallel
         // For now, simple loop (service handles individual errors)
         const title = `Yeni Görev: ${parsedJob.city} - ${parsedJob.courthouse}`;
         const body = `${parsedJob.jobType} - ${parsedJob.offeredFee} TL. Detaylar için dokunun.`;
+
+        console.log(`🚀 Sending push payload: Title="${title}" Body="${body}"`);
 
         // Use Promise.all for speed
         await Promise.all(users.map(u =>
@@ -859,8 +869,10 @@ async function sendNewJobPush(parsedJob: any) {
             })
         ));
 
+        console.log('✅ SendNewJobPush completed.');
+
     } catch (err) {
-        console.error('❌ Push Logic Error:', err);
+        console.error('❌ Push Logic Error inside sendNewJobPush:', err);
     }
 }
 

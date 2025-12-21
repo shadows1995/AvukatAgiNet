@@ -32,7 +32,7 @@ export const sendPushNotification = async (payload: PushPayload) => {
         );
 
         if (response.status === 200) {
-            console.log(`✅ Push Sent: ${JSON.stringify(response.data)}`);
+            console.log(`✅ Push Sent Successfully to ${payload.user_id}. Response: ${JSON.stringify(response.data)}`);
             return response.data;
         } else {
             console.error(`❌ Push Error Status: ${response.status}`, response.data);
