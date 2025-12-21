@@ -66,7 +66,7 @@ import { sendSms, notifyNewJob } from "./services/notificationService.js";
 
 // Endpoint: Notify users about a new job
 app.post('/api/notify-new-job', async (req, res) => {
-    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee, isOutside } = req.body;
+    const { city, courthouse, jobType, jobId, createdBy, date, time, offeredFee, isOutside } = req.body;
 
     const result = await notifyNewJob(supabase, {
         city,
@@ -87,7 +87,9 @@ app.post('/api/notify-new-job', async (req, res) => {
             jobType,
             jobId,
             createdBy, // Use this to potentially exclude self-notification?
-            offeredFee
+            offeredFee,
+            date,
+            time
         }).catch(err => console.error("Async Push Error:", err));
 
         res.json(result);
@@ -852,10 +854,18 @@ async function sendNewJobPush(parsedJob: any) {
 
         console.log(`📣 Found ${users.length} target users for push. (First user: ${users[0].full_name})`);
 
-        // Send in batches or parallel
-        // For now, simple loop (service handles individual errors)
-        const title = `Yeni Görev: ${parsedJob.city} - ${parsedJob.courthouse}`;
-        const body = `${parsedJob.jobType} - ${parsedJob.offeredFee} TL. Detaylar için dokunun.`;
+        // Format Date (YYYY-MM-DD -> DD/MM/YYYY)
+        let formattedDate = parsedJob.date;
+        if (parsedJob.date && parsedJob.date.includes('-')) {
+            const parts = parsedJob.date.split('-');
+            if (parts.length === 3) {
+                formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+        }
+
+        // Rich Notification Content
+        const title = `Yeni Görev: ${parsedJob.jobType}`;
+        const body = `${parsedJob.city} - ${parsedJob.courthouse}\n📅 ${formattedDate} ⏰ ${parsedJob.time}\n💰 ${parsedJob.offeredFee} TL\nDetaylar için dokunun.`;
 
         console.log(`🚀 Sending push payload: Title="${title}" Body="${body}"`);
 

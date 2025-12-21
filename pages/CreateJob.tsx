@@ -119,6 +119,7 @@ const CreateJob = ({ user }: { user: User }) => {
           jobId: null,
           createdBy: user.uid,
           date: formData.date,
+          time: formData.time,
           offeredFee: formData.fee,
           isOutside: isOutside
         })
