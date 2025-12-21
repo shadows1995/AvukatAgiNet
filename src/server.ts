@@ -855,8 +855,9 @@ async function sendNewJobPush(parsedJob: any) {
         }
 
         // Rich Notification Content
+        const timeStr = parsedJob.time ? `⏰ ${parsedJob.time}` : '';
         const title = `Yeni Görev: ${parsedJob.jobType}`;
-        const body = `${parsedJob.city} - ${parsedJob.courthouse}\n📅 ${formattedDate} ⏰ ${parsedJob.time}\n💰 ${parsedJob.offeredFee} TL\nDetaylar için dokunun.`;
+        const body = `${parsedJob.city} - ${parsedJob.courthouse}\n📅 ${formattedDate} ${timeStr}\n💰 ${parsedJob.offeredFee} TL\nDetaylar için dokunun.`;
 
         // Use Promise.all for speed
         await Promise.all(users.map(u =>
