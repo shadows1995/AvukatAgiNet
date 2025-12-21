@@ -26,6 +26,7 @@ export const sendPushNotification = async (payload: PushPayload) => {
             {
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY}`,
                     'x-admin-secret': PUSH_ADMIN_SECRET
                 }
             }
