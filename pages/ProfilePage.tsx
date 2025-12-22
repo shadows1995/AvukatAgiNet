@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Loader2, Sparkles, MapPin, Star, Phone, Mail, Lock } from 'lucide-react';
+import { Loader2, Sparkles, MapPin, Star, Phone, Mail, Lock, CheckCircle } from 'lucide-react';
 import { User } from '../types';
 import { supabase } from '../supabaseClient';
 
@@ -172,6 +172,25 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
           )}
         </div>
       </div>
+
+      {/* Yearly Job Stats (Premium Tracking) */}
+      {(canViewContact || currentUser.uid === profileUser.uid) && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+          <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-800 flex items-center">
+              <Sparkles className="w-5 h-5 mr-2 text-primary-600 fill-current" /> Yıllık Tamamlanan Görevler
+            </h3>
+            {profileUser.membershipType === 'premium_plus' && (
+              <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                Premium Plus
+              </span>
+            )}
+          </div>
+          <div className="p-6">
+            <YearlyStats userId={userId!} />
+          </div>
+        </div>
+      )}
 
       {/* Reviews Section */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
@@ -349,5 +368,131 @@ const ReviewsList = ({ userId }: { userId: string }) => {
   );
 };
 
+
+const YearlyStats = ({ userId }: { userId: string }) => {
+  const [stats, setStats] = useState<{ year: number; count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data: jobs, error } = await supabase
+          .from('jobs')
+          .select('completed_at')
+          .eq('selected_applicant', userId)
+          .eq('status', 'completed');
+
+        if (error) throw error;
+
+        if (jobs) {
+          const yearMap = new Map<number, number>();
+          jobs.forEach(job => {
+            if (job.completed_at) {
+              const year = new Date(job.completed_at).getFullYear();
+              yearMap.set(year, (yearMap.get(year) || 0) + 1);
+            }
+          });
+
+          // Sort by year descending
+          const sortedStats = Array.from(yearMap.entries())
+            .map(([year, count]) => ({ year, count }))
+            .sort((a, b) => b.year - a.year);
+
+          // If current year is missing, add it with 0
+          const currentYear = new Date().getFullYear();
+          if (!yearMap.has(currentYear)) {
+            sortedStats.unshift({ year: currentYear, count: 0 });
+          }
+
+          setStats(sortedStats);
+        }
+      } catch (err) {
+        console.error("Error fetching yearly stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [userId]);
+
+  if (loading) return <div className="p-4 flex justify-center"><Loader2 className="animate-spin text-slate-300 w-6 h-6" /></div>;
+
+  const currentYear = new Date().getFullYear();
+  const currentStats = stats.find(s => s.year === currentYear) || { year: currentYear, count: 0 };
+  const target = 3;
+  const progress = Math.min((currentStats.count / target) * 100, 100);
+
+  return (
+    <div className="space-y-6">
+      {/* Current Year Progress */}
+      <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
+        <div className="flex justify-between items-end mb-2">
+          <div>
+            <span className="text-sm font-bold text-slate-500 uppercase tracking-wide">{currentYear} HEDEFİ</span>
+            <div className="text-2xl font-bold text-slate-800 mt-1">
+              {currentStats.count} <span className="text-slate-400 text-lg font-medium">/ {target} Görev</span>
+            </div>
+          </div>
+          {currentStats.count >= target ? (
+            <div className="flex items-center text-green-600 font-bold bg-green-100 px-3 py-1 rounded-lg">
+              <CheckCircle className="w-5 h-5 mr-1" /> Hedef Tamamlandı
+            </div>
+          ) : (
+            <div className="text-slate-400 text-sm font-medium">
+              Kalan: {target - currentStats.count}
+            </div>
+          )}
+        </div>
+
+        {/* Progress Bar */}
+        <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all duration-1000 ease-out rounded-full ${currentStats.count >= target ? 'bg-green-500' : 'bg-primary-500'}`}
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+          Premium Plus kapsamında, üyeliğinizin bir sonraki yıl ücretsiz uzatılması için yılda en az 3 görev tamamlamanız gerekmektedir.
+        </p>
+      </div>
+
+      {/* Past Years Table */}
+      {stats.length > 1 && (
+        <div className="overflow-hidden rounded-xl border border-slate-100">
+          <table className="min-w-full divide-y divide-slate-100">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Yıl</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tamamlanan Görev</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Durum</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-slate-100">
+              {stats.filter(s => s.year !== currentYear).map((stat) => (
+                <tr key={stat.year}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-700">{stat.year}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{stat.count}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {stat.count >= 3 ? (
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Hedef Tutuldu
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-slate-100 text-slate-800">
+                        -
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default ProfilePage;

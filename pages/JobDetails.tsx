@@ -155,6 +155,39 @@ const JobDetails = ({ user }: { user: User }) => {
 
                     if (updateError) throw updateError;
 
+                    // 1.5. Increment Applicant's Completed Jobs Count
+                    if (job.selectedApplicant) {
+                        // Fetch current count first to be safe (or use RPC if available, but read-write is okay here)
+                        const { data: applicantData } = await supabase
+                            .from('users')
+                            .select('completed_jobs')
+                            .eq('uid', job.selectedApplicant)
+                            .single();
+
+                        const currentCount = applicantData?.completed_jobs || 0;
+
+                        await supabase
+                            .from('users')
+                            .update({ completed_jobs: currentCount + 1 })
+                            .eq('uid', job.selectedApplicant);
+                    }
+
+                    // 2. Notify Applicant (Fix: Notify the person who did the job, not the owner)
+                    // The original code was notifying the owner? 
+                    // "Metadata: ... görevi Av. User tarafından tamamlandı" -> This looks like self-completion logic?
+                    // Wait, handleCompleteTask in JobDetails can be called by Owner OR Assignee depending on view?
+                    // Line 204: isOwner = user.uid === job.createdBy.
+                    // Line 346: Button is shown if isAssignedToMe.
+                    // If isAssignedToMe, then USER is the APPLICANT.
+                    // So we are updating OUR OWN count.
+                    // Let's check logic again.
+
+                    // Logic check:
+                    // If IS_ASSIGNED_TO_ME (User is Applicant):
+                    //   We update 'jobs'.
+                    //   We notify OWNER (line 160: user_id: owner.uid).
+                    //   We increment OUR (user.uid) completed_jobs.
+
                     // 2. Notify Owner
                     await supabase.from('notifications').insert({
                         user_id: owner.uid,

@@ -219,6 +219,19 @@ const AcceptedJobs = () => {
 
           if (jobError) throw jobError;
 
+          // Increment User's Completed Jobs
+          const { data: currentUserData } = await supabase
+            .from('users')
+            .select('completed_jobs')
+            .eq('uid', user.id)
+            .single();
+
+          if (currentUserData) {
+            await supabase.from('users').update({
+              completed_jobs: (currentUserData.completed_jobs || 0) + 1
+            }).eq('uid', user.id);
+          }
+
           await supabase.from('notifications').insert({
             user_id: selectedJob.owner.uid,
             title: "Görev Tamamlandı! 🎉",
