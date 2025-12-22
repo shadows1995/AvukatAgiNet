@@ -7,7 +7,12 @@ import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
 import TaskDisputePage from './TaskDisputePage';
 
-const NotificationSettingsTab = ({ user, onProfileUpdate, showNotification }: { user: UserType, onProfileUpdate: () => void, showNotification: (type: 'success' | 'error', message: string) => void }) => {
+const NotificationSettingsTab = ({ user, onProfileUpdate, showNotification, askConfirmation }: {
+  user: UserType,
+  onProfileUpdate: () => void,
+  showNotification: (type: 'success' | 'error', message: string) => void,
+  askConfirmation: (options: { title: string, message: string, onConfirm: () => void, confirmText?: string, cancelText?: string }) => void
+}) => {
   const [smsEnabled, setSmsEnabled] = useState(user.sms_notifications_enabled !== false);
   const [telegramEnabled, setTelegramEnabled] = useState(user.telegram_notifications_enabled || false);
   const [loading, setLoading] = useState(false);
@@ -148,17 +153,25 @@ const NotificationSettingsTab = ({ user, onProfileUpdate, showNotification }: { 
                   : 'Telegram botumuzu bağlayarak bildirimleri ücretsiz ve anında alın.'}
               </p>
               {isTelegramConnected && (
-                <button onClick={async () => {
-                  if (window.confirm('Telegram hesabınızın bağlantısını kesmek istediğinize emin misiniz?')) {
-                    const { error } = await supabase.from('users').update({ telegram_chat_id: null, telegram_notifications_enabled: false }).eq('uid', user.uid);
-                    if (!error) {
-                      onProfileUpdate();
-                      showNotification('success', 'Telegram bağlantısı kesildi.');
-                    } else {
-                      showNotification('error', 'Hata oluştu.');
-                    }
-                  }
-                }} className="text-xs text-red-500 hover:text-red-700 underline mt-1">
+                <button
+                  onClick={() => {
+                    askConfirmation({
+                      title: 'Bağlantıyı Kes',
+                      message: 'Telegram hesabınızın bağlantısını kesmek istediğinize emin misiniz?',
+                      confirmText: 'Evet, Kes',
+                      onConfirm: async () => {
+                        const { error } = await supabase.from('users').update({ telegram_chat_id: null, telegram_notifications_enabled: false }).eq('uid', user.uid);
+                        if (!error) {
+                          onProfileUpdate();
+                          showNotification('success', 'Telegram bağlantısı kesildi.');
+                        } else {
+                          showNotification('error', 'Hata oluştu.');
+                        }
+                      }
+                    });
+                  }}
+                  className="text-xs text-red-500 hover:text-red-700 underline mt-1"
+                >
                   Bağlantıyı Kes
                 </button>
               )}
@@ -285,6 +298,34 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     setStatusModal({ isOpen: true, type, message });
   };
 
+  // Confirmation Modal State (Centralized)
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+    confirmText?: string;
+    cancelText?: string;
+  }>({
+    isOpen: false, title: '', message: '', onConfirm: () => { }, onCancel: () => { }
+  });
+
+  const askConfirmation = (options: { title: string, message: string, onConfirm: () => void, confirmText?: string, cancelText?: string }) => {
+    setConfirmModal({
+      isOpen: true,
+      title: options.title,
+      message: options.message,
+      onConfirm: () => {
+        options.onConfirm();
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setConfirmModal(prev => ({ ...prev, isOpen: false })),
+      confirmText: options.confirmText,
+      cancelText: options.cancelText
+    });
+  };
+
   const PersonalInfoTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
     const [formData, setFormData] = useState({
       fullName: user.fullName || '',
@@ -406,7 +447,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     );
   };
 
-  const CourthousesTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+  const CourthousesTab = ({ showNotification, askConfirmation }: { showNotification: (type: 'success' | 'error', message: string) => void, askConfirmation: (options: { title: string, message: string, onConfirm: () => void, confirmText?: string, cancelText?: string }) => void }) => {
     const [preferences, setPreferences] = useState<string[]>(user.preferredCourthouses || []);
     const [viewCity, setViewCity] = useState(user.city || 'İstanbul');
     const [isSaving, setIsSaving] = useState(false);
@@ -462,10 +503,6 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
       } finally { setIsSaving(false); }
     };
 
-
-
-    const [showClearConfirm, setShowClearConfirm] = useState(false);
-
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         <div className="border-b border-slate-100 pb-4 mb-6">
@@ -492,7 +529,15 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
                 Seçili Adliyeler ({preferences.length})
               </h4>
               <button
-                onClick={() => setShowClearConfirm(true)}
+                onClick={() => {
+                  askConfirmation({
+                    title: 'Emin misiniz?',
+                    message: 'Tüm seçili adliyeleri silmek üzeresiniz. Bu işlem geri alınamaz.',
+                    onConfirm: () => setPreferences([]),
+                    confirmText: 'Evet, Sil',
+                    cancelText: 'Vazgeç'
+                  });
+                }}
                 className="text-xs text-red-500 hover:text-red-700 font-medium hover:bg-red-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-red-100 flex items-center"
               >
                 <Trash2 className="w-3 h-3 mr-1" /> Tümünü Temizle
@@ -521,38 +566,6 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
             </label>
           ))}
         </div>
-
-        {/* Custom Confirmation Modal */}
-        {showClearConfirm && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-lg font-bold text-center text-slate-900 mb-2">Emin misiniz?</h3>
-              <p className="text-sm text-center text-slate-500 mb-6">
-                Tüm seçili adliyeleri silmek üzeresiniz. Bu işlem geri alınamaz.
-              </p>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowClearConfirm(false)}
-                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  onClick={() => {
-                    setPreferences([]);
-                    setShowClearConfirm(false);
-                  }}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200"
-                >
-                  Evet, Sil
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   };
@@ -796,51 +809,54 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
       </div>
     )
   }
-  const DeleteAccountTab = ({ showNotification }: { showNotification: (type: 'success' | 'error', message: string) => void }) => {
+  const DeleteAccountTab = ({ showNotification, askConfirmation }: { showNotification: (type: 'success' | 'error', message: string) => void, askConfirmation: (options: { title: string, message: string, onConfirm: () => void, confirmText?: string, cancelText?: string }) => void }) => {
     const [loading, setLoading] = useState(false);
     const [confirmText, setConfirmText] = useState('');
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
       if (confirmText !== 'HESABIMI SİL') {
         showNotification('error', 'Lütfen onaylamak için "HESABIMI SİL" yazınız.');
         return;
       }
 
-      if (!window.confirm('Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz silinecektir.')) {
-        return;
-      }
+      askConfirmation({
+        title: 'Hesabı Sil',
+        message: 'Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz silinecektir.',
+        confirmText: 'Hesabımı Kalıcı Olarak Sil',
+        onConfirm: async () => {
+          setLoading(true);
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
 
-      setLoading(true);
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
+            const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/delete-account`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                uid: user.uid,
+                token: token
+              })
+            });
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/delete-account`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            uid: user.uid,
-            token: token
-          })
-        });
+            const data = await response.json();
 
-        const data = await response.json();
+            if (!response.ok) {
+              throw new Error(data.error || 'Hesap silinirken bir hata oluştu.');
+            }
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Hesap silinirken bir hata oluştu.');
+            // Sign out locally
+            await supabase.auth.signOut();
+            window.location.href = '/';
+
+          } catch (error: any) {
+            console.error('Delete account error:', error);
+            showNotification('error', error.message || 'Bir hata oluştu.');
+            setLoading(false);
+          }
         }
-
-        // Sign out locally
-        await supabase.auth.signOut();
-        window.location.href = '/';
-
-      } catch (error: any) {
-        console.error('Delete account error:', error);
-        showNotification('error', error.message || 'Bir hata oluştu.');
-        setLoading(false);
-      }
+      });
     };
 
     return (
@@ -1014,14 +1030,14 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
   const tabs = [
     { id: 'personal', label: 'Kişisel Bilgiler', icon: UserIcon, component: <PersonalInfoTab showNotification={showNotification} /> },
     { id: 'authorization', label: 'Yetki Belgesi Bilgileri', icon: FileText, component: <AuthorizationTab showNotification={showNotification} /> },
-    { id: 'courthouses', label: 'Görev Adliyeleriniz', icon: Gavel, component: <CourthousesTab showNotification={showNotification} /> },
+    { id: 'courthouses', label: 'Görev Adliyeleriniz', icon: Gavel, component: <CourthousesTab showNotification={showNotification} askConfirmation={askConfirmation} /> },
     { id: 'specialization', label: 'Uzmanlık Alanları', icon: Award, component: <SpecializationTab showNotification={showNotification} /> },
     { id: 'about', label: 'Hakkımda', icon: Info, component: <AboutTab showNotification={showNotification} /> },
     { id: 'disputes', label: 'Görev Uyuşmazlıkları', icon: Gavel, component: <TaskDisputePage /> },
     { id: 'password', label: 'Şifre Değiştir', icon: Shield, component: <PasswordChangeTab showNotification={showNotification} /> },
     { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <PhotoTab showNotification={showNotification} /> },
-    { id: 'delete', label: 'Hesabı Sil', icon: Trash2, component: <DeleteAccountTab showNotification={showNotification} /> },
-    { id: 'notifications', label: 'Bildirim Ayarları', icon: Bell, component: <NotificationSettingsTab user={user} onProfileUpdate={onProfileUpdate} showNotification={showNotification} /> },
+    { id: 'delete', label: 'Hesabı Sil', icon: Trash2, component: <DeleteAccountTab showNotification={showNotification} askConfirmation={askConfirmation} /> },
+    { id: 'notifications', label: 'Bildirim Ayarları', icon: Bell, component: <NotificationSettingsTab user={user} onProfileUpdate={onProfileUpdate} showNotification={showNotification} askConfirmation={askConfirmation} /> },
   ];
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;
@@ -1076,6 +1092,28 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
           </div>
         </div>
       </div>
+
+      {/* CONFIRMATION MODAL */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })}></div>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative z-10 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-xl font-bold text-center text-slate-900 mb-2">{confirmModal.title}</h3>
+            <p className="text-sm text-center text-slate-500 mb-6">{confirmModal.message}</p>
+            <div className="flex space-x-3">
+              <button onClick={confirmModal.onCancel} className="flex-1 px-4 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition">
+                {confirmModal.cancelText || 'Vazgeç'}
+              </button>
+              <button onClick={confirmModal.onConfirm} className="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition shadow-lg shadow-red-200">
+                {confirmModal.confirmText || 'Evet, Onayla'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* STATUS MODAL (Success / Error) */}
       {statusModal.isOpen && (
