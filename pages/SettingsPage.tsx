@@ -484,19 +484,31 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
         {/* Selected Courthouses Summary */}
         {preferences.length > 0 && (
           <div className="mb-6 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
-              Seçili Adliyeler ({preferences.length})
-            </h4>
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-sm font-bold text-slate-700 flex items-center">
+                <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                Seçili Adliyeler ({preferences.length})
+              </h4>
+              <button
+                onClick={() => {
+                  if (window.confirm('Tüm seçili adliyeleri silmek istediğinize emin misiniz?')) {
+                    setPreferences([]);
+                  }
+                }}
+                className="text-xs text-red-500 hover:text-red-700 font-medium hover:bg-red-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-red-100 flex items-center"
+              >
+                <Trash2 className="w-3 H-3 mr-1" /> Tümünü Temizle
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {preferences.map(ch => (
-                <span key={ch} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
+                <span key={ch} className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-100 transition hover:bg-green-100">
                   {ch}
                   <button
                     onClick={() => handleToggle(ch)}
-                    className="ml-2 text-green-400 hover:text-green-600 focus:outline-none"
+                    className="ml-3 p-1 text-green-400 hover:text-red-500 focus:outline-none hover:bg-white rounded-full transition"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-4 h-4" />
                   </button>
                 </span>
               ))}
