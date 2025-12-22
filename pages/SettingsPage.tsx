@@ -464,6 +464,8 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
 
 
 
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         <div className="border-b border-slate-100 pb-4 mb-6">
@@ -490,14 +492,10 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
                 Seçili Adliyeler ({preferences.length})
               </h4>
               <button
-                onClick={() => {
-                  if (window.confirm('Tüm seçili adliyeleri silmek istediğinize emin misiniz?')) {
-                    setPreferences([]);
-                  }
-                }}
+                onClick={() => setShowClearConfirm(true)}
                 className="text-xs text-red-500 hover:text-red-700 font-medium hover:bg-red-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-red-100 flex items-center"
               >
-                <Trash2 className="w-3 H-3 mr-1" /> Tümünü Temizle
+                <Trash2 className="w-3 h-3 mr-1" /> Tümünü Temizle
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -523,6 +521,38 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
             </label>
           ))}
         </div>
+
+        {/* Custom Confirmation Modal */}
+        {showClearConfirm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-center text-slate-900 mb-2">Emin misiniz?</h3>
+              <p className="text-sm text-center text-slate-500 mb-6">
+                Tüm seçili adliyeleri silmek üzeresiniz. Bu işlem geri alınamaz.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowClearConfirm(false)}
+                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={() => {
+                    setPreferences([]);
+                    setShowClearConfirm(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200"
+                >
+                  Evet, Sil
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
