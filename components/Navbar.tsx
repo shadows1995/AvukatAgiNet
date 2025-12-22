@@ -180,6 +180,17 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     if (user) navigate(`/profile/${user.uid}`);
   }
 
+  if (showPremiumModal && user && user.isPremium) {
+    console.log('💎 Premium Modal Debug:', {
+      price: user.premiumPrice,
+      plan: user.premiumPlan,
+      type: user.membershipType,
+      fallbackCalc: (user.membershipType === 'premium_plus'
+        ? (user.premiumPlan === 'yearly' ? 1399 : 250)
+        : (user.premiumPlan === 'yearly' ? 899 : 150))
+    });
+  }
+
   return (<>
     <nav className="glass-effect border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -436,115 +447,104 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     {/* Premium Details Modal */}
     {
       showPremiumModal && user && user.isPremium && (
-        (() => {
-          console.log('💎 Premium Modal Debug:', {
-            price: user.premiumPrice,
-            plan: user.premiumPlan,
-            type: user.membershipType,
-            fallbackCalc: (user.membershipType === 'premium_plus'
-              ? (user.premiumPlan === 'yearly' ? 1399 : 250)
-              : (user.premiumPlan === 'yearly' ? 899 : 150))
-          });
-          return true;
-        })() && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-              <div className={`p-6 text-white relative ${user.membershipType === 'premium_plus'
-                ? 'bg-primary-800'
-                : 'bg-primary-600'
-                }`}>
-                <button
-                  onClick={() => setShowPremiumModal(false)}
-                  className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-                <div className="flex items-center mb-2">
-                  <div className="bg-white/20 p-2 rounded-lg mr-3">
-                    {user.membershipType === 'premium_plus' ? <Sparkles className="w-8 h-8 text-white" /> : <Crown className="w-8 h-8 text-white" />}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">{user.membershipType === 'premium_plus' ? 'Premium + Üyelik' : 'Premium Üyelik'}</h3>
-                    <p className="text-white/80 text-sm">Aktif ve Onaylı</p>
-                  </div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className={`p-6 text-white relative ${user.membershipType === 'premium_plus'
+              ? 'bg-primary-800'
+              : 'bg-primary-600'
+              }`}>
+              <button
+                onClick={() => setShowPremiumModal(false)}
+                className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-1 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-center mb-2">
+                <div className="bg-white/20 p-2 rounded-lg mr-3">
+                  {user.membershipType === 'premium_plus' ? <Sparkles className="w-8 h-8 text-white" /> : <Crown className="w-8 h-8 text-white" />}
                 </div>
-              </div>
-
-              <div className="p-6 space-y-6">
-                <div className="flex items-center justify-between p-4 bg-primary-50 rounded-xl border border-primary-100">
-                  <div className="flex items-center">
-                    <CreditCard className="w-5 h-5 text-primary-600 mr-3" />
-                    <div>
-                      <p className="text-sm text-slate-500 font-medium">Mevcut Plan</p>
-                      <p className="text-slate-900 font-bold">
-                        {user.premiumPlan === 'yearly' ? 'Yıllık Plan' : 'Aylık Plan'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-slate-500 font-medium">Ücret</p>
-                    <p className="text-slate-900 font-bold">
-                      {user.premiumPrice || (user.membershipType === 'premium_plus'
-                        ? (user.premiumPlan === 'yearly' ? 1399 : 250)
-                        : (user.premiumPlan === 'yearly' ? 899 : 150)
-                      )} TL<span className="text-xs font-normal text-slate-500">{user.premiumPlan === 'yearly' ? '/yıl' : '/ay'}</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center text-slate-600">
-                      <Calendar className="w-4 h-4 mr-2 text-slate-400" />
-                      <span className="text-sm">Başlangıç Tarihi</span>
-                    </div>
-                    <span className="text-sm font-medium text-slate-900">
-                      {user.premiumSince ? new Date(user.premiumSince).toLocaleDateString('tr-TR') : '-'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center text-slate-600">
-                      <Calendar className="w-4 h-4 mr-2 text-slate-400" />
-                      <span className="text-sm">Yenileme Tarihi</span>
-                    </div>
-                    <span className="text-sm font-medium text-slate-900">
-                      {user.premiumUntil ? new Date(user.premiumUntil).toLocaleDateString('tr-TR') : '-'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-slate-600">
-                      <Sparkles className="w-4 h-4 mr-2 text-slate-400" />
-                      <span className="text-sm">Kalan Süre</span>
-                    </div>
-                    <span className="text-sm font-bold text-primary-600">
-                      {user.premiumUntil ? Math.ceil((new Date(user.premiumUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0} Gün
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      setShowPremiumModal(false);
-                      navigate('/premium');
-                    }}
-                    className="w-full py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition mb-3"
-                  >
-                    Planları İncele / Yükselt
-                  </button>
-                  <button
-                    onClick={() => setShowPremiumModal(false)}
-                    className="w-full py-3 text-slate-500 font-medium hover:text-slate-700 transition"
-                  >
-                    Kapat
-                  </button>
+                <div>
+                  <h3 className="text-xl font-bold">{user.membershipType === 'premium_plus' ? 'Premium + Üyelik' : 'Premium Üyelik'}</h3>
+                  <p className="text-white/80 text-sm">Aktif ve Onaylı</p>
                 </div>
               </div>
             </div>
+
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between p-4 bg-primary-50 rounded-xl border border-primary-100">
+                <div className="flex items-center">
+                  <CreditCard className="w-5 h-5 text-primary-600 mr-3" />
+                  <div>
+                    <p className="text-sm text-slate-500 font-medium">Mevcut Plan</p>
+                    <p className="text-slate-900 font-bold">
+                      {user.premiumPlan === 'yearly' ? 'Yıllık Plan' : 'Aylık Plan'}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-slate-500 font-medium">Ücret</p>
+                  <p className="text-slate-900 font-bold">
+                    {user.premiumPrice || (user.membershipType === 'premium_plus'
+                      ? (user.premiumPlan === 'yearly' ? 1399 : 250)
+                      : (user.premiumPlan === 'yearly' ? 899 : 150)
+                    )} TL<span className="text-xs font-normal text-slate-500">{user.premiumPlan === 'yearly' ? '/yıl' : '/ay'}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center text-slate-600">
+                    <Calendar className="w-4 h-4 mr-2 text-slate-400" />
+                    <span className="text-sm">Başlangıç Tarihi</span>
+                  </div>
+                  <span className="text-sm font-medium text-slate-900">
+                    {user.premiumSince ? new Date(user.premiumSince).toLocaleDateString('tr-TR') : '-'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center text-slate-600">
+                    <Calendar className="w-4 h-4 mr-2 text-slate-400" />
+                    <span className="text-sm">Yenileme Tarihi</span>
+                  </div>
+                  <span className="text-sm font-medium text-slate-900">
+                    {user.premiumUntil ? new Date(user.premiumUntil).toLocaleDateString('tr-TR') : '-'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-slate-600">
+                    <Sparkles className="w-4 h-4 mr-2 text-slate-400" />
+                    <span className="text-sm">Kalan Süre</span>
+                  </div>
+                  <span className="text-sm font-bold text-primary-600">
+                    {user.premiumUntil ? Math.ceil((new Date(user.premiumUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0} Gün
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    setShowPremiumModal(false);
+                    navigate('/premium');
+                  }}
+                  className="w-full py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition mb-3"
+                >
+                  Planları İncele / Yükselt
+                </button>
+                <button
+                  onClick={() => setShowPremiumModal(false)}
+                  className="w-full py-3 text-slate-500 font-medium hover:text-slate-700 transition"
+                >
+                  Kapat
+                </button>
+              </div>
+            </div>
           </div>
-        )
+        </div>
+      )
     }
   </>);
 };
