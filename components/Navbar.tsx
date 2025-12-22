@@ -180,16 +180,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
     if (user) navigate(`/profile/${user.uid}`);
   }
 
-  if (showPremiumModal && user && user.isPremium) {
-    console.log('💎 Premium Modal Debug:', {
-      price: user.premiumPrice,
-      plan: user.premiumPlan,
-      type: user.membershipType,
-      fallbackCalc: (user.membershipType === 'premium_plus'
-        ? (user.premiumPlan === 'yearly' ? 1399 : 250)
-        : (user.premiumPlan === 'yearly' ? 899 : 150))
-    });
-  }
+
 
   return (<>
     <nav className="glass-effect border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
