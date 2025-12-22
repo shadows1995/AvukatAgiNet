@@ -173,8 +173,8 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
         </div>
       </div>
 
-      {/* Yearly Job Stats (Premium Tracking) */}
-      {(canViewContact || currentUser.uid === profileUser.uid) && (
+      {/* Yearly Job Stats (Premium Tracking) - Only visible to owner */}
+      {currentUser.uid === profileUser.uid && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
           <div className="p-6 border-b border-slate-100 flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800 flex items-center">
