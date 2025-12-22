@@ -143,50 +143,6 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
             </div>
           </div>
 
-          {/* Authorization Info Modal */}
-          {showAuthInfo && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
-                <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                  <h3 className="font-bold text-slate-800 flex items-center">
-                    <FileText className="w-5 h-5 mr-2 text-primary-600" />
-                    Yetki Belgesi Bilgileri
-                  </h3>
-                  <button onClick={() => setShowAuthInfo(false)} className="text-slate-400 hover:text-slate-600 bg-white rounded-full p-1 border border-slate-200 hover:bg-slate-50 transition">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Baro</label>
-                    <p className="text-slate-800 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      {profileUser.baroCity ? `${profileUser.baroCity} Barosu` : 'Belirtilmemiş'}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Baro Sicil No</label>
-                    <p className="text-slate-800 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      {profileUser.baroNumber || 'Belirtilmemiş'}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ofis Adresi</label>
-                    <p className="text-slate-800 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      {profileUser.address || 'Belirtilmemiş'}
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end">
-                  <button
-                    onClick={() => setShowAuthInfo(false)}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition"
-                  >
-                    Kapat
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* About Section */}
           {(canViewContact || currentUser.uid === profileUser.uid) ? (
@@ -317,6 +273,50 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Authorization Info Modal */}
+      {showAuthInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-primary-600" />
+                Yetki Belgesi Bilgileri
+              </h3>
+              <button onClick={() => setShowAuthInfo(false)} className="text-slate-400 hover:text-slate-600 bg-white rounded-full p-1 border border-slate-200 hover:bg-slate-50 transition">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Baro</label>
+                <p className="text-slate-800 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  {profileUser.baroCity ? `${profileUser.baroCity} Barosu` : 'Belirtilmemiş'}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Baro Sicil No</label>
+                <p className="text-slate-800 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  {profileUser.baroNumber || 'Belirtilmemiş'}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ofis Adresi</label>
+                <p className="text-slate-800 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  {profileUser.address || 'Belirtilmemiş'}
+                </p>
+              </div>
+            </div>
+            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setShowAuthInfo(false)}
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition"
+              >
+                Kapat
+              </button>
             </div>
           </div>
         </div>
