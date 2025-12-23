@@ -230,7 +230,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
               {hasApplied
                 ? 'Başvuru Yapıldı'
                 : (!user.isPremium && isMobileApp)
-                  ? 'Bu göreve başvuramazsın'
+                  ? 'Lütfen sitemizi ziyaret ediniz'
                   : isPremium
                     ? 'Hemen Başvur'
                     : 'Premium ile Başvur'}
