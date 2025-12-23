@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { User } from '../types';
-import { Sparkles, Rocket, Info } from 'lucide-react';
+import { Sparkles, Rocket, Info, Check } from 'lucide-react';
 
 interface BetaWelcomeModalProps {
     user: User;
@@ -14,28 +14,32 @@ const BetaWelcomeModal: React.FC<BetaWelcomeModalProps> = ({ user, onSuccess }) 
     const handleStartTrial = async () => {
         setLoading(true);
         try {
-            const now = new Date();
-            const twoMonthsLater = new Date();
-            twoMonthsLater.setMonth(now.getMonth() + 2);
+            // Get current session token for authentication
+            const { data: { session } } = await supabase.auth.getSession();
 
-            const { error } = await supabase
-                .from('users')
-                .update({
-                    is_premium: true,
-                    membership_type: 'premium_plus',
-                    premium_since: now.toISOString(),
-                    premium_until: twoMonthsLater.toISOString(),
-                    premium_price: 0,
-                    premium_plan: 'beta'
-                })
-                .eq('uid', user.uid);
+            if (!session?.access_token) {
+                throw new Error("Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.");
+            }
 
-            if (error) throw error;
+            // Call the backend API (avoids RLS restricted update issues)
+            const apiUrl = import.meta.env.VITE_API_URL || '';
+            const response = await fetch(`${apiUrl}/api/activate-beta`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: session.access_token })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Beta aktivasyonu başarısız oldu.");
+            }
 
             onSuccess();
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error activating beta trial:", err);
-            alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+            alert(`Hata: ${err.message || 'Bir sorun oluştu'}`);
             setLoading(false);
         }
     };
@@ -71,9 +75,19 @@ const BetaWelcomeModal: React.FC<BetaWelcomeModalProps> = ({ user, onSuccess }) 
 
                     <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-start">
                         <Info className="w-5 h-5 text-indigo-600 mr-3 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-indigo-800">
-                            Bu sürece katkılarınız için teşekkür ederiz. Beta sürecine özel, tüm özellikleri limitsiz kullanabilmeniz için size bir hediyemiz var.
-                        </p>
+                        <div className="text-left">
+                            <p className="text-sm text-indigo-800 mb-2">
+                                Bu sürece katkılarınız için teşekkür ederiz. Beta sürecine özel, tüm özellikleri limitsiz kullanabilmeniz için size bir hediyemiz var.
+                            </p>
+                            <ul className="text-sm text-indigo-900 space-y-1.5 mt-2">
+                                <li className="flex items-center"><Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" /> Sınırsız Görev Oluşturabilirsiniz</li>
+                                <li className="flex items-center"><Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" /> Görevlere sınırsız başvuru yapabilirsiniz</li>
+                                <li className="flex items-center"><Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" /> Birden fazla ilde pek çok adliye seçebilirsiniz</li>
+                                <li className="flex items-center"><Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" /> Başvurularınız üstte görünür</li>
+                                <li className="flex items-center"><Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" /> Acil Görev oluşturabilirsiniz</li>
+                                <li className="flex items-center"><Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" /> Uzmanlık Alanı seçebilirsiniz</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <button

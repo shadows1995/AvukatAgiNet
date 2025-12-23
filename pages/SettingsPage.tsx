@@ -424,11 +424,19 @@ const CourthousesTab = ({ showNotification, askConfirmation, user, onProfileUpda
       if (city) cities.add(city);
     });
 
-    if (cities.size > 1 && user.membershipType !== 'premium_plus') {
-      if (nextPreferences.length > preferences.length) {
-        const firstCity = Array.from(cities)[0];
-        showNotification('error', `Birden fazla ilden adliye seçimi sadece Premium + üyeler içindir. (${firstCity} dışında seçim yapamazsınız)`);
-        return;
+    if (cities.size > 1) {
+      if (user.membershipType !== 'premium_plus') {
+        if (nextPreferences.length > preferences.length) {
+          const firstCity = Array.from(cities)[0];
+          showNotification('error', `Birden fazla ilden adliye seçimi sadece Premium + üyeler içindir. (${firstCity} dışında seçim yapamazsınız)`);
+          return;
+        }
+      } else if (user.premiumPlan === 'beta') {
+        // Enforce 2-city limit for Beta users
+        if (cities.size > 2 && nextPreferences.length > preferences.length) {
+          showNotification('error', `Beta deneme sürecinde en fazla 2 farklı ilden adliye seçebilirsiniz.`);
+          return;
+        }
       }
     }
 

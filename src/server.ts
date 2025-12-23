@@ -146,6 +146,53 @@ app.get('/api/health', (req, res) => {
     res.json({ ok: true, time: new Date().toISOString() });
 });
 
+// Endpoint: Activate Beta Trial (Securely)
+app.post('/api/activate-beta', async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Missing token' });
+    }
+
+    try {
+        // Did the user provide a valid token?
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+        if (authError || !user) {
+            return res.status(401).json({ error: 'Invalid or expired token' });
+        }
+
+        const now = new Date();
+        const twoMonthsLater = new Date();
+        twoMonthsLater.setMonth(now.getMonth() + 2);
+
+        // Update user with service_role permissions
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({
+                is_premium: true,
+                membership_type: 'premium_plus',
+                premium_since: now.toISOString(),
+                premium_until: twoMonthsLater.toISOString(),
+                premium_price: 0,
+                premium_plan: 'beta'
+            })
+            .eq('uid', user.id);
+
+        if (updateError) {
+            console.error('Beta activation DB error:', updateError);
+            return res.status(500).json({ error: 'Database update failed' });
+        }
+
+        console.log(`✅ User ${user.id} activated BETA trial.`);
+        res.json({ success: true });
+
+    } catch (err: any) {
+        console.error('Beta activation server error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Endpoint: General SMS sending (protected)
 app.post('/api/send-sms', async (req, res) => {
     const { phone, message } = req.body;

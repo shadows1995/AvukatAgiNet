@@ -30,7 +30,7 @@ export interface User {
   membershipType?: 'free' | 'premium' | 'premium_plus';
   premiumUntil?: number; // timestamp
   premiumSince?: number; // timestamp
-  premiumPlan?: 'monthly' | 'yearly';
+  premiumPlan?: 'monthly' | 'yearly' | 'beta';
   premiumPrice?: number;
   role: UserRole;
   rating: number;
