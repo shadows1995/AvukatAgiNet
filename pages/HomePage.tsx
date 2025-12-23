@@ -9,6 +9,7 @@ import InteractiveSphere from '../components/InteractiveSphere';
 
 import SEO from '../components/SEO';
 import ProfileCompletionModal from '../components/ProfileCompletionModal';
+import BetaWelcomeModal from '../components/BetaWelcomeModal';
 import { useMobileApp } from '../hooks/useMobileApp';
 
 const HomePage = ({ user }: { user: User }) => {
@@ -26,6 +27,7 @@ const HomePage = ({ user }: { user: User }) => {
 
    // Profile Completion State
    const [showCompletionModal, setShowCompletionModal] = useState(false);
+   const [showBetaModal, setShowBetaModal] = useState(false);
    const [missingFields, setMissingFields] = useState<string[]>([]);
 
    // Chart filter state
@@ -85,9 +87,16 @@ const HomePage = ({ user }: { user: User }) => {
       };
    }, []);
 
-   // Check Missing Fields
+   // Check Missing Fields AND Beta Status
    useEffect(() => {
       if (user) {
+         // Priority 1: Check Beta Status (Non-Premium)
+         if (!user.isPremium && user.membershipType !== 'premium_plus' && user.membershipType !== 'premium') {
+            setShowBetaModal(true);
+            return; // Stop here, do not check profile completion yet
+         }
+
+         // Priority 2: Check Missing Fields (Only if Premium/Trial Active)
          const missing = [];
          if (!user.phone) missing.push("Telefon Numarası");
          if (!user.preferredCourthouses || user.preferredCourthouses.length === 0) missing.push("Tercih Edilen Adliyeler");
@@ -95,10 +104,6 @@ const HomePage = ({ user }: { user: User }) => {
 
          if (missing.length > 0) {
             setMissingFields(missing);
-            // Check session storage to show modal only once per session if desired
-            // For now, let's show it on mount every time as requested "Kullanıcı giriş yaptığında"
-            // If we want it only ONCE per login, we'd use a session flag.
-            // Let's use session storage to strictly show it once per browser session reload
             const hasSeenModal = sessionStorage.getItem('hasSeenCompletionModal');
             if (!hasSeenModal) {
                setShowCompletionModal(true);
@@ -259,6 +264,15 @@ const HomePage = ({ user }: { user: User }) => {
             title="Ana Sayfa - AvukatAğı"
             description="AvukatAğı ana sayfası. Güncel görevleri takip edin, yeni görev oluşturun ve istatistiklerinizi görüntüleyin."
          />
+
+         {showBetaModal && (
+            <BetaWelcomeModal
+               user={user}
+               onSuccess={() => {
+                  window.location.reload(); // Reload to refresh user state from Supabase
+               }}
+            />
+         )}
 
          <ProfileCompletionModal
             isOpen={showCompletionModal}
