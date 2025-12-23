@@ -9,7 +9,9 @@ COPY vite.config.* ./
 COPY tsconfig.* ./
 
 # Bağımlılıkları yükle
-RUN npm install --legacy-peer-deps
+RUN npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm install --legacy-peer-deps
 
 # Diğer tüm proje dosyalarını kopyala
 COPY . .
@@ -27,7 +29,9 @@ WORKDIR /app
 
 # Sadece production bağımlılıklarını yükle (daha küçük imaj için)
 COPY package*.json ./
-RUN npm install --only=production --legacy-peer-deps
+RUN npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm install --only=production --legacy-peer-deps
 
 # Build aşamasından dist klasörünü kopyala
 COPY --from=build /app/dist ./dist
