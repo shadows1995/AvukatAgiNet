@@ -14,7 +14,7 @@ This file documents all changes made to the codebase to comply with Apple App St
 
 ### 3. File: pages/JobDetails.tsx
 - Integrated `useMobileApp`.
-- Replaced the "Upgrade to Premium" prompts with a generic block message: "Your account does not have access to this feature" when a non-premium user views a job detail on mobile.
+- Replaced the "Upgrade to Premium" prompts with a blocking message: "Bu göreve başvurmaya uygun değilsiniz." when a non-premium user views a job detail on mobile.
 
 ### 4. File: pages/PremiumPage.tsx
 - Integrated `useMobileApp`.
@@ -38,9 +38,9 @@ This file documents all changes made to the codebase to comply with Apple App St
 ### 8. File: components/JobCard.tsx
 - Integrated `useMobileApp`.
 - If on mobile and user is non-premium:
-    - Display "Bu göreve başvuramazsın" instead of "Premium ile Başvur".
+    - Display "Lütfen sitemizi ziyaret ediniz" instead of "Premium ile Başvur".
     - Disable the application button.
-    - Show an alert "Bu göreve başvuramazsın" if clicked (defensive check).
+    - Show an alert "Lütfen sitemizi ziyaret ediniz" (or similar blocking message) if clicked.
 
 ## Summary of Strategy
 The strategy relies on the `useMobileApp` hook returning `true` inside the React Native Webview.
