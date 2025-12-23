@@ -203,8 +203,9 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                   </Link>
                 )}
                 {!user.isPremium && !isMobileApp && (
-                  <Link to="/premium" className="flex items-center text-secondary-600 font-medium bg-secondary-50 px-3 py-2 rounded-md hover:bg-secondary-100 transition whitespace-nowrap text-sm">
-                    <Sparkles className="w-4 h-4 mr-1" /> Premium
+                  <Link to="/premium" className="bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-sm font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center">
+                    <Crown className="w-4 h-4 mr-1" />
+                    Premium
                   </Link>
                 )}
               </div>

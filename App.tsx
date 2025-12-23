@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { Loader2 } from 'lucide-react';
 import { User } from './types';
 import { supabase } from './supabaseClient';
+import { useMobileApp } from './hooks/useMobileApp';
 
 // Component Imports
 import Navbar from './components/Navbar';
@@ -47,6 +48,7 @@ const AppContent = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobileApp = useMobileApp();
 
   const fetchUserProfile = async (uid: string) => {
     try {
@@ -198,8 +200,8 @@ const AppContent = () => {
           <Route path="/home" element={user ? <HomePage user={user} /> : <Navigate to="/" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/" />} />
           <Route path="/create-job" element={user ? <CreateJob user={user} /> : <Navigate to="/login" />} />
-          <Route path="/premium" element={user ? <PremiumPage user={user} /> : <Navigate to="/login" />} />
-          <Route path="/payment" element={user ? <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />
+          <Route path="/premium" element={user ? (isMobileApp ? <Navigate to="/dashboard" /> : <PremiumPage user={user} />) : <Navigate to="/login" />} />
+          <Route path="/payment" element={user ? (isMobileApp ? <Navigate to="/dashboard" /> : <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} />) : <Navigate to="/login" />} />
           <Route path="/payment-success" element={user ? <PaymentSuccessPage /> : <Navigate to="/login" />} />
           <Route path="/payment-failed" element={user ? <PaymentFailedPage /> : <Navigate to="/login" />} />
           <Route path="/settings" element={user ? <SettingsPage user={user} onProfileUpdate={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />

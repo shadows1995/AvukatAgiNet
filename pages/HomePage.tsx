@@ -337,7 +337,7 @@ const HomePage = ({ user }: { user: User }) => {
                         </button>
                         <button
                            onClick={() => {
-                              if (user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus') {
+                              if (user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus' || isMobileApp) {
                                  navigate('/dashboard');
                               } else {
                                  navigate('/premium');
