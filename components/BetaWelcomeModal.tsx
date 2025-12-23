@@ -46,7 +46,7 @@ const BetaWelcomeModal: React.FC<BetaWelcomeModalProps> = ({ user, onSuccess }) 
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative border border-white/20">
+            <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative border border-white/20 max-h-[90vh] overflow-y-auto mx-4">
 
                 {/* Header Background */}
                 <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-center relative overflow-hidden">
