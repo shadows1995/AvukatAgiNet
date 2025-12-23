@@ -1,19 +1,30 @@
 import { useState, useEffect } from 'react';
 
 export const useMobileApp = () => {
-    const [isMobileApp, setIsMobileApp] = useState(false);
+    // Initialize directly from storage to avoid flash on reload
+    const [isMobileApp, setIsMobileApp] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.sessionStorage.getItem('isMobileApp') === 'true';
+        }
+        return false;
+    });
 
     useEffect(() => {
-        // Check if running in a WebView explicitly injected with ReactNativeWebView
-        // or if the User Agent suggests it's the mobile app (if we knew the UA).
-        // For now, we rely on standard React Native WebView detection.
-        const isRNWebView = typeof window !== 'undefined' && (window as any).ReactNativeWebView;
+        if (typeof window === 'undefined') return;
 
-        // Also check local storage or session storage validation if the app sets a flag
-        const isAppStorage = typeof window !== 'undefined' && window.sessionStorage.getItem('isMobileApp') === 'true';
+        // 1. Check URL Param (Priority)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlFlag = urlParams.get('isMobileApp');
 
-        if (isRNWebView || isAppStorage) {
+        // 2. Check React Native
+        const isRNWebView = (window as any).ReactNativeWebView;
+
+        // 3. Check iOS/Swift WebKit Message Handlers (Common in iOS WebViews)
+        const isWKWebView = (window as any).webkit && (window as any).webkit.messageHandlers;
+
+        if (urlFlag === 'true' || isRNWebView || isWKWebView) {
             setIsMobileApp(true);
+            window.sessionStorage.setItem('isMobileApp', 'true');
         }
     }, []);
 
