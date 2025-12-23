@@ -1058,14 +1058,28 @@ app.post('/api/delete-account', async (req, res) => {
         }
 
         // 3. Delete from Supabase Auth (This prevents login and effectively "deletes" the account access)
+        // 3. Delete from Supabase Auth (This prevents login and effectively "deletes" the account access)
         const { error: deleteError } = await supabase.auth.admin.deleteUser(uid);
 
         if (deleteError) {
-            console.error('Failed to delete auth user:', deleteError);
-            // If auth deletion fails, user might still be able to login, but their profile is "Deleted".
-            // We should return error or at least warn.
-            // But since we successfully anonymized, the user is effectively "gone" from the platform UI.
-            // Let's return success but log heavily.
+            console.error('Failed to delete auth user (likely due to FK constraints). Attempting Fallback (Ban & Email Release)...', deleteError);
+
+            // FALLBACK: If we can't delete (due to relations), we MUST prevent login and release the old email from Auth.
+            // 1. Update Auth Email to the anonymized one (so old email is free).
+            // 2. Ban the user for 100 years.
+
+            const { error: banError } = await supabase.auth.admin.updateUserById(uid, {
+                email: anonymizedEmail,
+                ban_duration: "876000h", // ~100 years
+                user_metadata: { deleted: true }
+            });
+
+            if (banError) {
+                console.error('CRITICAL: Failed to BAN user after deletion failure:', banError);
+                return res.status(500).json({ error: 'Failed to delete or ban account. Please contact support.' });
+            }
+
+            console.log(`✅ User ${uid} BANNED and Email Anonymized (Fallback Success).`);
         }
 
         console.log(`✅ Account deleted successfully: ${uid}`);
