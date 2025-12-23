@@ -1008,6 +1008,71 @@ app.post('/api/admin/send-push', async (req, res) => {
     }
 });
 
+// Endpoint: Delete Account
+app.post('/api/delete-account', async (req, res) => {
+    const { uid, token } = req.body;
+
+    if (!uid || !token) {
+        return res.status(400).json({ error: 'Missing uid or token' });
+    }
+
+    try {
+        // 1. Verify User Ownership
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+        if (authError || !user || user.id !== uid) {
+            return res.status(401).json({ error: 'Unauthorized: Invalid token or user mismatch.' });
+        }
+
+        console.log(`🗑️ Deleting account for user: ${uid}`);
+
+        // 2. Soft Delete / Anonymize Public Data (Preserve transaction history integrity)
+        // We set email/phone to null or a dummy value to respect unique constraints if they exist,
+        // but typically unique constraints are on the table.
+        // Assuming 'email' and 'phone' fields might have unique constraints, appending timestamp/uid is safer.
+        const anonymizedEmail = `deleted_${uid}_${Date.now()}@avukatagi.net`;
+        const anonymizedPhone = `0000000000_${uid.substring(0, 5)}`;
+
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({
+                full_name: 'Silinmiş Kullanıcı',
+                email: anonymizedEmail,
+                phone: anonymizedPhone,
+                about_me: null,
+                avatar_url: null,
+                job_status: 'passive',
+                telegram_chat_id: null,
+                telegram_notifications_enabled: false,
+                sms_notifications_enabled: false,
+                // Optional: clear other PII
+            })
+            .eq('uid', uid);
+
+        if (updateError) {
+            console.error('Failed to anonymize user data:', updateError);
+            // We might still proceed to delete Auth, OR stop here.
+            // If we fail to update, we shouldn't delete Auth because data remains exposed.
+            return res.status(500).json({ error: 'Failed to clear user data.' });
+        }
+
+        // 3. Delete from Supabase Auth (This prevents login and effectively "deletes" the account access)
+        const { error: deleteError } = await supabase.auth.admin.deleteUser(uid);
+
+        if (deleteError) {
+            console.error('Failed to delete auth user:', deleteError);
+            return res.status(500).json({ error: 'Failed to delete authentication record.' });
+        }
+
+        console.log(`✅ Account deleted successfully: ${uid}`);
+        res.json({ success: true, message: 'Hesap başarıyla silindi ve veriler anonimleştirildi.' });
+
+    } catch (err: any) {
+        console.error('Delete Account Error:', err);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
