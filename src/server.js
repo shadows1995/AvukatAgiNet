@@ -759,18 +759,37 @@ function verifyGarantiCallback(params) {
 
     const paramList = hashParamsStr.split(":");
     let digestData = "";
+
+    // Debug Param construction
+    const debugParts = [];
+
     for (const param of paramList) {
         if (!param) continue;
-        let value = params[param] || params[param.toLowerCase()] || params[param.toUpperCase()] || "";
+        // Search case-insensitive
+        const key = Object.keys(params).find(k => k.toLowerCase() === param.toLowerCase());
+        let value = key ? params[key] : "";
         if (value === null || value === undefined) value = "";
+
         digestData += value;
+        debugParts.push(`${param}(${value})`);
     }
 
     const storeKey = config.storeKey;
     digestData += storeKey;
+    debugParts.push(`StoreKey(HIDDEN)`); // Do not log store key
 
     const calculatedHash = sha512Iso(digestData);
-    console.log(`🔐 Hash Verify:\nDigest: ${digestData}\nCalc: ${calculatedHash}\nRecv: ${responseHash}`);
+
+    // Log failures
+    if (calculatedHash !== responseHash) {
+        console.error(`❌ Hash Mismatch Details:`);
+        console.error(`Expected (Bank): ${responseHash}`);
+        console.error(`Calculated (Us): ${calculatedHash}`);
+        console.error(`Digest Parts: ${debugParts.join(" + ")}`);
+        console.error(`Raw HashParams: ${hashParamsStr}`);
+    } else {
+        console.log(`✅ Hash Verified Successfully.`);
+    }
 
     return calculatedHash === responseHash;
 }
