@@ -17,6 +17,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false })); // Critical for Garanti Callback
 // Serve static files from the dist directory (one level up from src where server.js resides)
 const staticPath = path.join(__dirname, '../dist');
 console.log('📂 Static Path resolved to:', staticPath);
@@ -427,6 +428,66 @@ app.get(/.*/, (req, res) => {
     }
     res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
+// Endpoint: Payment Callback FAIL
+app.post('/api/payment/callback/fail', async (req, res) => {
+    console.log('❌ Payment Failed Callback Body:', req.body);
+    const body = req.body || {};
+    const errorMsg = body.mderrormessage || body.errmsg || 'Ödeme başarısız oldu (Bilinmeyen Hata).';
+    res.redirect(`https://avukatagi.net/payment-failed?msg=${encodeURIComponent(errorMsg)}&code=${body.procreturncode}&md=${body.mdstatus}&oid=${body.orderid}`);
+});
+
+// Endpoint: Payment Callback SUCCESS
+app.post('/api/payment/callback/success', async (req, res) => {
+    console.log('✅ Payment Success Callback:', req.body);
+
+    // 1. Verify Hash
+    const isValid = verifyGarantiCallback(req.body);
+    if (!isValid) {
+        console.error('❌ Hash Mismatch! Possible Fraud.');
+        return res.redirect('https://avukatagi.net/payment-failed?msg=Guvenlik_Hatasi');
+    }
+
+    // 2. Check ProcReturnCode (must be 00)
+    // Note: If MD=1, usually procreturncode is 00. If 92, it's an error.
+    if (req.body.procreturncode !== '00') {
+        console.error('❌ ProcReturnCode Not 00:', req.body.procreturncode);
+        return res.redirect(`https://avukatagi.net/payment-failed?msg=${encodeURIComponent(req.body.errmsg || 'Islem onaylanmadi')}&code=${req.body.procreturncode}`);
+    }
+
+    // 3. Fulfill Order
+    const orderId = req.body.orderid;
+
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('last_order_id', orderId)
+        .single();
+
+    if (error || !user) {
+        console.error('❌ Could not find user for OrderID:', orderId);
+        return res.redirect('https://avukatagi.net/payment-failed?msg=Kullanici_Bulunamadi');
+    }
+
+    const plan = user.last_order_plan || 'pro';
+    const period = user.last_order_period || 'monthly';
+    const amount = parseFloat(req.body.txnamount) / 100;
+
+    const updateData = {
+        is_premium: true,
+        membership_type: plan,
+        premium_plan: period,
+        premium_price: amount,
+        premium_since: new Date().toISOString(),
+        premium_until: new Date(Date.now() + ((period === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000)).toISOString(),
+        updated_at: new Date().toISOString(),
+        last_order_id: null
+    };
+
+    await supabase.from('users').update(updateData).eq('uid', user.uid);
+    console.log(`🎉 User ${user.uid} upgraded via 3D Secure!`);
+    res.redirect('https://avukatagi.net/payment-success');
+});
+
 // Endpoint: Manually trigger Job Bot
 app.post('/api/trigger-bot', async (req, res) => {
     try {
@@ -682,4 +743,32 @@ function generateDtPaymentForm(request) {
         cardcvv2: request.cvv,
         gatewayUrl: config.gatewayUrl
     };
+}
+
+function verifyGarantiCallback(params) {
+    const config = getConfig();
+    const responseHash = params["hash"];
+    const hashParamsStr = params["hashparams"];
+
+    if (!responseHash || !hashParamsStr) {
+        console.error("❌ Missing hash or hashparams in callback");
+        return false;
+    }
+
+    const paramList = hashParamsStr.split(":");
+    let digestData = "";
+    for (const param of paramList) {
+        if (!param) continue;
+        let value = params[param] || params[param.toLowerCase()] || params[param.toUpperCase()] || "";
+        if (value === null || value === undefined) value = "";
+        digestData += value;
+    }
+
+    const storeKey = config.storeKey;
+    digestData += storeKey;
+
+    const calculatedHash = sha512Iso(digestData);
+    console.log(`🔐 Hash Verify:\nDigest: ${digestData}\nCalc: ${calculatedHash}\nRecv: ${responseHash}`);
+
+    return calculatedHash === responseHash;
 }
