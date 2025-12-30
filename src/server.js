@@ -659,6 +659,21 @@ function getConfig() {
         };
     }
 
+    const rawStoreKey = (process.env.GARANTI_STORE_KEY || "").trim();
+    // Heuristic: If key is long and only hex chars, assume it may be hex-encoded and try to decode.
+    // Garanti Store Keys are often plain text. The user's .env has a 48-char hex string.
+    let finalStoreKey = rawStoreKey;
+    if (/^[0-9a-fA-F]{24,}$/.test(rawStoreKey)) {
+        try {
+            const decoded = Buffer.from(rawStoreKey, 'hex').toString('utf8');
+            // If decoded looks like a reasonable ASCII string (alphanumeric), use it.
+            if (/^[\w\W]+$/.test(decoded)) {
+                console.log('⚠️ Detected Hex-Encoded StoreKey. Decoded it for use.');
+                finalStoreKey = decoded;
+            }
+        } catch (e) { }
+    }
+
     return {
         mode: "PROD",
         version: (process.env.GARANTI_VERSION || "512").trim(),
@@ -667,7 +682,7 @@ function getConfig() {
         terminalMerchantId: (process.env.GARANTI_MERCHANT_ID || "").trim(),
         provUserId: (process.env.GARANTI_PROV_USER_ID || "").trim(),
         provPassword: (process.env.GARANTI_PROV_PASSWORD || "").trim(),
-        storeKey: (process.env.GARANTI_STORE_KEY || "").trim(),
+        storeKey: finalStoreKey,
         successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
         errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
         gatewayUrl: "https://sanalposprov.garanti.com.tr/servlet/gt3dengine"
