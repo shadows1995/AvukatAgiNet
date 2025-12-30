@@ -161,8 +161,8 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // Change: Default to "0" for single shot to be explicit
-    const installmentInput = request.installmentCount || "0";
+    // Change: Reverting to "" as "0" caused MD:7/99 error.
+    const installmentInput = request.installmentCount || "";
 
     // Both must be identical
     const hashInstallment = installmentInput;
