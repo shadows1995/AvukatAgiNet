@@ -100,6 +100,20 @@ function getConfig(): GarantiConfig {
         };
     }
 
+    const rawStoreKey = (process.env.GARANTI_STORE_KEY || "").trim();
+    // Heuristic: If key is long and only hex chars, assume it may be hex-encoded and try to decode.
+    let finalStoreKey = rawStoreKey;
+    if (/^[0-9a-fA-F]{24,}$/.test(rawStoreKey)) {
+        try {
+            const decoded = Buffer.from(rawStoreKey, 'hex').toString('utf8');
+            // If decoded looks like a reasonable ASCII string, use it.
+            if (/^[\w\W]+$/.test(decoded)) {
+                console.log('⚠️ Detected Hex-Encoded StoreKey. Decoded it for use.');
+                finalStoreKey = decoded;
+            }
+        } catch (e) { }
+    }
+
     // PROD Configuration
     return {
         mode: "PROD",
@@ -109,7 +123,7 @@ function getConfig(): GarantiConfig {
         terminalMerchantId: (process.env.GARANTI_MERCHANT_ID || "").trim(),
         provUserId: (process.env.GARANTI_PROV_USER_ID || "").trim(),
         provPassword: (process.env.GARANTI_PROV_PASSWORD || "").trim(),
-        storeKey: (process.env.GARANTI_STORE_KEY || "").trim(),
+        storeKey: finalStoreKey,
         successUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/success` : "https://avukatagi.net/api/payment/callback/success").trim(),
         errorUrl: (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL}/api/payment/callback/fail` : "https://avukatagi.net/api/payment/callback/fail").trim(),
         gatewayUrl: "https://sanalposprov.garanti.com.tr/servlet/gt3dengine"
@@ -147,10 +161,8 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    // MD: 7 Fix Attempt:
-    // Reverting "0" which caused MD:99.
-    // Back to "" (Empty) which yielded MD:1 (Success) on Debit.
-    const installmentInput = request.installmentCount || "";
+    // Change: Default to "0" for single shot to be explicit
+    const installmentInput = request.installmentCount || "0";
 
     // Both must be identical
     const hashInstallment = installmentInput;
@@ -185,20 +197,26 @@ export function generateDtPaymentForm(request: PaymentRequest): GarantiFormData 
 
     console.log(`🔑 3D Hash Gen:\nStr: ${hashString}\nHash: ${secure3dhash}`);
 
+    // Sanitize IP: Remove ::ffff: prefix if present
+    let clientIp = request.customerIp || '127.0.0.1';
+    if (clientIp.startsWith('::ffff:')) {
+        clientIp = clientIp.substring(7);
+    }
+
     // 3. Construct Form Data
     return {
         mode: config.mode,
         apiversion: config.version,
         secure3dsecuritylevel: "3D_PAY", // Standard 3D Pay
         terminalprovuserid: config.provUserId,
-        terminaluserid: config.terminalUserId || "GARANTI", // Fallback for TEST
+        terminaluserid: config.terminalUserId || config.provUserId, // Change: Use provUserId as default (PROD fix)
         terminalmerchantid: config.terminalMerchantId,
         terminalid: terminalId,
         orderid: orderId,
         successurl: config.successUrl,
         errorurl: config.errorUrl,
         customeremailaddress: request.customerEmail,
-        customeripaddress: request.customerIp,
+        customeripaddress: clientIp,
         companyname: "AvukatAgi",
         lang: "tr",
         txntimestamp: new Date().toISOString(), // Reverted to ISO as MD:99 occurred with compact format
@@ -242,6 +260,10 @@ export function verifyGarantiCallback(params: any): boolean {
 
     // 2. Concatenate values in order
     let digestData = "";
+
+    // Debug Param construction
+    const debugParts: string[] = [];
+
     for (const param of paramList) {
         if (!param) continue; // Skip empty splits if any
         // Get value from the main params object
@@ -251,16 +273,19 @@ export function verifyGarantiCallback(params: any): boolean {
         // Docs table shows "mdstatus", "oid". We should be case-insensitive or try exact match.
         // Best approach: Try to find the key case-insensitively if not found.
 
-        let value = params[param] || params[param.toLowerCase()] || params[param.toUpperCase()] || "";
+        const key = Object.keys(params).find(k => k.toLowerCase() === param.toLowerCase());
+        let value = key ? params[key] : "";
         if (value === null || value === undefined) value = "";
 
         digestData += value;
+        debugParts.push(`${param}(${value})`);
     }
 
     // 3. Append Store Key
     // 3. Append Store Key
     const storeKey = config.storeKey;
     digestData += storeKey;
+    debugParts.push(`StoreKey(HIDDEN)`);
 
     // Debug Log
     // console.log('Store Key Used:', storeKey); // Do not log in PROD for security
@@ -270,7 +295,15 @@ export function verifyGarantiCallback(params: any): boolean {
     // inputbytes = sha.ComputeHash(hashbytes);
     const calculatedHash = sha512Iso(digestData);
 
-    console.log(`🔐 Hash Verify:\nDigest: ${digestData}\nCalc: ${calculatedHash}\nRecv: ${responseHash}`);
+    if (calculatedHash !== responseHash) {
+        console.error(`❌ Hash Mismatch Details:`);
+        console.error(`Expected (Bank): ${responseHash}`);
+        console.error(`Calculated (Us): ${calculatedHash}`);
+        console.error(`Digest Parts: ${debugParts.join(" + ")}`);
+        console.error(`Raw HashParams: ${hashParamsStr}`);
+    } else {
+        console.log(`✅ Hash Verified Successfully.`);
+    }
 
     return calculatedHash === responseHash;
 }
