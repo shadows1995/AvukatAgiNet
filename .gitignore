@@ -40,3 +40,6 @@ dist-ssr
 # Env Files
 .env
 !.env.example
+!src/server.js
+!src/services/notificationService.js
+!src/services/garantiPaymentService.js

@@ -680,7 +680,8 @@ function generateDtPaymentForm(request) {
     // 1. Format Data
     const amountMinor = Math.round(request.amount * 100); // 100.00 TL -> 10000
     const currency = "949"; // TRY
-    const installmentInput = request.installmentCount || "";
+    // Change: Default to "0" for single shot to be explicit
+    const installmentInput = request.installmentCount || "0";
 
     const hashInstallment = installmentInput;
     const formInstallment = installmentInput;
@@ -719,7 +720,8 @@ function generateDtPaymentForm(request) {
         apiversion: config.version,
         secure3dsecuritylevel: "3D_PAY",
         terminalprovuserid: config.provUserId,
-        terminaluserid: config.terminalUserId || "GARANTI",
+        // Change: Use provUserId as default if terminalUserId is missing (PROD fix)
+        terminaluserid: config.terminalUserId || config.provUserId,
         terminalmerchantid: config.terminalMerchantId,
         terminalid: terminalId,
         orderid: orderId,
