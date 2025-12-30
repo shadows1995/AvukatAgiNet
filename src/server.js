@@ -729,6 +729,12 @@ function generateDtPaymentForm(request) {
 
     console.log(`🔑 3D Hash Gen:\nStr: ${hashString}\nHash: ${secure3dhash}`);
 
+    // Sanitize IP: Remove ::ffff: prefix if present
+    let clientIp = request.customerIp || '127.0.0.1';
+    if (clientIp.startsWith('::ffff:')) {
+        clientIp = clientIp.substring(7);
+    }
+
     // 3. Construct Form Data
     return {
         mode: config.mode,
@@ -743,7 +749,7 @@ function generateDtPaymentForm(request) {
         successurl: config.successUrl,
         errorurl: config.errorUrl,
         customeremailaddress: request.customerEmail,
-        customeripaddress: request.customerIp,
+        customeripaddress: clientIp,
         companyname: "AvukatAgi",
         lang: "tr",
         txntimestamp: new Date().toISOString(),
