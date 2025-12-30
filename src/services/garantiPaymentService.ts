@@ -100,19 +100,7 @@ function getConfig(): GarantiConfig {
         };
     }
 
-    const rawStoreKey = (process.env.GARANTI_STORE_KEY || "").trim();
-    // Heuristic: If key is long and only hex chars, assume it may be hex-encoded and try to decode.
-    let finalStoreKey = rawStoreKey;
-    if (/^[0-9a-fA-F]{24,}$/.test(rawStoreKey)) {
-        try {
-            const decoded = Buffer.from(rawStoreKey, 'hex').toString('utf8');
-            // If decoded looks like a reasonable ASCII string, use it.
-            if (/^[\w\W]+$/.test(decoded)) {
-                console.log('⚠️ Detected Hex-Encoded StoreKey. Decoded it for use.');
-                finalStoreKey = decoded;
-            }
-        } catch (e) { }
-    }
+    const finalStoreKey = (process.env.GARANTI_STORE_KEY || "").trim();
 
     // PROD Configuration
     return {
