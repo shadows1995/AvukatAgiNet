@@ -271,8 +271,12 @@ export const RegisterPage = () => {
           rating: 0,
           completed_jobs: 0,
           job_status: 'active',
-          is_premium: false,
-          membership_type: 'free',
+          // Auto-activate Beta Premium for new users
+          is_premium: true,
+          membership_type: 'premium_plus',
+          premium_plan: 'beta',
+          premium_until: new Date().getTime() + (60 * 24 * 60 * 60 * 1000), // 60 Days
+          premium_since: new Date().getTime(),
           created_at: new Date().toISOString() // Fallback if trigger didn't run
         }, { onConflict: 'uid' });
 
