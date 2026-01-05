@@ -6,6 +6,7 @@ import { supabase } from '../supabaseClient';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 import InteractiveSphere from '../components/InteractiveSphere';
 import SEO from '../components/SEO';
@@ -32,128 +33,133 @@ const Logo = ({ className = "" }: { className?: string }) => (
   </div>
 );
 
-export const LandingPage = () => (
-  <div className="flex flex-col min-h-screen bg-white">
-    <SEO
-      title="AvukatAğı - Avukatlar Arası İş Birliği ve Tevkil Platformu"
-      description="Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara işlerinizi tevkil edin. Türkiye'nin en büyük hukuk ağına katılın."
-    />
-    {/* Hero Section */}
-    {/* Hero Section */}
-    <div className="bg-slate-50 pt-24 pb-32 px-4 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-bl from-primary-100/50 to-transparent opacity-70 blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-1/2 h-2/3 bg-gradient-to-tr from-secondary-100/50 to-transparent opacity-70 blur-3xl"></div>
+export const LandingPage = () => {
+  const isMobileApp = useMobileApp();
+  return (
+    <div className="flex flex-col min-h-screen bg-white">
+      <SEO
+        title="AvukatAğı - Avukatlar Arası İş Birliği ve Tevkil Platformu"
+        description="Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara işlerinizi tevkil edin. Türkiye'nin en büyük hukuk ağına katılın."
+      />
+      {/* Hero Section */}
+      {/* Hero Section */}
+      <div className="bg-slate-50 pt-24 pb-32 px-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-bl from-primary-100/50 to-transparent opacity-70 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/2 h-2/3 bg-gradient-to-tr from-secondary-100/50 to-transparent opacity-70 blur-3xl"></div>
 
-      <div className="max-w-7xl mx-auto text-center relative z-10">
-        <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-primary-100 text-primary-700 font-bold text-sm mb-8 shadow-glow animate-bounce">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-primary-500 mr-2 animate-pulse"></span>
-          Türkiye'nin en büyük tevkil platformu
-        </div>
-
-        <div className="relative w-full max-w-5xl mx-auto">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] -z-10 opacity-50 pointer-events-none">
-            <InteractiveSphere dotColor="#d946ef" lineColor="#4f46e5" />
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-primary-100 text-primary-700 font-bold text-sm mb-8 shadow-glow animate-bounce">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-primary-500 mr-2 animate-pulse"></span>
+            Türkiye'nin en büyük tevkil platformu
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight relative z-10">
-            Meslektaşlarınızla <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-600 animate-text">Güçlerinizi Birleştirin</span>
-          </h1>
-        </div>
 
-        <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
-          Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara
-          işlerinizi tevkil edin. Premium üyelik ile tevkil işlerinden para kazanın.
-        </p>
+          <div className="relative w-full max-w-5xl mx-auto">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-[500px] -z-10 opacity-50 pointer-events-none">
+              <InteractiveSphere dotColor="#d946ef" lineColor="#4f46e5" />
+            </div>
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight relative z-10">
+              Meslektaşlarınızla <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-500 to-primary-600 animate-text">Güçlerinizi Birleştirin</span>
+            </h1>
+          </div>
 
-        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <Link to="/register" className="px-10 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-2xl font-bold text-lg shadow-glow hover:shadow-glow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center">
-            Ücretsiz Üye Ol
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-          <Link to="/login" className="px-10 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-            Giriş Yap
-          </Link>
-        </div>
-      </div>
-    </div>
+          <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+            Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara
+            işlerinizi tevkil edin.{!isMobileApp && " Premium üyelik ile tevkil işlerinden para kazanın."}
+          </p>
 
-    {/* Stats Section */}
-    {/* Stats Section */}
-    <div className="bg-white border-y border-slate-100 relative z-20">
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-600 mb-2 group-hover:scale-110 transition-transform duration-300">595</div>
-            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Toplam Adliye</div>
-          </div>
-          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-            <div className="text-4xl md:text-5xl font-extrabold text-secondary-500 mb-2 group-hover:scale-110 transition-transform duration-300">49.881</div>
-            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Kayıtlı Avukat</div>
-          </div>
-          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2 group-hover:scale-110 transition-transform duration-300">12.543</div>
-            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tamamlanan Görev</div>
-          </div>
-          <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2 group-hover:scale-110 transition-transform duration-300">2.847</div>
-            <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Aktif Premium Üye</div>
+          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <Link to="/register" className="px-10 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-2xl font-bold text-lg shadow-glow hover:shadow-glow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-center">
+              Ücretsiz Üye Ol
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+            <Link to="/login" className="px-10 py-4 bg-white border border-slate-200 text-slate-700 hover:text-primary-600 hover:border-primary-200 rounded-2xl font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+              Giriş Yap
+            </Link>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Feature Cards */}
-    <div className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Process Infographic */}
-        <div className="mb-20">
-          <img
-            src="/process-infographic.png"
-            alt="Avukat Görevlendirme Süreci"
-            className="w-full max-w-5xl mx-auto rounded-2xl shadow-xl border border-slate-200"
-          />
-        </div>
-
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-slate-900">Neden AvukatAğı?</h2>
-          <p className="mt-4 text-lg text-slate-600">Tek platformda güvenli ve hızlı hukuki işbirliği</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
-            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
-              <Briefcase className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
+      {/* Stats Section */}
+      {/* Stats Section */}
+      <div className="bg-white border-y border-slate-100 relative z-20">
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+              <div className="text-4xl md:text-5xl font-extrabold text-primary-600 mb-2 group-hover:scale-110 transition-transform duration-300">595</div>
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Toplam Adliye</div>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Kolay Görev Oluşturma</h3>
-            <p className="text-slate-600 leading-relaxed">
-              Kolay arayüz ile saniyeler içinde detaylı görev oluşturun. Şehir, adliye ve ücret bilgisini girin, gerisini bize bırakın.
-            </p>
+            <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+              <div className="text-4xl md:text-5xl font-extrabold text-secondary-500 mb-2 group-hover:scale-110 transition-transform duration-300">49.881</div>
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Kayıtlı Avukat</div>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+              <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2 group-hover:scale-110 transition-transform duration-300">12.543</div>
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tamamlanan Görev</div>
+            </div>
+            {!isMobileApp && (
+              <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+                <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2 group-hover:scale-110 transition-transform duration-300">2.847</div>
+                <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Aktif Premium Üye</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Feature Cards */}
+      <div className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Process Infographic */}
+          <div className="mb-20">
+            <img
+              src="/process-infographic.png"
+              alt="Avukat Görevlendirme Süreci"
+              className="w-full max-w-5xl mx-auto rounded-2xl shadow-xl border border-slate-200"
+            />
           </div>
 
-          <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
-            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
-              <ShieldCheck className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">%100 Avukat Ağı</h3>
-            <p className="text-slate-600 leading-relaxed">
-              Sadece baro levhasına kayıtlı ve kimliği doğrulanmış avukatlar sisteme katılabilir. Güvenli bir ortamda çalışın.
-            </p>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-slate-900">Neden AvukatAğı?</h2>
+            <p className="mt-4 text-lg text-slate-600">Tek platformda güvenli ve hızlı hukuki işbirliği</p>
           </div>
 
-          <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
-            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
-              <Star className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
+              <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
+                <Briefcase className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Kolay Görev Oluşturma</h3>
+              <p className="text-slate-600 leading-relaxed">
+                Kolay arayüz ile saniyeler içinde detaylı görev oluşturun. Şehir, adliye ve ücret bilgisini girin, gerisini bize bırakın.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Puanlama Sistemi</h3>
-            <p className="text-slate-600 leading-relaxed">
-              Tamamlanan işler sonrası meslektaşlarınızı puanlayın. Yüksek puanlı avukatlarla çalışarak riskleri minimize edin.
-            </p>
+
+            <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
+              <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
+                <ShieldCheck className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">%100 Avukat Ağı</h3>
+              <p className="text-slate-600 leading-relaxed">
+                Sadece baro levhasına kayıtlı ve kimliği doğrulanmış avukatlar sisteme katılabilir. Güvenli bir ortamda çalışın.
+              </p>
+            </div>
+
+            <div className="p-8 bg-white rounded-3xl hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-primary-100 group hover:-translate-y-2">
+              <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-primary-600 group-hover:text-white">
+                <Star className="h-8 w-8 text-primary-600 group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">Puanlama Sistemi</h3>
+              <p className="text-slate-600 leading-relaxed">
+                Tamamlanan işler sonrası meslektaşlarınızı puanlayın. Yüksek puanlı avukatlarla çalışarak riskleri minimize edin.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 
 

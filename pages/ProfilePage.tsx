@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Loader2, Sparkles, MapPin, Star, Phone, Mail, Lock, CheckCircle, FileText, X } from 'lucide-react';
 import { User } from '../types';
 import { supabase } from '../supabaseClient';
+import { useMobileApp } from '../hooks/useMobileApp';
 
 const ProfilePage = ({ currentUser }: { currentUser: User }) => {
   const { userId } = useParams();
@@ -10,6 +11,7 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
   const [loading, setLoading] = useState(true);
   const [canViewContact, setCanViewContact] = useState(false);
   const [showAuthInfo, setShowAuthInfo] = useState(false);
+  const isMobileApp = useMobileApp();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -105,7 +107,7 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
                 {(canViewContact || currentUser.uid === profileUser.uid) ? (
                   <>
                     {profileUser.title || 'Av.'} {profileUser.fullName}
-                    {profileUser.isPremium && <Sparkles className="w-5 h-5 text-amber-500 ml-2 fill-current" />}
+                    {profileUser.isPremium && !isMobileApp && <Sparkles className="w-5 h-5 text-amber-500 ml-2 fill-current" />}
                   </>
                 ) : (
                   <span className="flex items-center">
@@ -185,13 +187,13 @@ const ProfilePage = ({ currentUser }: { currentUser: User }) => {
       </div>
 
       {/* Yearly Job Stats (Premium Tracking) - Only visible to owner */}
-      {currentUser.uid === profileUser.uid && (
+      {currentUser.uid === profileUser.uid && !isMobileApp && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
           <div className="p-6 border-b border-slate-100 flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800 flex items-center">
               <Sparkles className="w-5 h-5 mr-2 text-primary-600 fill-current" /> Yıllık Tamamlanan Görevler
             </h3>
-            {profileUser.membershipType === 'premium_plus' && (
+            {profileUser.membershipType === 'premium_plus' && !isMobileApp && (
               <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                 Premium Plus
               </span>
