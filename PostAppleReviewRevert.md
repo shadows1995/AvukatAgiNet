@@ -20,6 +20,7 @@ This single change will:
 *   Show "Premium" links and badges in the Navbar for Desktop users.
 *   Re-enable the `/premium` and `/payment` routes.
 *   Show the "Premium ile Başvur" buttons on Job Cards.
+*   Show the "Beta Welcome Modal" for new users.
 *   Show the earnings charts and ads on the Home Page.
 *   Show Premium stats on Auth and Profile pages.
 
