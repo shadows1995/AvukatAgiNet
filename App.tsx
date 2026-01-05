@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { User } from './types';
 import { supabase } from './supabaseClient';
 import { useMobileApp } from './hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from './config';
 
 // Component Imports
 import Navbar from './components/Navbar';
@@ -200,8 +201,8 @@ const AppContent = () => {
           <Route path="/home" element={user ? <HomePage user={user} /> : <Navigate to="/" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/" />} />
           <Route path="/create-job" element={user ? <CreateJob user={user} /> : <Navigate to="/login" />} />
-          <Route path="/premium" element={user ? (isMobileApp ? <Navigate to="/dashboard" /> : <PremiumPage user={user} />) : <Navigate to="/login" />} />
-          <Route path="/payment" element={user ? (isMobileApp ? <Navigate to="/dashboard" /> : <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} />) : <Navigate to="/login" />} />
+          <Route path="/premium" element={user ? ((isMobileApp || !SHOW_PREMIUM_FEATURES) ? <Navigate to="/dashboard" /> : <PremiumPage user={user} />) : <Navigate to="/login" />} />
+          <Route path="/payment" element={user ? ((isMobileApp || !SHOW_PREMIUM_FEATURES) ? <Navigate to="/dashboard" /> : <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} />) : <Navigate to="/login" />} />
           <Route path="/payment-success" element={user ? <PaymentSuccessPage /> : <Navigate to="/login" />} />
           <Route path="/payment-failed" element={user ? <PaymentFailedPage /> : <Navigate to="/login" />} />
           <Route path="/settings" element={user ? <SettingsPage user={user} onProfileUpdate={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />

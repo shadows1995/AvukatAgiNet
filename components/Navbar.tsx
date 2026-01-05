@@ -4,6 +4,7 @@ import { Gavel, Bell, Settings, LogOut, Sparkles, Menu, X, Crown, Calendar, Cred
 import { User, Notification } from '../types';
 import { supabase } from '../supabaseClient';
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-2 ${className}`}>
@@ -202,7 +203,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                     <Shield className="w-4 h-4 mr-1 inline-block" /> Admin
                   </Link>
                 )}
-                {!user.isPremium && !isMobileApp && (
+                {!user.isPremium && !isMobileApp && SHOW_PREMIUM_FEATURES && (
                   <Link to="/premium" className="bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-sm font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center">
                     <Crown className="w-4 h-4 mr-1" />
                     Premium
@@ -215,7 +216,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                {user.isPremium && !isMobileApp && (
+                {user.isPremium && !isMobileApp && SHOW_PREMIUM_FEATURES && (
                   <button
                     onClick={() => setShowPremiumModal(true)}
                     className={`px-4 py-1.5 text-xs font-bold text-white rounded-full flex items-center shadow-glow hover:shadow-glow-lg transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap ${user.membershipType === 'premium_plus'
@@ -355,7 +356,7 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
           {/* Mobile Right Section: Premium Only */}
           <div className="flex items-center md:hidden">
             {/* Mobile Premium Indicator */}
-            {user && !isMobileApp && (
+            {user && !isMobileApp && SHOW_PREMIUM_FEATURES && (
               <div className="flex items-center">
                 {user.isPremium ? (
                   <button
@@ -387,8 +388,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 </div>
               </div>
             )}
-            {/* If mobile app, show only avatar without premium badge/links */}
-            {user && isMobileApp && (
+            {/* If mobile app OR premium features disabled, show only avatar without premium badge/links */}
+            {user && (isMobileApp || !SHOW_PREMIUM_FEATURES) && (
               <div className="flex items-center">
                 <div onClick={goToProfile} className="ml-3 h-8 w-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-50 flex items-center justify-center text-primary-700 font-bold border-2 border-white shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 flex-shrink-0 overflow-hidden">
                   {user.avatarUrl ? (

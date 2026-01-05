@@ -4,7 +4,9 @@ import { MapPin, Clock, Users, CheckCircle, Phone } from 'lucide-react';
 import { Job, User, UserRole, JobType } from '../types';
 import ApplyModal from './ApplyModal';
 import { useAlert } from '../contexts/AlertContext';
+
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job, user, hasApplied }) => {
   const navigate = useNavigate();
@@ -65,17 +67,23 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
           type: "error"
         });
         return;
+        return;
       }
 
-      showAlert({
-        title: "Premium Üyelik Gerekli",
-        message: "Ücretsiz üyeler ilanlara başvuru yapamaz. Premium'a geçmek ister misiniz?",
-        type: "confirm",
-        confirmText: "Premium'a Geç",
-        cancelText: "Vazgeç",
-        onConfirm: () => navigate('/premium')
-      });
-      return;
+      // If premium features are ENABLED, block non-premium users
+      // If disabled (Review Mode), allow them to proceed as if premium (or apply freely)
+      if (SHOW_PREMIUM_FEATURES) {
+        showAlert({
+          title: "Premium Üyelik Gerekli",
+          message: "Ücretsiz üyeler ilanlara başvuru yapamaz. Premium'a geçmek ister misiniz?",
+          type: "confirm",
+          confirmText: "Premium'a Geç",
+          cancelText: "Vazgeç",
+          onConfirm: () => navigate('/premium')
+        });
+        return;
+      }
+      // If SHOW_PREMIUM_FEATURES is false, fall through to allow application
     }
 
     if (timeLeft <= 0) {
@@ -231,7 +239,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
                 ? 'Başvuru Yapıldı'
                 : (!user.isPremium && isMobileApp)
                   ? 'Başvuruya Kapalı'
-                  : isPremium
+                  : (isPremium || !SHOW_PREMIUM_FEATURES)
                     ? 'Hemen Başvur'
                     : 'Premium ile Başvur'}
             </button>

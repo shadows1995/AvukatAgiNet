@@ -11,6 +11,7 @@ import SEO from '../components/SEO';
 import ProfileCompletionModal from '../components/ProfileCompletionModal';
 import BetaWelcomeModal from '../components/BetaWelcomeModal';
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 const HomePage = ({ user }: { user: User }) => {
    const navigate = useNavigate();
@@ -337,7 +338,9 @@ const HomePage = ({ user }: { user: User }) => {
                         </button>
                         <button
                            onClick={() => {
-                              if (user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus' || isMobileApp) {
+                              // If premium features hidden, always go to dashboard (effectively free)
+                              // OR if user is premium/mobile
+                              if (!SHOW_PREMIUM_FEATURES || user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus' || isMobileApp) {
                                  navigate('/dashboard');
                               } else {
                                  navigate('/premium');

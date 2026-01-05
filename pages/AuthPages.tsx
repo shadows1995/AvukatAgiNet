@@ -7,6 +7,7 @@ import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 import InteractiveSphere from '../components/InteractiveSphere';
 import SEO from '../components/SEO';
@@ -65,7 +66,7 @@ export const LandingPage = () => {
 
           <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
             Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara
-            işlerinizi tevkil edin.{!isMobileApp && " Premium üyelik ile tevkil işlerinden para kazanın."}
+            işlerinizi tevkil edin.{(!isMobileApp && SHOW_PREMIUM_FEATURES) && " Premium üyelik ile tevkil işlerinden para kazanın."}
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
@@ -97,7 +98,7 @@ export const LandingPage = () => {
               <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2 group-hover:scale-110 transition-transform duration-300">12.543</div>
               <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tamamlanan Görev</div>
             </div>
-            {!isMobileApp && (
+            {(!isMobileApp && SHOW_PREMIUM_FEATURES) && (
               <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
                 <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2 group-hover:scale-110 transition-transform duration-300">2.847</div>
                 <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Aktif Premium Üye</div>
