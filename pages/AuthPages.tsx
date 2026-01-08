@@ -238,6 +238,13 @@ export const RegisterPage = () => {
             city: formData.barCity,
             role: 'free',
             job_status: 'active'
+            created_at: new Date().toISOString(),
+            // Auto-activate Beta Premium for new users
+            is_premium: true,
+            membership_type: 'premium_plus',
+            premium_plan: 'beta',
+            premium_until: new Date().getTime() + (60 * 24 * 60 * 60 * 1000), // 60 Days
+            premium_since: new Date().getTime(),
           }
         }
       });
