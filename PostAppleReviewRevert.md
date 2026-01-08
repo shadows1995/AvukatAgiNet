@@ -46,26 +46,44 @@ During the review period, new users were automatically granted "Premium Plus (Be
 
 1.  Open `pages/AuthPages.tsx`.
 2.  Find the `handleSubmit` function in `RegisterPage`.
-3.  Locate the `supabase.from('users').upsert` call (around line 270).
-4.  Change the user role and premium fields back to their default values:
+3.  Locate the `supabase.auth.signUp` call (around line 230).
+4.  Remove the Premium/Beta fields from the `options.data` object:
 
 ```typescript
 // pages/AuthPages.tsx
 
 // CHANGE FROM:
-role: UserRole.FREE,
-// ...
-is_premium: true,
-membership_type: 'premium_plus',
-premium_plan: 'beta',
-premium_until: new Date().getTime() + (60 * 24 * 60 * 60 * 1000),
-premium_since: new Date().getTime(),
+const { data, error } = await supabase.auth.signUp({
+  // ...
+  options: {
+    data: {
+      // ...
+      role: 'free',
+      job_status: 'active',
+      created_at: new Date().toISOString(),
+      // Auto-activate Beta Premium for new users
+      is_premium: true,
+      membership_type: 'premium_plus',
+      premium_plan: 'beta',
+      premium_until: new Date().getTime() + (60 * 24 * 60 * 60 * 1000), // 60 Days
+      premium_since: new Date().getTime(),
+    }
+  }
+});
 
 // CHANGE TO:
-role: UserRole.FREE,
-// ...
-is_premium: false,
-membership_type: 'free',
-// Remove premium_plan, premium_until, premium_since lines or set to null/undefined
+const { data, error } = await supabase.auth.signUp({
+  // ...
+  options: {
+    data: {
+      // ...
+      role: 'free',
+      job_status: 'active'
+      // REMOVE all premium_* and is_premium fields
+    }
+  }
+});
 ```
+
+5.  (Optional) You can also check the `supabase.from('users').upsert` call further down, but the primary source of truth for the trigger is now the `signUp` metadata.
 

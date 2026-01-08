@@ -42,6 +42,13 @@ This file documents all changes made to the codebase to comply with Apple App St
     - Disable the application button.
     - Show an alert "Lütfen sitemizi ziyaret ediniz" (or similar blocking message) if clicked.
 
+### 9. Database & Backend Changes
+- **Trigger Update (`handle_new_user`)**:
+    - Updated the PostgreSQL trigger to look for `is_premium` and other beta fields inside the `raw_user_meta_data` provided during signup.
+    - This ensures new users are created with the correct "Beta" status atomically, avoiding race conditions or RLS issues with client-side updates.
+- **File: `pages/AuthPages.tsx`**:
+    - Modified the `register` function to include `is_premium`, `premium_plan`, etc., in the `options.data` passed to `supabase.auth.signUp`.
+
 ## Summary of Strategy
 The strategy relies on the `useMobileApp` hook returning `true` inside the React Native Webview.
 - **Frontend Only:** All changes are client-side.
