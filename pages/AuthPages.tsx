@@ -237,7 +237,7 @@ export const RegisterPage = () => {
             baro_city: formData.barCity,
             city: formData.barCity,
             role: 'free',
-            job_status: 'active'
+            job_status: 'active',
             created_at: new Date().toISOString(),
             // Auto-activate Beta Premium for new users
             is_premium: true,
