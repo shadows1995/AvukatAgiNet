@@ -112,11 +112,24 @@ const isPremiumPlus = app.membershipType === 'premium_plus';
 // pages/MyJobs.tsx
 
 // RESTORE THIS CODE BLOCK:
-{isPremiumPlus && !isSelected && (
-  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold border border-amber-200 flex items-center">
-    <Star className="w-3 h-3 mr-1 fill-amber-700" /> PREMIUM+
-  </span>
-)}
 ```
+
+## 5. Revert Account Deletion Warning
+
+In `pages/SettingsPage.tsx`, we hid the warning about Premium cancellation in the "Delete Account" tab. To restore this:
+
+1.  Open `pages/SettingsPage.tsx`.
+2.  Find the `DeleteAccountTab` component.
+3.  Uncomment the list item about Premium membership:
+
+```typescript
+// pages/SettingsPage.tsx
+
+// RESTORE THIS LINE:
+{/* FOR_REVIEW: Hidden Premium Warning
+<li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
+*/}
+```
+
 
 

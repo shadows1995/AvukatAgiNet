@@ -829,7 +829,9 @@ const DeleteAccountTab = ({ showNotification, askConfirmation, user }: { showNot
               <li>Tüm profil bilgileriniz silinecek.</li>
               <li>Mevcut başvurularınız iptal edilecek.</li>
               <li>Yayınladığınız görevler sistemden kaldırılacak.</li>
+              {/* FOR_REVIEW: Hidden Premium Warning
               <li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
+              */}
             </ul>
           </div>
         </div>
