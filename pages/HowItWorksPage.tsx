@@ -89,7 +89,7 @@ const HowItWorksPage = () => {
                                             <li>“Görev Oluştur” butonuna tıklayın.</li>
                                         </ul>
                                         <p className="text-slate-600 mb-4">
-                                            Göreviniz anında sisteme düşer ve ilgili adliyede görev almak isteyen Premium avukatlara bildirilir.
+                                            Göreviniz anında sisteme düşer ve ilgili adliyede görev almak isteyen avukatlara bildirilir.
                                             Avukatların başvuru yapabilmesi için tanınan süre <strong>15 dakikadır</strong>.
                                             Süre dolduğunda başvuran avukatları görebilir ve tek tıkla görevlendirme yapabilirsiniz.
                                         </p>
@@ -106,12 +106,12 @@ const HowItWorksPage = () => {
                                     </div>
                                     <div>
                                         <h2 id="step-3-title" className="text-xl font-bold text-slate-900 mb-3 flex items-center">
-                                            Görev Almak İçin Premium Üyelik Gereklidir
+                                            Görev Almak İçin Avukat Olmanız Yeterlidir
                                         </h2>
                                         <p className="text-slate-600 mb-4">
-                                            AvukatAgi.net’te görev alabilmek için Premium veya Premium+ üyeliklerden birine sahip olmanız yeterlidir.
+                                            AvukatAgi.net’te görev alabilmek için onaylı avukat hesabına sahip olmanız yeterlidir.
                                         </p>
-                                        <p className="text-slate-700 font-medium mb-2">Premium üyeler:</p>
+                                        <p className="text-slate-700 font-medium mb-2">Tüm avukatlar:</p>
                                         <ul className="space-y-2 mb-4 text-slate-600 list-disc pl-5">
                                             <li>Seçtikleri adliyelerde yeni görev açıldığında anında bilgilendirilir,</li>
                                             <li>15 dakikalık başvuru süresi içinde göreve başvuru gönderebilir.</li>
@@ -135,7 +135,7 @@ const HowItWorksPage = () => {
                                         </h2>
                                         <p className="text-slate-600 mb-4">
                                             Görev almak için ayrıca bir işlem yapmanıza gerek yoktur.
-                                            Premium üyeliğiniz aktif olduğu sürece görevlendirme durumunuz açık ise:
+                                            Hesabınız aktif olduğu sürece görevlendirme durumunuz açık ise:
                                         </p>
                                         <ul className="space-y-2 mb-4 text-slate-600 list-disc pl-5">
                                             <li>Seçtiğiniz adliyelerde görev oluşturulduğunda bildirim alırsınız,</li>
@@ -181,7 +181,7 @@ const HowItWorksPage = () => {
                                             Görev Bildirimleri
                                         </h2>
                                         <p className="text-slate-600 mb-4">
-                                            Seçtiğiniz adliyelerde görev oluşturulduğunda Premium üyeler:
+                                            Seçtiğiniz adliyelerde görev oluşturulduğunda ilgili avukatlar:
                                         </p>
                                         <div className="flex gap-4 mb-4">
                                             <div className="flex items-center bg-slate-100 px-3 py-2 rounded-lg text-slate-700">
@@ -209,7 +209,7 @@ const HowItWorksPage = () => {
                                         "Güvenilir avukat ağı",
                                         "Türkiye genelinde anlık görev bilgilendirmesi",
                                         "Ücretsiz görev verme imkânı",
-                                        "Premium üyeler için yüksek iş alma potansiyeli"
+                                        "Avukatlar için yüksek iş alma potansiyeli"
                                     ].map((item, index) => (
                                         <div key={index} className="flex items-center bg-white p-4 rounded-xl shadow-sm">
                                             <CheckCircle className="h-5 w-5 text-primary-600 mr-3 flex-shrink-0" />

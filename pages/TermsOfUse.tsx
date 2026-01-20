@@ -69,8 +69,8 @@ const TermsOfUse = () => {
                             Bu sözleşmeyi kabul ederek sisteme kayıt olan avukat, stajyer avukat veya kimlik ibraz eden katip.
                         </li>
                         <li>
-                            <strong>Premium / Premium+ Üyelik:</strong><br />
-                            Görev alabilmek için satın alınması gereken ücretli hizmet modeli.
+                            <strong>AvukatAgi:</strong><br />
+                            Avukatların birbirleriyle yardımlaşmasını sağlamak amacıyla geliştirilen web/mobil platform.
                         </li>
                         <li>
                             <strong>Görev Oluşturan:</strong><br />
@@ -78,7 +78,7 @@ const TermsOfUse = () => {
                         </li>
                         <li>
                             <strong>Göreve Başvuran:</strong><br />
-                            Premium veya Premium+ üyeliği ile göreve başvuru yapan üye.
+                            Göreve başvuru yapan üye.
                         </li>
                         <li>
                             <strong>Göreve Atanan:</strong><br />
@@ -131,7 +131,7 @@ const TermsOfUse = () => {
                     <p>bilgilerini doğru ve eksiksiz girmekle yükümlüdür.</p>
                     <p>Görev açıldığında:</p>
                     <ul className="list-disc pl-5 mb-2">
-                        <li>Seçili adliyede bulunan Premium/Premium+ üyelerine bildirilir.</li>
+                        <li>Seçili adliyede bulunan müsait avukatlara bildirilir.</li>
                         <li>Başvuru süresi 15 dakikadır.</li>
                         <li>Görev oluşturulduktan sonra iptal edilemez. (İptal edilmesi gerekiyorsa taraflar doğrudan iletişime geçer.)</li>
                     </ul>
@@ -144,12 +144,11 @@ const TermsOfUse = () => {
 
                     <h4 className="font-bold mt-4">5.2 – Göreve Başvuran Açısından</h4>
                     <p>Göreve başvuru yapabilmek için:</p>
-                    <p className="font-bold">➡️ Premium veya Premium+ üyelik zorunludur.</p>
+                    <p className="font-bold">➡️ Avukat olmanız yeterlidir.</p>
                     <p>
                         Başvuru yapmak, görevin mutlaka size atanacağı anlamına gelmez.
-                        Seçilmediğiniz görevler için iade talep edilemez.
                     </p>
-                    <p>Premium hizmet bedeli yıllık olup, satın alındığı andan itibaren aktifleşir.</p>
+                    <p>Görev almak ve vermek tamamen ücretsizdir.</p>
 
                     <h4 className="font-bold mt-4">5.3 – Göreve Atanan Açısından</h4>
                     <p>Görev atanması durumunda;</p>
@@ -216,7 +215,11 @@ const TermsOfUse = () => {
                         Görev sıklığı; şehir, adliye yoğunluğu, avukat sayısı ve görevin niteliğine göre değişir.
                         AvukatAgi hiçbir şekilde “belirli sayıda görev garantisi” vermez.
                     </p>
-                    <p>Premium üyelik bir hizmettir; başvuru hakkı kazandırır ancak iş garantisi sağlamaz.</p>
+                    <p>
+                        Görev sıklığı; şehir, adliye yoğunluğu, avukat sayısı ve görevin niteliğine göre değişir.
+                        AvukatAgi hiçbir şekilde “belirli sayıda görev garantisi” vermez.
+                    </p>
+                    <p>AvukatAgi bir platform hizmetidir; başvuru hakkı kazandırır ancak iş garantisi sağlamaz.</p>
 
                     <hr className="my-6 border-slate-200" />
 
@@ -228,10 +231,9 @@ const TermsOfUse = () => {
 
                     <hr className="my-6 border-slate-200" />
 
-                    <h3>12. PREMIUM ÜYELİK VE İADE</h3>
-                    <p>Premium üyelik isteğe bağlıdır.</p>
-                    <p>Ödeme sonrası üyelik hemen başlar.</p>
-                    <p>İade koşulları Mesafeli Satış Sözleşmesi çerçevesinde değerlendirilir.</p>
+                    <h3>12. ÜCRETSİZ HİZMET</h3>
+                    <p>AvukatAgi.net üzerinden sunulan hizmetler tamamen ücretsizdir.</p>
+                    <p>Hiçbir aşamada ücret talep edilmemektedir.</p>
 
                     <hr className="my-6 border-slate-200" />
 

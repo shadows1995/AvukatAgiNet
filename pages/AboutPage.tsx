@@ -129,17 +129,17 @@ const AboutPage = () => {
                                             <h3 className="text-lg font-bold text-slate-900">Ücretsiz Görev Vermek – Kolay Yönetim</h3>
                                         </div>
                                         <p className="text-slate-600 text-sm leading-relaxed">
-                                            AvukatAgi.net’te görevlendirme açmak tamamen ücretsizdir. Görev oluşturduğunuz anda ilgili adliyelerde bulunan Premium avukatlara bildirim gider ve 15 dakika içinde başvurular toplanır.
+                                            AvukatAgi.net’te görevlendirme açmak tamamen ücretsizdir. Görev oluşturduğunuz anda ilgili adliyelerde bulunan müsait avukatlara bildirim gider ve 15 dakika içinde başvurular toplanır.
                                         </p>
                                     </div>
 
                                     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                                         <div className="flex items-center mb-3">
                                             <ShieldCheck className="h-6 w-6 text-primary-600 mr-3" />
-                                            <h3 className="text-lg font-bold text-slate-900">Premium Üyelik ile Görev Alma İmkanı</h3>
+                                            <h3 className="text-lg font-bold text-slate-900">Kolayca Görev Alma İmkanı</h3>
                                         </div>
                                         <p className="text-slate-600 text-sm leading-relaxed">
-                                            Görev almak isteyen avukatlar için Premium ve Premium+ üyelik modelleriyle yüksek iş fırsatı sunulur. Seçtiğiniz adliyelerde yeni görev oluşturulduğunda anında bildirim alır ve hızlıca başvurabilirsiniz.
+                                            Görev almak isteyen avukatlar için yüksek iş fırsatı sunulur. Seçtiğiniz adliyelerde yeni görev oluşturulduğunda anında bildirim alır ve hızlıca başvurabilirsiniz.
                                         </p>
                                     </div>
 

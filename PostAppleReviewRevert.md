@@ -127,9 +127,24 @@ In `pages/SettingsPage.tsx`, we hid the warning about Premium cancellation in th
 
 // RESTORE THIS LINE:
 {/* FOR_REVIEW: Hidden Premium Warning
-<li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
-*/}
 ```
+
+## 6. Revert Informational Pages
+
+The following pages were rewritten to remove all references to "Premium" membership and present the app as completely free:
+*   `pages/AboutPage.tsx`
+*   `pages/HowItWorksPage.tsx`
+*   `pages/TermsOfUse.tsx`
+*   `pages/DistanceSalesAgreementPage.tsx`
+
+To restore the original content mentioning Premium memberships and pricing:
+
+1.  Use `git` to checkout the version of these files from before the Apple Review submission.
+    ```bash
+    git checkout <commit-hash-before-review> -- pages/AboutPage.tsx pages/HowItWorksPage.tsx pages/TermsOfUse.tsx pages/DistanceSalesAgreementPage.tsx
+    ```
+2.  Alternatively, manually restore the "Premium" sections in `TermsOfUse.tsx` and `HowItWorksPage.tsx`.
+
 
 
 
