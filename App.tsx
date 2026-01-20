@@ -28,7 +28,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import HowItWorksPage from './pages/HowItWorksPage';
 import LegalCompliancePage from './pages/LegalCompliancePage';
 import AboutPage from './pages/AboutPage';
-import DistanceSalesAgreementPage from './pages/DistanceSalesAgreementPage';
+
 import TaskDisputePage from './pages/TaskDisputePage';
 
 // Admin Imports
@@ -218,7 +218,7 @@ const AppContent = () => {
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/yasal-mevzuat" element={<LegalCompliancePage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/distance-sales-agreement" element={<DistanceSalesAgreementPage />} />
+
 
           {/* Admin Routes */}
           <Route element={<RequireAdmin />}>

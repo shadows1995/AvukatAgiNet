@@ -135,15 +135,24 @@ The following pages were rewritten to remove all references to "Premium" members
 *   `pages/AboutPage.tsx`
 *   `pages/HowItWorksPage.tsx`
 *   `pages/TermsOfUse.tsx`
-*   `pages/DistanceSalesAgreementPage.tsx`
+
+The `pages/DistanceSalesAgreementPage.tsx` file was **deleted**.
 
 To restore the original content mentioning Premium memberships and pricing:
 
 1.  Use `git` to checkout the version of these files from before the Apple Review submission.
     ```bash
-    git checkout <commit-hash-before-review> -- pages/AboutPage.tsx pages/HowItWorksPage.tsx pages/TermsOfUse.tsx pages/DistanceSalesAgreementPage.tsx
+    git checkout <commit-hash-before-review> -- pages/AboutPage.tsx pages/HowItWorksPage.tsx pages/TermsOfUse.tsx
     ```
-2.  Alternatively, manually restore the "Premium" sections in `TermsOfUse.tsx` and `HowItWorksPage.tsx`.
+    For the deleted file, you must restore it from the previous commit:
+    ```bash
+    git checkout <commit-hash-before-review> -- pages/DistanceSalesAgreementPage.tsx
+    ```
+2.  **Crucial:** You must also uncomment the route in `App.tsx` and the link in `components/Footer.tsx` manually, or use git to restore them if they were untouched otherwise.
+    ```bash
+    git checkout <commit-hash-before-review> -- App.tsx components/Footer.tsx
+    ```
+3.  Alternatively, manually restore the "Premium" sections in `TermsOfUse.tsx` and `HowItWorksPage.tsx`.
 
 
 
