@@ -492,7 +492,7 @@ const MyJobs = () => {
                         // Calculate minimum job count and restriction
                         const minJobCount = applications.length > 0 ? Math.min(...applications.map((a: any) => a.monthlyJobCount || 0)) : 0;
                         const isRestricted = (app.monthlyJobCount || 0) > (minJobCount + 3);
-                        const isPremiumPlus = app.membershipType === 'premium_plus';
+                        const isPremiumPlus = false; // FOR_REVIEW: Force false to hide premium status
 
                         return (
                           <div key={app.applicationId} className={`bg-white p-4 rounded-lg border flex justify-between items-center shadow-sm transition-all duration-300 ${isSelected ? 'border-green-500 ring-1 ring-green-500' :
@@ -520,7 +520,9 @@ const MyJobs = () => {
                                   Bu ay: {app.monthlyJobCount || 0} görev
                                 </span>
                                 {isSelected && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold border border-green-200">SEÇİLDİ</span>}
+                                {/* FOR_REVIEW: Hidden Premium+ badge
                                 {isPremiumPlus && !isSelected && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold border border-amber-200 flex items-center"><Star className="w-3 h-3 mr-1 fill-amber-700" /> PREMIUM+</span>}
+                                */}
                                 {isRestricted && !isSelected && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold border border-orange-200">SEÇİLEMEZ</span>}
                               </div>
                               <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded border border-slate-100 italic">"{app.message}"</p>

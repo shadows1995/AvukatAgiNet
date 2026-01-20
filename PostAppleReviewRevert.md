@@ -85,5 +85,38 @@ const { data, error } = await supabase.auth.signUp({
 });
 ```
 
+
 5.  (Optional) You can also check the `supabase.from('users').upsert` call further down, but the primary source of truth for the trigger is now the `signUp` metadata.
+
+## 4. Revert Applicant Premium Indicators
+
+In `pages/MyJobs.tsx`, we hid the "PREMIUM+" badging and highlighting for applicants to pass the review. To restore this:
+
+1.  Open `pages/MyJobs.tsx`.
+2.  Search for the `isPremiumPlus` logic inside the `applications.map` loop.
+3.  Restore the styling condition:
+
+```typescript
+// pages/MyJobs.tsx
+
+// CHANGE FROM:
+const isPremiumPlus = false; // FOR_REVIEW: Force false to hide premium status
+
+// CHANGE TO:
+const isPremiumPlus = app.membershipType === 'premium_plus';
+```
+
+4.  Uncomment or restore the "PREMIUM+" badge rendering:
+
+```typescript
+// pages/MyJobs.tsx
+
+// RESTORE THIS CODE BLOCK:
+{isPremiumPlus && !isSelected && (
+  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold border border-amber-200 flex items-center">
+    <Star className="w-3 h-3 mr-1 fill-amber-700" /> PREMIUM+
+  </span>
+)}
+```
+
 
