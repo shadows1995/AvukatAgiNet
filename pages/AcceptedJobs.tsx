@@ -481,7 +481,7 @@ const AcceptedJobs = () => {
             Başvurularınız kabul edildiğinde görev detaylarını burada görebileceksiniz.
           </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="mt-8 px-8 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition shadow-lg shadow-primary-200 hover:-translate-y-1"
           >
             Yeni Görev Bul

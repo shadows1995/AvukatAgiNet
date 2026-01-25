@@ -1,23 +1,23 @@
 
 export const TURKISH_CITIES = [
-  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", 
-  "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", 
-  "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", 
-  "Gaziantep", "Giresun", "Gümüşhane", "Hakkâri", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", 
-  "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", 
-  "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", 
-  "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", 
+  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın",
+  "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa",
+  "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir",
+  "Gaziantep", "Giresun", "Gümüşhane", "Hakkâri", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir",
+  "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya",
+  "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye",
+  "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak",
   "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
 ];
 
 export const COURTHOUSES: Record<string, string[]> = {
   "Adana": ["Adana Adliyesi", "Ceyhan Adliyesi", "Karaisalı Adliyesi", "Karataş Adliyesi", "Kozan Adliyesi", "Pozantı Adliyesi", "Tufanbeyli Adliyesi", "Yumurtalık Adliyesi"],
-  "Adıyaman": ["Adıyaman Adliyesi", "Besni Adliyesi", "Gerger Adliyesi", "Gölbaşı Adliyesi", "Kahta Adliyesi"],
+  "Adıyaman": ["Adıyaman Adliyesi", "Besni Adliyesi", "Gerger Adliyesi", "Gölbaşı (Adıyaman) Adliyesi", "Kahta Adliyesi"],
   "Afyonkarahisar": ["Afyonkarahisar Adliyesi", "Bolvadin Adliyesi", "Çay Adliyesi", "Dinar Adliyesi", "Emirdağ Adliyesi", "İscehisar Adliyesi", "Sandıklı Adliyesi", "Sinanpaşa Adliyesi", "Şuhut Adliyesi"],
   "Ağrı": ["Ağrı Adliyesi", "Doğubayazıt Adliyesi", "Diyadin Adliyesi", "Eleşkirt Adliyesi", "Patnos Adliyesi", "Taşlıçay Adliyesi", "Tutak Adliyesi"],
   "Aksaray": ["Aksaray Adliyesi", "Eskil Adliyesi", "Ortaköy Adliyesi"],
   "Amasya": ["Amasya Adliyesi", "Gümüşhacıköy Adliyesi", "Merzifon Adliyesi", "Suluova Adliyesi", "Taşova Adliyesi"],
-  "Ankara": ["Ankara Adliyesi (Sıhhiye)", "Ankara Batı Adliyesi", "Akyurt Adliyesi", "Balâ Adliyesi", "Beypazarı Adliyesi", "Çubuk Adliyesi", "Elmadağ Adliyesi", "Gölbaşı Adliyesi", "Haymana Adliyesi", "Kahramankazan Adliyesi", "Kalecik Adliyesi", "Kızılcahamam Adliyesi", "Nallıhan Adliyesi", "Polatlı Adliyesi", "Şereflikoçhisar Adliyesi"],
+  "Ankara": ["Ankara Adliyesi (Sıhhiye)", "Ankara Batı Adliyesi", "Akyurt Adliyesi", "Balâ Adliyesi", "Beypazarı Adliyesi", "Çubuk Adliyesi", "Elmadağ Adliyesi", "Gölbaşı (Ankara) Adliyesi", "Haymana Adliyesi", "Kahramankazan Adliyesi", "Kalecik Adliyesi", "Kızılcahamam Adliyesi", "Nallıhan Adliyesi", "Polatlı Adliyesi", "Şereflikoçhisar Adliyesi"],
   "Antalya": ["Antalya Adliyesi", "Akseki Adliyesi", "Alanya Adliyesi", "Elmalı Adliyesi", "Demre Adliyesi", "Finike Adliyesi", "Gazipaşa Adliyesi", "Gündoğmuş Adliyesi", "Kaş Adliyesi", "Kemer Adliyesi", "Korkuteli Adliyesi", "Kumluca Adliyesi", "Manavgat Adliyesi", "Serik Adliyesi"],
   "Ardahan": ["Ardahan Adliyesi", "Göle Adliyesi", "Hanak Adliyesi", "Posof Adliyesi"],
   "Artvin": ["Artvin Adliyesi", "Arhavi Adliyesi", "Borçka Adliyesi", "Hopa Adliyesi", "Şavşat Adliyesi", "Yusufeli Adliyesi"],
