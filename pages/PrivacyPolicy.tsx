@@ -226,6 +226,37 @@ const PrivacyPolicy = () => {
                         Metinde yer alan hükümlerin uygulanmasında Türk hukuku esas alınır; herhangi bir uyuşmazlıkta KVKK ve ikincil düzenlemeler öncelikle uygulanır. Gerekli görülmesi hâlinde Aydınlatma Metni güncellenerek yeni versiyonu web sitemiz üzerinden yayımlanacaktır.
                     </p>
 
+                    <h3>10. Çocuk Güvenliği Standartları (Child Safety Standards)</h3>
+                    <p>
+                        AvukatAğı (geliştirici: BÇK TARIM GIDA İTHALAT İHRACAT SANAYİ VE TİCARET LİMİTED ŞİRKETİ), çocukların korunmasına büyük önem verir. Platformumuzda Çocuk Cinsel İstismarı ve Sömürüsü (CSAE — Child Sexual Abuse and Exploitation) içeren her türlü içerik ve davranış <strong>kesinlikle yasaktır</strong>. Bu tür içeriklere karşı <strong>sıfır tolerans</strong> politikası izlemekteyiz.
+                    </p>
+                    <p>
+                        AvukatAğı platformu üzerinde CSAE veya CSAM (Child Sexual Abuse Material) içeriklerinin paylaşılması, dağıtılması, teşvik edilmesi veya bu tür faaliyetlere herhangi bir şekilde aracılık edilmesi kesinlikle yasaktır. Bu yasağı ihlal eden kullanıcıların hesapları derhal askıya alınır veya kalıcı olarak kapatılır ve ilgili yasal mercilere bildirimde bulunulur.
+                    </p>
+
+                    <h4>Bildirim ve İletişim</h4>
+                    <p>
+                        Çocuk güvenliğiyle ilgili herhangi bir ihlali bildirmek, şikayette bulunmak veya soru sormak için aşağıdaki özel iletişim kanalını kullanabilirsiniz:
+                    </p>
+                    <ul className="list-disc pl-5 mb-4">
+                        <li><strong>İletişim E-postası:</strong> <a href="mailto:iletisim@avukatagi.net" className="text-primary-600 hover:underline">iletisim@avukatagi.net</a></li>
+                    </ul>
+
+                    <h4>Uygulama İçi Bildirim Mekanizması</h4>
+                    <p>
+                        AvukatAğı uygulaması, kullanıcıların uygunsuz içerikleri ve davranışları doğrudan uygulama içinden raporlayabilmesi için bir bildirim mekanizması sunmaktadır. Kullanıcılar; uygunsuz, zararlı veya yasadışı olduğunu düşündükleri herhangi bir içeriği veya davranışı uygulama içi bildirim araçları aracılığıyla derhal bildirebilirler.
+                    </p>
+
+                    <h4>İçerik Denetimi ve CSAM Müdahale Yöntemi</h4>
+                    <p>
+                        AvukatAğı, alınan bildirimleri derhal değerlendirir. CSAM (Çocuk Cinsel İstismarı Materyali) içerdiği tespit edilen veya şüphe uyandıran içerikler anında kaldırılır, ilgili kullanıcı hesapları askıya alınır veya kalıcı olarak kapatılır ve gerekli hallerde yasal mercilere bildirimde bulunulur.
+                    </p>
+
+                    <h4>Yasal Uyumluluk</h4>
+                    <p>
+                        AvukatAğı, yürürlükteki tüm çocuk güvenliği yasalarına, düzenlemelerine ve Google Play politikalarına tam uyumlu olarak faaliyet göstermektedir. Türkiye Cumhuriyeti mevzuatı başta olmak üzere, uluslararası çocuk koruma standartlarına uygun hareket edilmektedir.
+                    </p>
+
                     <div className="mt-8 pt-8 border-t border-slate-100 text-sm text-slate-500">
                         Son Güncelleme: {new Date().toLocaleDateString('tr-TR')}
                     </div>
