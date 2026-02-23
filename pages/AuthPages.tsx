@@ -85,23 +85,23 @@ export const LandingPage = () => {
       {/* Stats Section */}
       <div className="bg-white border-y border-slate-100 relative z-20">
         <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-center mx-auto">
+            <div className="w-[calc(50%-0.5rem)] md:w-64 flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
               <div className="text-4xl md:text-5xl font-extrabold text-primary-600 mb-2 group-hover:scale-110 transition-transform duration-300">595</div>
-              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Toplam Adliye</div>
+              <div className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider leading-tight">Toplam Adliye</div>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+            <div className="w-[calc(50%-0.5rem)] md:w-64 flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
               <div className="text-4xl md:text-5xl font-extrabold text-secondary-500 mb-2 group-hover:scale-110 transition-transform duration-300">49.881</div>
-              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Kayıtlı Avukat</div>
+              <div className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider leading-tight">Kayıtlı Avukat</div>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+            <div className="w-[calc(50%-0.5rem)] md:w-64 flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
               <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2 group-hover:scale-110 transition-transform duration-300">12.543</div>
-              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tamamlanan Görev</div>
+              <div className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider leading-tight">Tamamlanan Görev</div>
             </div>
             {(!isMobileApp && SHOW_PREMIUM_FEATURES) && (
-              <div className="p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+              <div className="w-[calc(50%-0.5rem)] md:w-64 flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
                 <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2 group-hover:scale-110 transition-transform duration-300">2.847</div>
-                <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Aktif Premium Üye</div>
+                <div className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider leading-tight">Aktif Premium Üye</div>
               </div>
             )}
           </div>
