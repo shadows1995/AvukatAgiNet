@@ -41,6 +41,7 @@ export interface User {
   jobStatus?: 'active' | 'passive';
   aboutMe?: string;
   title?: string;
+  claimed_beta_promo?: boolean;
   billingAddress?: string;
   tcId?: string;
   sms_notifications_enabled?: boolean;

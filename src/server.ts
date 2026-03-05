@@ -162,21 +162,52 @@ app.post('/api/activate-beta', async (req, res) => {
             return res.status(401).json({ error: 'Invalid or expired token' });
         }
 
+        // Fetch current user details
+        const { data: userData, error: fetchError } = await supabase
+            .from('users')
+            .select('premium_until, claimed_beta_promo')
+            .eq('uid', user.id)
+            .single();
+
+        if (fetchError || !userData) {
+            return res.status(404).json({ error: 'User not found in database' });
+        }
+
+        if (userData.claimed_beta_promo) {
+            return res.status(400).json({ error: 'Bu promosyondan daha önce yararlandınız.' });
+        }
+
+        // Calculate new premium_until
         const now = new Date();
-        const twoMonthsLater = new Date();
-        twoMonthsLater.setMonth(now.getMonth() + 2);
+        let currentUntil = userData.premium_until ? new Date(userData.premium_until) : now;
+
+        // If their premium expired, start from now
+        if (currentUntil < now) {
+            currentUntil = now;
+        }
+
+        // Extend by 2 months
+        const newUntil = new Date(currentUntil);
+        newUntil.setMonth(newUntil.getMonth() + 2);
+
+        // Determine if we should update premium_since (only if not currently active premium)
+        let updatePayload: any = {
+            is_premium: true,
+            membership_type: 'premium_plus',
+            premium_until: newUntil.toISOString(),
+            premium_price: 0,
+            premium_plan: 'beta',
+            claimed_beta_promo: true
+        };
+
+        if (currentUntil <= now) {
+            updatePayload.premium_since = now.toISOString();
+        }
 
         // Update user with service_role permissions
         const { error: updateError } = await supabase
             .from('users')
-            .update({
-                is_premium: true,
-                membership_type: 'premium_plus',
-                premium_since: now.toISOString(),
-                premium_until: twoMonthsLater.toISOString(),
-                premium_price: 0,
-                premium_plan: 'beta'
-            })
+            .update(updatePayload)
             .eq('uid', user.id);
 
         if (updateError) {

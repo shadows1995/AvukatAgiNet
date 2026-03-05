@@ -81,6 +81,7 @@ const AppContent = () => {
           jobStatus: userData.job_status,
           aboutMe: userData.about_me,
           title: userData.title,
+          claimed_beta_promo: userData.claimed_beta_promo,
           address: userData.address,
           sms_notifications_enabled: userData.sms_notifications_enabled,
           telegram_chat_id: userData.telegram_chat_id,

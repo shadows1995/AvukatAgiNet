@@ -91,8 +91,8 @@ const HomePage = ({ user }: { user: User }) => {
    // Check Missing Fields AND Beta Status
    useEffect(() => {
       if (user) {
-         // Priority 1: Check Beta Status (Non-Premium) - ONLY if Premium features are enabled
-         if (SHOW_PREMIUM_FEATURES && !user.isPremium && user.membershipType !== 'premium_plus' && user.membershipType !== 'premium') {
+         // Priority 1: Check Beta Status - ONLY if Premium features are enabled and they haven't claimed it yet
+         if (SHOW_PREMIUM_FEATURES && !user.claimed_beta_promo) {
             setShowBetaModal(true);
             return; // Stop here, do not check profile completion yet
          }
