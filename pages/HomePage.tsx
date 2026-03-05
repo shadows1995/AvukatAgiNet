@@ -339,8 +339,8 @@ const HomePage = ({ user }: { user: User }) => {
                         <button
                            onClick={() => {
                               // If premium features hidden, always go to dashboard (effectively free)
-                              // OR if user is premium/mobile
-                              if (!SHOW_PREMIUM_FEATURES || user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus' || isMobileApp) {
+                              // OR if user is premium/mobile not showing premium
+                              if (!SHOW_PREMIUM_FEATURES || user.isPremium || user.membershipType === 'premium' || user.membershipType === 'premium_plus' || (isMobileApp && !SHOW_PREMIUM_FEATURES)) {
                                  navigate('/dashboard');
                               } else {
                                  navigate('/premium');
@@ -447,7 +447,7 @@ const HomePage = ({ user }: { user: User }) => {
 
 
                {/* Charts */}
-               {(user.isPremium || !isMobileApp) && (
+               {(user.isPremium || !isMobileApp || SHOW_PREMIUM_FEATURES) && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                      {/* Area Chart */}
                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">

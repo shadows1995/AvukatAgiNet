@@ -1,0 +1,20 @@
+﻿3d9c2e8 chore: fixed centering of landing page stats
+e1790d2 chore: remove T├╝rkiye'nin from tevkil platformu text in homepage
+353b377 feat(compliance): update metadata and add child safety standards
+001f107 Fix 'Find New Task' button redirection and disambiguate G├Âlba┼ş─▒ courthouses
+c82b189 Remove Distance Sales Agreement page and footer link as requested
+1da9c45 Redesign informational pages to remove Premium references for Apple Review
+499f3f0 Hide Premium cancellation warning on Account Deletion for Apple Review
+ae18bcb Hide Premium status on Incoming Applications for Apple Review
+0f308a3 Document beta status changes in revert instructions
+d78e903 Fix syntax error in AuthPages.tsx
+1120a35 Fix beta user trigger and update auth logic
+d3a305a Update SEO keywords in index.html for better search visibility
+f5502f0 Update PostAppleReviewRevert.md with auth changes
+7f24b79 Auto-grant Beta Premium (Premium Plus) to new users for 60 days
+d97a8e4 Hide BetaWelcomeModal when premium features are disabled
+b0cec3d Hide premium features globally for Apple Review compliance and add revert guide
+1b1913d Hide premium links and content on mobile webview to comply with Apple App Store guidelines
+cb46262 chore: configure vscode to ignore tailwind css warnings
+6afc355 docs: add Garanti payment configuration guide
+8cda972 Fix: Revert Store Key decoding (Raw Hex Key is required)

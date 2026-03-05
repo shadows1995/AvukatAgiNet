@@ -1,0 +1,116 @@
+commit c82b189a59da354460dae1699e1e967f69bdcba1
+Author: shadows1995 <vahdetbicak@gmail.com>
+Date:   Tue Jan 20 13:35:23 2026 -0600
+
+    Remove Distance Sales Agreement page and footer link as requested
+
+diff --git a/App.tsx b/App.tsx
+index abff091..5a74143 100644
+--- a/App.tsx
++++ b/App.tsx
+@@ -28,7 +28,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
+ import HowItWorksPage from './pages/HowItWorksPage';
+ import LegalCompliancePage from './pages/LegalCompliancePage';
+ import AboutPage from './pages/AboutPage';
+-import DistanceSalesAgreementPage from './pages/DistanceSalesAgreementPage';
++
+ import TaskDisputePage from './pages/TaskDisputePage';
+ 
+ // Admin Imports
+@@ -218,7 +218,7 @@ const AppContent = () => {
+           <Route path="/how-it-works" element={<HowItWorksPage />} />
+           <Route path="/yasal-mevzuat" element={<LegalCompliancePage />} />
+           <Route path="/about" element={<AboutPage />} />
+-          <Route path="/distance-sales-agreement" element={<DistanceSalesAgreementPage />} />
++
+ 
+           {/* Admin Routes */}
+           <Route element={<RequireAdmin />}>
+diff --git a/PostAppleReviewRevert.md b/PostAppleReviewRevert.md
+index 12fce25..f151362 100644
+--- a/PostAppleReviewRevert.md
++++ b/PostAppleReviewRevert.md
+@@ -135,15 +135,24 @@ The following pages were rewritten to remove all references to "Premium" members
+ *   `pages/AboutPage.tsx`
+ *   `pages/HowItWorksPage.tsx`
+ *   `pages/TermsOfUse.tsx`
+-*   `pages/DistanceSalesAgreementPage.tsx`
++
++The `pages/DistanceSalesAgreementPage.tsx` file was **deleted**.
+ 
+ To restore the original content mentioning Premium memberships and pricing:
+ 
+ 1.  Use `git` to checkout the version of these files from before the Apple Review submission.
+     ```bash
+-    git checkout <commit-hash-before-review> -- pages/AboutPage.tsx pages/HowItWorksPage.tsx pages/TermsOfUse.tsx pages/DistanceSalesAgreementPage.tsx
++    git checkout <commit-hash-before-review> -- pages/AboutPage.tsx pages/HowItWorksPage.tsx pages/TermsOfUse.tsx
++    ```
++    For the deleted file, you must restore it from the previous commit:
++    ```bash
++    git checkout <commit-hash-before-review> -- pages/DistanceSalesAgreementPage.tsx
++    ```
++2.  **Crucial:** You must also uncomment the route in `App.tsx` and the link in `components/Footer.tsx` manually, or use git to restore them if they were untouched otherwise.
++    ```bash
++    git checkout <commit-hash-before-review> -- App.tsx components/Footer.tsx
+     ```
+-2.  Alternatively, manually restore the "Premium" sections in `TermsOfUse.tsx` and `HowItWorksPage.tsx`.
++3.  Alternatively, manually restore the "Premium" sections in `TermsOfUse.tsx` and `HowItWorksPage.tsx`.
+ 
+ 
+ 
+diff --git a/components/Footer.tsx b/components/Footer.tsx
+index dc12b97..a7c426b 100644
+--- a/components/Footer.tsx
++++ b/components/Footer.tsx
+@@ -54,7 +54,7 @@ const Footer = () => {
+                     <ul className="flex flex-col gap-3">
+                         <li><Link to="/privacy" className={linkStyle}>Gizlilik ve Kişisel Verilerin İşlenmesi Politikası</Link></li>
+                         <li><Link to="/terms" className={linkStyle}>Kullanım Şartları</Link></li>
+-                        <li><Link to="/distance-sales-agreement" className={linkStyle}>Mesafeli Satış Sözleşmesi</Link></li>
++
+                     </ul>
+                 </div>
+             </div>
+diff --git a/pages/DistanceSalesAgreementPage.tsx b/pages/DistanceSalesAgreementPage.tsx
+deleted file mode 100644
+index 25f33f0..0000000
+--- a/pages/DistanceSalesAgreementPage.tsx
++++ /dev/null
+@@ -1,37 +0,0 @@
+-import React from 'react';
+-import { FileText } from 'lucide-react';
+-import SEO from '../components/SEO';
+-
+-const DistanceSalesAgreementPage = () => {
+-    return (
+-        <div className="max-w-4xl mx-auto px-4 py-12">
+-            <SEO
+-                title="Mesafeli Satış Sözleşmesi - AvukatAğı"
+-                description="AvukatAğı Mesafeli Satış Sözleşmesi ve Ön Bilgilendirme Formu."
+-            />
+-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
+-                <div className="flex items-center gap-4 mb-8">
+-                    <div className="p-3 bg-primary-100 rounded-xl">
+-                        <FileText className="w-8 h-8 text-primary-600" />
+-                    </div>
+-                    <h1 className="text-3xl font-bold text-slate-900">MESAFELİ SATIŞ SÖZLEŞMESİ</h1>
+-                </div>
+-
+-                <div className="prose prose-slate max-w-none text-center py-12">
+-                    <div className="bg-green-50 border border-green-200 rounded-xl p-8">
+-                        <h2 className="text-2xl font-bold text-green-800 mb-4">Bu Hizmet Tamamen Ücretsizdir</h2>
+-                        <p className="text-green-700 text-lg">
+-                            AvukatAgi.net şu anda tüm avukatlar için tamamen ücretsiz hizmet vermektedir.
+-                        </p>
+-                        <p className="text-green-600 mt-2">
+-                            Bu nedenle Mesafeli Satış Sözleşmesi hükümleri şu an için uygulama alanı bulmamaktadır.
+-                            Hiçbir ücret ödemeden sistemin tüm özelliklerini kullanabilirsiniz.
+-                        </p>
+-                    </div>
+-                </div>
+-            </div>
+-        </div>
+-    );
+-};
+-
+-export default DistanceSalesAgreementPage;

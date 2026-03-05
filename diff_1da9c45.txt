@@ -1,0 +1,397 @@
+commit 1da9c4516bc03360d22afb8eaa1ea6dd880d8e8f
+Author: shadows1995 <vahdetbicak@gmail.com>
+Date:   Tue Jan 20 13:29:27 2026 -0600
+
+    Redesign informational pages to remove Premium references for Apple Review
+
+diff --git a/PostAppleReviewRevert.md b/PostAppleReviewRevert.md
+index 0c5dc7c..12fce25 100644
+--- a/PostAppleReviewRevert.md
++++ b/PostAppleReviewRevert.md
+@@ -127,9 +127,24 @@ In `pages/SettingsPage.tsx`, we hid the warning about Premium cancellation in th
+ 
+ // RESTORE THIS LINE:
+ {/* FOR_REVIEW: Hidden Premium Warning
+-<li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
+-*/}
+ ```
+ 
++## 6. Revert Informational Pages
++
++The following pages were rewritten to remove all references to "Premium" membership and present the app as completely free:
++*   `pages/AboutPage.tsx`
++*   `pages/HowItWorksPage.tsx`
++*   `pages/TermsOfUse.tsx`
++*   `pages/DistanceSalesAgreementPage.tsx`
++
++To restore the original content mentioning Premium memberships and pricing:
++
++1.  Use `git` to checkout the version of these files from before the Apple Review submission.
++    ```bash
++    git checkout <commit-hash-before-review> -- pages/AboutPage.tsx pages/HowItWorksPage.tsx pages/TermsOfUse.tsx pages/DistanceSalesAgreementPage.tsx
++    ```
++2.  Alternatively, manually restore the "Premium" sections in `TermsOfUse.tsx` and `HowItWorksPage.tsx`.
++
++
+ 
+ 
+diff --git a/pages/AboutPage.tsx b/pages/AboutPage.tsx
+index 12facd6..3aad9ba 100644
+--- a/pages/AboutPage.tsx
++++ b/pages/AboutPage.tsx
+@@ -129,17 +129,17 @@ const AboutPage = () => {
+                                             <h3 className="text-lg font-bold text-slate-900">Ücretsiz Görev Vermek – Kolay Yönetim</h3>
+                                         </div>
+                                         <p className="text-slate-600 text-sm leading-relaxed">
+-                                            AvukatAgi.net’te görevlendirme açmak tamamen ücretsizdir. Görev oluşturduğunuz anda ilgili adliyelerde bulunan Premium avukatlara bildirim gider ve 15 dakika içinde başvurular toplanır.
++                                            AvukatAgi.net’te görevlendirme açmak tamamen ücretsizdir. Görev oluşturduğunuz anda ilgili adliyelerde bulunan müsait avukatlara bildirim gider ve 15 dakika içinde başvurular toplanır.
+                                         </p>
+                                     </div>
+ 
+                                     <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                                         <div className="flex items-center mb-3">
+                                             <ShieldCheck className="h-6 w-6 text-primary-600 mr-3" />
+-                                            <h3 className="text-lg font-bold text-slate-900">Premium Üyelik ile Görev Alma İmkanı</h3>
++                                            <h3 className="text-lg font-bold text-slate-900">Kolayca Görev Alma İmkanı</h3>
+                                         </div>
+                                         <p className="text-slate-600 text-sm leading-relaxed">
+-                                            Görev almak isteyen avukatlar için Premium ve Premium+ üyelik modelleriyle yüksek iş fırsatı sunulur. Seçtiğiniz adliyelerde yeni görev oluşturulduğunda anında bildirim alır ve hızlıca başvurabilirsiniz.
++                                            Görev almak isteyen avukatlar için yüksek iş fırsatı sunulur. Seçtiğiniz adliyelerde yeni görev oluşturulduğunda anında bildirim alır ve hızlıca başvurabilirsiniz.
+                                         </p>
+                                     </div>
+ 
+diff --git a/pages/DistanceSalesAgreementPage.tsx b/pages/DistanceSalesAgreementPage.tsx
+index 9aa7733..25f33f0 100644
+--- a/pages/DistanceSalesAgreementPage.tsx
++++ b/pages/DistanceSalesAgreementPage.tsx
+@@ -17,189 +17,16 @@ const DistanceSalesAgreementPage = () => {
+                     <h1 className="text-3xl font-bold text-slate-900">MESAFELİ SATIŞ SÖZLEŞMESİ</h1>
+                 </div>
+ 
+-                <div className="prose prose-slate max-w-none">
+-                    <p className="font-medium">
+-                        İşbu Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi, 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği çerçevesinde dijital ortamda kurulmuştur.
+-                    </p>
+-                    <p>
+-                        Kullanıcı, ödeme işlemini tamamlayarak bu sözleşme hükümlerini kabul ettiğini beyan eder.
+-                    </p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>1. SATICI BİLGİLERİ</h3>
+-                    <p>
+-                        <strong>Unvan:</strong> Vahdet Talha BIÇAK<br />
+-                        (Bu sözleşmede “AvukatAgi” olarak anılacaktır.)
+-                    </p>
+-                    <p>
+-                        <strong>Adres:</strong> AŞAĞI ÖVEÇLER MAH. 1322 CAD. NO: 62 İÇ KAPI NO: 4 ÇANKAYA / ANKARA
+-                    </p>
+-                    <p>
+-                        <strong>E-posta:</strong> <a href="mailto:iletisim@avukatagi.net" className="text-primary-600 hover:underline">iletisim@avukatagi.net</a>
+-                    </p>
+-                    <p>
+-                        <strong>Telefon:</strong> 0850 307 7417<br />
+-                        <strong>Web:</strong> <a href="http://www.avukatagi.net" className="text-primary-600 hover:underline">www.avukatagi.net</a>
+-                    </p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>2. ALICI BİLGİLERİ</h3>
+-                    <ul className="list-none pl-0 space-y-2">
+-                        <li><strong>İsim Soyisim:</strong> Kullanıcının sistemde beyan ettiği bilgiler</li>
+-                        <li><strong>Telefon:</strong> Kullanıcının beyanı</li>
+-                        <li><strong>E-posta:</strong> Kullanıcının beyanı</li>
+-                    </ul>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>3. HİZMET BİLGİLERİ</h3>
+-                    <ul className="list-none pl-0 space-y-4">
+-                        <li>
+-                            <strong>Hizmet Adı:</strong><br />
+-                            AvukatAgi Premium / Premium+ Yıllık Üyelik Hizmeti
+-                        </li>
+-                        <li>
+-                            <strong>Hizmet Türü:</strong><br />
+-                            Dijital üyelik hizmeti (Görev başvurusu yapabilme hakkı)
+-                        </li>
+-                        <li>
+-                            <strong>Hizmet Süresi:</strong><br />
+-                            1 yıl
+-                        </li>
+-                        <li>
+-                            <strong>Hizmet Bedeli:</strong><br />
+-                            Satın alma ekranında belirtilen fiyat
+-                        </li>
+-                        <li>
+-                            <strong>Ödeme Yöntemi:</strong><br />
+-                            Online ödeme sistemi (kredi/banka kartı)
+-                        </li>
+-                    </ul>
+-                    <p className="mt-4">
+-                        Premium üyelik, kullanıcının seçtiği adliyelerde açılan görevlere başvuru yapabilme imkânı sağlar.<br />
+-                        Görev oluşturmak ise tüm kullanıcılar için daima ücretsizdir.
+-                    </p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>4. SÖZLEŞMENİN KONUSU</h3>
+-                    <p>
+-                        Bu sözleşmenin konusu, Kullanıcı’nın AvukatAgi üzerinden satın aldığı Premium/Premium+ üyelik hizmetine ilişkin olarak tarafların hak, yükümlülük ve kullanım koşullarının düzenlenmesidir.
+-                    </p>
+-                    <p>Kullanıcı, hizmeti satın alarak:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Sistem işleyişini,</li>
+-                        <li>Görev atama algoritmasını,</li>
+-                        <li>Başvuru yapmanın görev atanmasını garanti etmediğini</li>
+-                    </ul>
+-                    <p>kabul etmiş sayılır.</p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>5. CAYMA HAKKI</h3>
+-                    <h4 className="font-bold mt-4">5.1 – Dijital Hizmetlerde Cayma İstisnası</h4>
+-                    <p>
+-                        6502 sayılı Kanun gereği, anında ifa edilen veya dijital ortamda anında teslim edilen hizmetlerde cayma hakkı bulunmamaktadır.
+-                    </p>
+-                    <p>Premium üyelik:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Ödeme sonrası derhal aktifleşir,</li>
+-                        <li>Kullanıcıya anında görev başvurusu yapma hakkı sağlar,</li>
+-                        <li>Dijital bir hizmettir.</li>
+-                    </ul>
+-                    <p>Bu nedenle:</p>
+-                    <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400 my-4">
+-                        <p className="font-bold">➡️ Kullanıcı tek bir göreve bile başvuru yapmışsa cayma hakkı ortadan kalkar.</p>
+-                        <p className="font-bold">➡️ Kullanıcı hiç başvuru yapmamışsa 14 gün içinde cayma hakkını kullanabilir.</p>
+-                    </div>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>6. HİZMETİN KAPSAMI VE İFASI</h3>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Premium üyelik ödeme sonrası otomatik aktif olur.</li>
+-                        <li>Kullanıcı, seçtiği adliyelerdeki görevlere başvuru yapabilir.</li>
+-                        <li>Görevi kimin alacağına daima görev oluşturan üye karar verir.</li>
+-                        <li>Algoritma, adil dağılım için tasarlanmıştır ancak atanmayı garanti etmez.</li>
+-                        <li>Kullanıcı bir yıl boyunca sınırsız başvuru hakkına sahiptir.</li>
+-                    </ul>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>7. ÜCRET İADESİ</h3>
+-                    <p>İade yalnızca şu şartlarda mümkündür:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Kullanıcı hiçbir göreve başvuru yapmamışsa,</li>
+-                        <li>Satın alma üzerinden 14 gün geçmemişse.</li>
+-                    </ul>
+-                    <p>Aşağıdaki durumlarda iade yapılmaz:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Kullanıcı en az 1 göreve başvuru yaptıysa,</li>
+-                        <li>Dijital hizmet ifa edilmişse,</li>
+-                        <li>Kullanıcı algoritmayı beğenmediğini ileri sürerse.</li>
+-                    </ul>
+-                    <p className="font-bold mt-4">Ek Güvence:</p>
+-                    <p>
+-                        Yıllık üyelik sonunda kullanıcı 3’ten az görev aldıysa, üyeliği ücretsiz 1 yıl daha uzatılır.<br />
+-                        (Pasif kullanıcılar kapsam dışıdır.)
+-                    </p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>8. KULLANICI YÜKÜMLÜLÜKLERİ</h3>
+-                    <p>Kullanıcı:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Bilgilerini doğru beyan etmekle,</li>
+-                        <li>Sistemi hukuka uygun şekilde kullanmakla,</li>
+-                        <li>Meslek etiğine uymakla,</li>
+-                        <li>Şifre güvenliğini sağlamakla,</li>
+-                        <li>Görev bilgilerini gizlilik esasına göre korumakla</li>
+-                    </ul>
+-                    <p>yükümlüdür.</p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>9. AVUKATAGİ’NİN YETKİLERİ</h3>
+-                    <p>AvukatAgi:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Kötüye kullanım, yanlış bilgi, suiistimal, etik dışı davranış tespitinde üyeliği askıya alma veya sonlandırma,</li>
+-                        <li>Sistem yapısını, fiyatlandırmayı ve hizmet koşullarını güncelleme</li>
+-                    </ul>
+-                    <p>hakkına sahiptir.</p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>10. UYUŞMAZLIKLARIN ÇÖZÜMÜ</h3>
+-                    <p className="font-bold">(ISTAC Tahkim Maddesi – Güncel)</p>
+-                    <p>
+-                        Taraflar, işbu sözleşmeden kaynaklanan tüm uyuşmazlıkların İstanbul Tahkim Merkezi (ISTAC) Tahkim Kuralları uyarınca nihai olarak tahkim yoluyla çözüleceğini kabul eder.
+-                    </p>
+-                    <ul className="list-none pl-0 space-y-2">
+-                        <li><strong>Tahkim Yeri:</strong> Ankara / Türkiye</li>
+-                        <li><strong>Hakem Sayısı:</strong> 1 (Bir)</li>
+-                        <li><strong>Tahkim Dili:</strong> Türkçe</li>
+-                        <li><strong>Uygulanacak Hukuk:</strong> Türk Hukuku</li>
+-                    </ul>
+-                    <p>Hakem kararı taraflar açısından nihai ve bağlayıcıdır.</p>
+-                    <p>
+-                        Bu madde, tüketicinin zorunlu başvuru yolları (Tüketici Hakem Heyeti / Tüketici Mahkemesi) kapsamındaki uyuşmazlıklarda engel teşkil etmez. Ticari nitelikli uyuşmazlıklarda münhasıran tahkim uygulanır.
+-                    </p>
+-
+-                    <hr className="my-6 border-slate-200" />
+-
+-                    <h3>11. YÜRÜRLÜK</h3>
+-                    <p>Kullanıcı, online ödeme işlemini tamamlayarak:</p>
+-                    <ul className="list-disc pl-5 mb-2">
+-                        <li>Bu sözleşmeyi okuduğunu,</li>
+-                        <li>Anladığını,</li>
+-                        <li>Tüm hükümlerini kabul ettiğini</li>
+-                    </ul>
+-                    <p>beyan eder.</p>
+-
+-                    <div className="mt-8 pt-8 border-t border-slate-100 text-sm text-slate-500">
+-                        Son Güncelleme: {new Date().toLocaleDateString('tr-TR')}
++                <div className="prose prose-slate max-w-none text-center py-12">
++                    <div className="bg-green-50 border border-green-200 rounded-xl p-8">
++                        <h2 className="text-2xl font-bold text-green-800 mb-4">Bu Hizmet Tamamen Ücretsizdir</h2>
++                        <p className="text-green-700 text-lg">
++                            AvukatAgi.net şu anda tüm avukatlar için tamamen ücretsiz hizmet vermektedir.
++                        </p>
++                        <p className="text-green-600 mt-2">
++                            Bu nedenle Mesafeli Satış Sözleşmesi hükümleri şu an için uygulama alanı bulmamaktadır.
++                            Hiçbir ücret ödemeden sistemin tüm özelliklerini kullanabilirsiniz.
++                        </p>
+                     </div>
+                 </div>
+             </div>
+diff --git a/pages/HowItWorksPage.tsx b/pages/HowItWorksPage.tsx
+index 6bf3bfc..21f2b53 100644
+--- a/pages/HowItWorksPage.tsx
++++ b/pages/HowItWorksPage.tsx
+@@ -89,7 +89,7 @@ const HowItWorksPage = () => {
+                                             <li>“Görev Oluştur” butonuna tıklayın.</li>
+                                         </ul>
+                                         <p className="text-slate-600 mb-4">
+-                                            Göreviniz anında sisteme düşer ve ilgili adliyede görev almak isteyen Premium avukatlara bildirilir.
++                                            Göreviniz anında sisteme düşer ve ilgili adliyede görev almak isteyen avukatlara bildirilir.
+                                             Avukatların başvuru yapabilmesi için tanınan süre <strong>15 dakikadır</strong>.
+                                             Süre dolduğunda başvuran avukatları görebilir ve tek tıkla görevlendirme yapabilirsiniz.
+                                         </p>
+@@ -106,12 +106,12 @@ const HowItWorksPage = () => {
+                                     </div>
+                                     <div>
+                                         <h2 id="step-3-title" className="text-xl font-bold text-slate-900 mb-3 flex items-center">
+-                                            Görev Almak İçin Premium Üyelik Gereklidir
++                                            Görev Almak İçin Avukat Olmanız Yeterlidir
+                                         </h2>
+                                         <p className="text-slate-600 mb-4">
+-                                            AvukatAgi.net’te görev alabilmek için Premium veya Premium+ üyeliklerden birine sahip olmanız yeterlidir.
++                                            AvukatAgi.net’te görev alabilmek için onaylı avukat hesabına sahip olmanız yeterlidir.
+                                         </p>
+-                                        <p className="text-slate-700 font-medium mb-2">Premium üyeler:</p>
++                                        <p className="text-slate-700 font-medium mb-2">Tüm avukatlar:</p>
+                                         <ul className="space-y-2 mb-4 text-slate-600 list-disc pl-5">
+                                             <li>Seçtikleri adliyelerde yeni görev açıldığında anında bilgilendirilir,</li>
+                                             <li>15 dakikalık başvuru süresi içinde göreve başvuru gönderebilir.</li>
+@@ -135,7 +135,7 @@ const HowItWorksPage = () => {
+                                         </h2>
+                                         <p className="text-slate-600 mb-4">
+                                             Görev almak için ayrıca bir işlem yapmanıza gerek yoktur.
+-                                            Premium üyeliğiniz aktif olduğu sürece görevlendirme durumunuz açık ise:
++                                            Hesabınız aktif olduğu sürece görevlendirme durumunuz açık ise:
+                                         </p>
+                                         <ul className="space-y-2 mb-4 text-slate-600 list-disc pl-5">
+                                             <li>Seçtiğiniz adliyelerde görev oluşturulduğunda bildirim alırsınız,</li>
+@@ -181,7 +181,7 @@ const HowItWorksPage = () => {
+                                             Görev Bildirimleri
+                                         </h2>
+                                         <p className="text-slate-600 mb-4">
+-                                            Seçtiğiniz adliyelerde görev oluşturulduğunda Premium üyeler:
++                                            Seçtiğiniz adliyelerde görev oluşturulduğunda ilgili avukatlar:
+                                         </p>
+                                         <div className="flex gap-4 mb-4">
+                                             <div className="flex items-center bg-slate-100 px-3 py-2 rounded-lg text-slate-700">
+@@ -209,7 +209,7 @@ const HowItWorksPage = () => {
+                                         "Güvenilir avukat ağı",
+                                         "Türkiye genelinde anlık görev bilgilendirmesi",
+                                         "Ücretsiz görev verme imkânı",
+-                                        "Premium üyeler için yüksek iş alma potansiyeli"
++                                        "Avukatlar için yüksek iş alma potansiyeli"
+                                     ].map((item, index) => (
+                                         <div key={index} className="flex items-center bg-white p-4 rounded-xl shadow-sm">
+                                             <CheckCircle className="h-5 w-5 text-primary-600 mr-3 flex-shrink-0" />
+diff --git a/pages/TermsOfUse.tsx b/pages/TermsOfUse.tsx
+index 0984af9..098f795 100644
+--- a/pages/TermsOfUse.tsx
++++ b/pages/TermsOfUse.tsx
+@@ -69,8 +69,8 @@ const TermsOfUse = () => {
+                             Bu sözleşmeyi kabul ederek sisteme kayıt olan avukat, stajyer avukat veya kimlik ibraz eden katip.
+                         </li>
+                         <li>
+-                            <strong>Premium / Premium+ Üyelik:</strong><br />
+-                            Görev alabilmek için satın alınması gereken ücretli hizmet modeli.
++                            <strong>AvukatAgi:</strong><br />
++                            Avukatların birbirleriyle yardımlaşmasını sağlamak amacıyla geliştirilen web/mobil platform.
+                         </li>
+                         <li>
+                             <strong>Görev Oluşturan:</strong><br />
+@@ -78,7 +78,7 @@ const TermsOfUse = () => {
+                         </li>
+                         <li>
+                             <strong>Göreve Başvuran:</strong><br />
+-                            Premium veya Premium+ üyeliği ile göreve başvuru yapan üye.
++                            Göreve başvuru yapan üye.
+                         </li>
+                         <li>
+                             <strong>Göreve Atanan:</strong><br />
+@@ -131,7 +131,7 @@ const TermsOfUse = () => {
+                     <p>bilgilerini doğru ve eksiksiz girmekle yükümlüdür.</p>
+                     <p>Görev açıldığında:</p>
+                     <ul className="list-disc pl-5 mb-2">
+-                        <li>Seçili adliyede bulunan Premium/Premium+ üyelerine bildirilir.</li>
++                        <li>Seçili adliyede bulunan müsait avukatlara bildirilir.</li>
+                         <li>Başvuru süresi 15 dakikadır.</li>
+                         <li>Görev oluşturulduktan sonra iptal edilemez. (İptal edilmesi gerekiyorsa taraflar doğrudan iletişime geçer.)</li>
+                     </ul>
+@@ -144,12 +144,11 @@ const TermsOfUse = () => {
+ 
+                     <h4 className="font-bold mt-4">5.2 – Göreve Başvuran Açısından</h4>
+                     <p>Göreve başvuru yapabilmek için:</p>
+-                    <p className="font-bold">➡️ Premium veya Premium+ üyelik zorunludur.</p>
++                    <p className="font-bold">➡️ Avukat olmanız yeterlidir.</p>
+                     <p>
+                         Başvuru yapmak, görevin mutlaka size atanacağı anlamına gelmez.
+-                        Seçilmediğiniz görevler için iade talep edilemez.
+                     </p>
+-                    <p>Premium hizmet bedeli yıllık olup, satın alındığı andan itibaren aktifleşir.</p>
++                    <p>Görev almak ve vermek tamamen ücretsizdir.</p>
+ 
+                     <h4 className="font-bold mt-4">5.3 – Göreve Atanan Açısından</h4>
+                     <p>Görev atanması durumunda;</p>
+@@ -216,7 +215,11 @@ const TermsOfUse = () => {
+                         Görev sıklığı; şehir, adliye yoğunluğu, avukat sayısı ve görevin niteliğine göre değişir.
+                         AvukatAgi hiçbir şekilde “belirli sayıda görev garantisi” vermez.
+                     </p>
+-                    <p>Premium üyelik bir hizmettir; başvuru hakkı kazandırır ancak iş garantisi sağlamaz.</p>
++                    <p>
++                        Görev sıklığı; şehir, adliye yoğunluğu, avukat sayısı ve görevin niteliğine göre değişir.
++                        AvukatAgi hiçbir şekilde “belirli sayıda görev garantisi” vermez.
++                    </p>
++                    <p>AvukatAgi bir platform hizmetidir; başvuru hakkı kazandırır ancak iş garantisi sağlamaz.</p>
+ 
+                     <hr className="my-6 border-slate-200" />
+ 
+@@ -228,10 +231,9 @@ const TermsOfUse = () => {
+ 
+                     <hr className="my-6 border-slate-200" />
+ 
+-                    <h3>12. PREMIUM ÜYELİK VE İADE</h3>
+-                    <p>Premium üyelik isteğe bağlıdır.</p>
+-                    <p>Ödeme sonrası üyelik hemen başlar.</p>
+-                    <p>İade koşulları Mesafeli Satış Sözleşmesi çerçevesinde değerlendirilir.</p>
++                    <h3>12. ÜCRETSİZ HİZMET</h3>
++                    <p>AvukatAgi.net üzerinden sunulan hizmetler tamamen ücretsizdir.</p>
++                    <p>Hiçbir aşamada ücret talep edilmemektedir.</p>
+ 
+                     <hr className="my-6 border-slate-200" />
+ 

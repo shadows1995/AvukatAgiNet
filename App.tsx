@@ -24,6 +24,7 @@ import AcceptedJobs from './pages/AcceptedJobs';
 import JobDetails from './pages/JobDetails';
 import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import DistanceSalesAgreementPage from './pages/DistanceSalesAgreementPage';
 
 import HowItWorksPage from './pages/HowItWorksPage';
 import LegalCompliancePage from './pages/LegalCompliancePage';
@@ -201,8 +202,8 @@ const AppContent = () => {
           <Route path="/home" element={user ? <HomePage user={user} /> : <Navigate to="/" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/" />} />
           <Route path="/create-job" element={user ? <CreateJob user={user} /> : <Navigate to="/login" />} />
-          <Route path="/premium" element={user ? ((isMobileApp || !SHOW_PREMIUM_FEATURES) ? <Navigate to="/dashboard" /> : <PremiumPage user={user} />) : <Navigate to="/login" />} />
-          <Route path="/payment" element={user ? ((isMobileApp || !SHOW_PREMIUM_FEATURES) ? <Navigate to="/dashboard" /> : <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} />) : <Navigate to="/login" />} />
+          <Route path="/premium" element={user ? (!SHOW_PREMIUM_FEATURES ? <Navigate to="/dashboard" /> : <PremiumPage user={user} />) : <Navigate to="/login" />} />
+          <Route path="/payment" element={user ? (!SHOW_PREMIUM_FEATURES ? <Navigate to="/dashboard" /> : <PaymentPage onPaymentSuccess={() => fetchUserProfile(user.uid)} />) : <Navigate to="/login" />} />
           <Route path="/payment-success" element={user ? <PaymentSuccessPage /> : <Navigate to="/login" />} />
           <Route path="/payment-failed" element={user ? <PaymentFailedPage /> : <Navigate to="/login" />} />
           <Route path="/settings" element={user ? <SettingsPage user={user} onProfileUpdate={() => fetchUserProfile(user.uid)} /> : <Navigate to="/login" />} />
@@ -215,6 +216,9 @@ const AppContent = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfUse />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          {SHOW_PREMIUM_FEATURES && (
+            <Route path="/distance-sales-agreement" element={<DistanceSalesAgreementPage />} />
+          )}
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/yasal-mevzuat" element={<LegalCompliancePage />} />
           <Route path="/about" element={<AboutPage />} />

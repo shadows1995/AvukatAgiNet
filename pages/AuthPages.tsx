@@ -66,7 +66,7 @@ export const LandingPage = () => {
 
           <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
             Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara
-            işlerinizi tevkil edin.{(!isMobileApp && SHOW_PREMIUM_FEATURES) && " Premium üyelik ile tevkil işlerinden para kazanın."}
+            işlerinizi tevkil edin.{SHOW_PREMIUM_FEATURES && " Premium üyelik ile tevkil işlerinden para kazanın."}
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
@@ -98,7 +98,7 @@ export const LandingPage = () => {
               <div className="text-4xl md:text-5xl font-extrabold text-primary-700 mb-2 group-hover:scale-110 transition-transform duration-300">12.543</div>
               <div className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider leading-tight">Tamamlanan Görev</div>
             </div>
-            {(!isMobileApp && SHOW_PREMIUM_FEATURES) && (
+            {SHOW_PREMIUM_FEATURES && (
               <div className="w-[calc(50%-0.5rem)] md:w-64 flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
                 <div className="text-4xl md:text-5xl font-extrabold text-primary-800 mb-2 group-hover:scale-110 transition-transform duration-300">2.847</div>
                 <div className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider leading-tight">Aktif Premium Üye</div>
@@ -239,12 +239,6 @@ export const RegisterPage = () => {
             role: 'free',
             job_status: 'active',
             created_at: new Date().toISOString(),
-            // Auto-activate Beta Premium for new users
-            is_premium: true,
-            membership_type: 'premium_plus',
-            premium_plan: 'beta',
-            premium_until: new Date().getTime() + (60 * 24 * 60 * 60 * 1000), // 60 Days
-            premium_since: new Date().getTime(),
           }
         }
       });
@@ -278,12 +272,6 @@ export const RegisterPage = () => {
           rating: 0,
           completed_jobs: 0,
           job_status: 'active',
-          // Auto-activate Beta Premium for new users
-          is_premium: true,
-          membership_type: 'premium_plus',
-          premium_plan: 'beta',
-          premium_until: new Date().getTime() + (60 * 24 * 60 * 60 * 1000), // 60 Days
-          premium_since: new Date().getTime(),
           created_at: new Date().toISOString() // Fallback if trigger didn't run
         }, { onConflict: 'uid' });
 

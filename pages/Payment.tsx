@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 import { useAlert } from '../contexts/AlertContext';
 import axios from 'axios';
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 interface PaymentPageProps {
     onPaymentSuccess?: () => void;
@@ -18,7 +19,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ onPaymentSuccess }) => {
     const { showAlert } = useAlert();
     const isMobileApp = useMobileApp();
 
-    if (isMobileApp) {
+    if (isMobileApp && !SHOW_PREMIUM_FEATURES) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
                 <div className="bg-white text-slate-500 p-8 rounded-xl border border-slate-200 shadow-sm text-center font-bold max-w-md w-full">

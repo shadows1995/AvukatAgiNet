@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { SHOW_PREMIUM_FEATURES } from "../config";
 import {
     Facebook,
     Instagram,
@@ -54,7 +55,9 @@ const Footer = () => {
                     <ul className="flex flex-col gap-3">
                         <li><Link to="/privacy" className={linkStyle}>Gizlilik ve Kişisel Verilerin İşlenmesi Politikası</Link></li>
                         <li><Link to="/terms" className={linkStyle}>Kullanım Şartları</Link></li>
-
+                        {SHOW_PREMIUM_FEATURES && (
+                            <li><Link to="/distance-sales-agreement" className={linkStyle}>Mesafeli Satış Sözleşmesi</Link></li>
+                        )}
                     </ul>
                 </div>
             </div>

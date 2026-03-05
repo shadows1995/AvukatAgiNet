@@ -7,6 +7,7 @@ import ApplyModal from '../components/ApplyModal';
 import { useAlert } from '../contexts/AlertContext';
 import SEO from '../components/SEO';
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 
 const JobDetails = ({ user }: { user: User }) => {
@@ -428,7 +429,7 @@ const JobDetails = ({ user }: { user: User }) => {
                             }
 
                             if (!user.isPremium) {
-                                if (isMobileApp) {
+                                if (isMobileApp && !SHOW_PREMIUM_FEATURES) {
                                     return (
                                         <div className="text-center">
                                             <div className="bg-slate-100 text-slate-500 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center font-bold mb-3">

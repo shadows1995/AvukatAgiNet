@@ -1,0 +1,131 @@
+﻿diff --git a/pages/HowItWorksPage.tsx b/pages/HowItWorksPage.tsx
+index 6bf3bfc..21f2b53 100644
+--- a/pages/HowItWorksPage.tsx
++++ b/pages/HowItWorksPage.tsx
+@@ -89,7 +89,7 @@ const HowItWorksPage = () => {
+                                             <li>ÔÇ£G├Ârev Olu┼şturÔÇØ butonuna t─▒klay─▒n.</li>
+                                         </ul>
+                                         <p className="text-slate-600 mb-4">
+-                                            G├Âreviniz an─▒nda sisteme d├╝┼şer ve ilgili adliyede g├Ârev almak isteyen Premium avukatlara bildirilir.
++                                            G├Âreviniz an─▒nda sisteme d├╝┼şer ve ilgili adliyede g├Ârev almak isteyen avukatlara bildirilir.
+                                             Avukatlar─▒n ba┼şvuru yapabilmesi i├ğin tan─▒nan s├╝re <strong>15 dakikad─▒r</strong>.
+                                             S├╝re doldu─şunda ba┼şvuran avukatlar─▒ g├Ârebilir ve tek t─▒kla g├Ârevlendirme yapabilirsiniz.
+                                         </p>
+@@ -106,12 +106,12 @@ const HowItWorksPage = () => {
+                                     </div>
+                                     <div>
+                                         <h2 id="step-3-title" className="text-xl font-bold text-slate-900 mb-3 flex items-center">
+-                                            G├Ârev Almak ─░├ğin Premium ├£yelik Gereklidir
++                                            G├Ârev Almak ─░├ğin Avukat Olman─▒z Yeterlidir
+                                         </h2>
+                                         <p className="text-slate-600 mb-4">
+-                                            AvukatAgi.netÔÇÖte g├Ârev alabilmek i├ğin Premium veya Premium+ ├╝yeliklerden birine sahip olman─▒z yeterlidir.
++                                            AvukatAgi.netÔÇÖte g├Ârev alabilmek i├ğin onayl─▒ avukat hesab─▒na sahip olman─▒z yeterlidir.
+                                         </p>
+-                                        <p className="text-slate-700 font-medium mb-2">Premium ├╝yeler:</p>
++                                        <p className="text-slate-700 font-medium mb-2">T├╝m avukatlar:</p>
+                                         <ul className="space-y-2 mb-4 text-slate-600 list-disc pl-5">
+                                             <li>Se├ğtikleri adliyelerde yeni g├Ârev a├ğ─▒ld─▒─ş─▒nda an─▒nda bilgilendirilir,</li>
+                                             <li>15 dakikal─▒k ba┼şvuru s├╝resi i├ğinde g├Âreve ba┼şvuru g├Ânderebilir.</li>
+@@ -135,7 +135,7 @@ const HowItWorksPage = () => {
+                                         </h2>
+                                         <p className="text-slate-600 mb-4">
+                                             G├Ârev almak i├ğin ayr─▒ca bir i┼şlem yapman─▒za gerek yoktur.
+-                                            Premium ├╝yeli─şiniz aktif oldu─şu s├╝rece g├Ârevlendirme durumunuz a├ğ─▒k ise:
++                                            Hesab─▒n─▒z aktif oldu─şu s├╝rece g├Ârevlendirme durumunuz a├ğ─▒k ise:
+                                         </p>
+                                         <ul className="space-y-2 mb-4 text-slate-600 list-disc pl-5">
+                                             <li>Se├ğti─şiniz adliyelerde g├Ârev olu┼şturuldu─şunda bildirim al─▒rs─▒n─▒z,</li>
+@@ -181,7 +181,7 @@ const HowItWorksPage = () => {
+                                             G├Ârev Bildirimleri
+                                         </h2>
+                                         <p className="text-slate-600 mb-4">
+-                                            Se├ğti─şiniz adliyelerde g├Ârev olu┼şturuldu─şunda Premium ├╝yeler:
++                                            Se├ğti─şiniz adliyelerde g├Ârev olu┼şturuldu─şunda ilgili avukatlar:
+                                         </p>
+                                         <div className="flex gap-4 mb-4">
+                                             <div className="flex items-center bg-slate-100 px-3 py-2 rounded-lg text-slate-700">
+@@ -209,7 +209,7 @@ const HowItWorksPage = () => {
+                                         "G├╝venilir avukat a─ş─▒",
+                                         "T├╝rkiye genelinde anl─▒k g├Ârev bilgilendirmesi",
+                                         "├£cretsiz g├Ârev verme imk├ón─▒",
+-                                        "Premium ├╝yeler i├ğin y├╝ksek i┼ş alma potansiyeli"
++                                        "Avukatlar i├ğin y├╝ksek i┼ş alma potansiyeli"
+                                     ].map((item, index) => (
+                                         <div key={index} className="flex items-center bg-white p-4 rounded-xl shadow-sm">
+                                             <CheckCircle className="h-5 w-5 text-primary-600 mr-3 flex-shrink-0" />
+diff --git a/pages/TermsOfUse.tsx b/pages/TermsOfUse.tsx
+index 0984af9..098f795 100644
+--- a/pages/TermsOfUse.tsx
++++ b/pages/TermsOfUse.tsx
+@@ -69,8 +69,8 @@ const TermsOfUse = () => {
+                             Bu s├Âzle┼şmeyi kabul ederek sisteme kay─▒t olan avukat, stajyer avukat veya kimlik ibraz eden katip.
+                         </li>
+                         <li>
+-                            <strong>Premium / Premium+ ├£yelik:</strong><br />
+-                            G├Ârev alabilmek i├ğin sat─▒n al─▒nmas─▒ gereken ├╝cretli hizmet modeli.
++                            <strong>AvukatAgi:</strong><br />
++                            Avukatlar─▒n birbirleriyle yard─▒mla┼şmas─▒n─▒ sa─şlamak amac─▒yla geli┼ştirilen web/mobil platform.
+                         </li>
+                         <li>
+                             <strong>G├Ârev Olu┼şturan:</strong><br />
+@@ -78,7 +78,7 @@ const TermsOfUse = () => {
+                         </li>
+                         <li>
+                             <strong>G├Âreve Ba┼şvuran:</strong><br />
+-                            Premium veya Premium+ ├╝yeli─şi ile g├Âreve ba┼şvuru yapan ├╝ye.
++                            G├Âreve ba┼şvuru yapan ├╝ye.
+                         </li>
+                         <li>
+                             <strong>G├Âreve Atanan:</strong><br />
+@@ -131,7 +131,7 @@ const TermsOfUse = () => {
+                     <p>bilgilerini do─şru ve eksiksiz girmekle y├╝k├╝ml├╝d├╝r.</p>
+                     <p>G├Ârev a├ğ─▒ld─▒─ş─▒nda:</p>
+                     <ul className="list-disc pl-5 mb-2">
+-                        <li>Se├ğili adliyede bulunan Premium/Premium+ ├╝yelerine bildirilir.</li>
++                        <li>Se├ğili adliyede bulunan m├╝sait avukatlara bildirilir.</li>
+                         <li>Ba┼şvuru s├╝resi 15 dakikad─▒r.</li>
+                         <li>G├Ârev olu┼şturulduktan sonra iptal edilemez. (─░ptal edilmesi gerekiyorsa taraflar do─şrudan ileti┼şime ge├ğer.)</li>
+                     </ul>
+@@ -144,12 +144,11 @@ const TermsOfUse = () => {
+ 
+                     <h4 className="font-bold mt-4">5.2 ÔÇô G├Âreve Ba┼şvuran A├ğ─▒s─▒ndan</h4>
+                     <p>G├Âreve ba┼şvuru yapabilmek i├ğin:</p>
+-                    <p className="font-bold">ÔŞí´©Å Premium veya Premium+ ├╝yelik zorunludur.</p>
++                    <p className="font-bold">ÔŞí´©Å Avukat olman─▒z yeterlidir.</p>
+                     <p>
+                         Ba┼şvuru yapmak, g├Ârevin mutlaka size atanaca─ş─▒ anlam─▒na gelmez.
+-                        Se├ğilmedi─şiniz g├Ârevler i├ğin iade talep edilemez.
+                     </p>
+-                    <p>Premium hizmet bedeli y─▒ll─▒k olup, sat─▒n al─▒nd─▒─ş─▒ andan itibaren aktifle┼şir.</p>
++                    <p>G├Ârev almak ve vermek tamamen ├╝cretsizdir.</p>
+ 
+                     <h4 className="font-bold mt-4">5.3 ÔÇô G├Âreve Atanan A├ğ─▒s─▒ndan</h4>
+                     <p>G├Ârev atanmas─▒ durumunda;</p>
+@@ -216,7 +215,11 @@ const TermsOfUse = () => {
+                         G├Ârev s─▒kl─▒─ş─▒; ┼şehir, adliye yo─şunlu─şu, avukat say─▒s─▒ ve g├Ârevin niteli─şine g├Âre de─şi┼şir.
+                         AvukatAgi hi├ğbir ┼şekilde ÔÇ£belirli say─▒da g├Ârev garantisiÔÇØ vermez.
+                     </p>
+-                    <p>Premium ├╝yelik bir hizmettir; ba┼şvuru hakk─▒ kazand─▒r─▒r ancak i┼ş garantisi sa─şlamaz.</p>
++                    <p>
++                        G├Ârev s─▒kl─▒─ş─▒; ┼şehir, adliye yo─şunlu─şu, avukat say─▒s─▒ ve g├Ârevin niteli─şine g├Âre de─şi┼şir.
++                        AvukatAgi hi├ğbir ┼şekilde ÔÇ£belirli say─▒da g├Ârev garantisiÔÇØ vermez.
++                    </p>
++                    <p>AvukatAgi bir platform hizmetidir; ba┼şvuru hakk─▒ kazand─▒r─▒r ancak i┼ş garantisi sa─şlamaz.</p>
+ 
+                     <hr className="my-6 border-slate-200" />
+ 
+@@ -228,10 +231,9 @@ const TermsOfUse = () => {
+ 
+                     <hr className="my-6 border-slate-200" />
+ 
+-                    <h3>12. PREMIUM ├£YEL─░K VE ─░ADE</h3>
+-                    <p>Premium ├╝yelik iste─şe ba─şl─▒d─▒r.</p>
+-                    <p>├ûdeme sonras─▒ ├╝yelik hemen ba┼şlar.</p>
+-                    <p>─░ade ko┼şullar─▒ Mesafeli Sat─▒┼ş S├Âzle┼şmesi ├ğer├ğevesinde de─şerlendirilir.</p>
++                    <h3>12. ├£CRETS─░Z H─░ZMET</h3>
++                    <p>AvukatAgi.net ├╝zerinden sunulan hizmetler tamamen ├╝cretsizdir.</p>
++                    <p>Hi├ğbir a┼şamada ├╝cret talep edilmemektedir.</p>
+ 
+                     <hr className="my-6 border-slate-200" />
+ 

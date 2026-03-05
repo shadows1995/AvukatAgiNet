@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileText } from 'lucide-react';
 import SEO from '../components/SEO';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 const TermsOfUse = () => {
     return (
@@ -69,8 +70,8 @@ const TermsOfUse = () => {
                             Bu sözleşmeyi kabul ederek sisteme kayıt olan avukat, stajyer avukat veya kimlik ibraz eden katip.
                         </li>
                         <li>
-                            <strong>AvukatAgi:</strong><br />
-                            Avukatların birbirleriyle yardımlaşmasını sağlamak amacıyla geliştirilen web/mobil platform.
+                            <strong>{SHOW_PREMIUM_FEATURES ? "Premium / Premium+ Üyelik:" : "AvukatAgi:"}</strong><br />
+                            {SHOW_PREMIUM_FEATURES ? "Görev alabilmek için satın alınması gereken ücretli hizmet modeli." : "Avukatların birbirleriyle yardımlaşmasını sağlamak amacıyla geliştirilen web/mobil platform."}
                         </li>
                         <li>
                             <strong>Görev Oluşturan:</strong><br />
@@ -78,7 +79,7 @@ const TermsOfUse = () => {
                         </li>
                         <li>
                             <strong>Göreve Başvuran:</strong><br />
-                            Göreve başvuru yapan üye.
+                            {SHOW_PREMIUM_FEATURES ? "Premium veya Premium+ üyeliği ile göreve başvuru yapan üye." : "Göreve başvuru yapan üye."}
                         </li>
                         <li>
                             <strong>Göreve Atanan:</strong><br />
@@ -131,7 +132,7 @@ const TermsOfUse = () => {
                     <p>bilgilerini doğru ve eksiksiz girmekle yükümlüdür.</p>
                     <p>Görev açıldığında:</p>
                     <ul className="list-disc pl-5 mb-2">
-                        <li>Seçili adliyede bulunan müsait avukatlara bildirilir.</li>
+                        <li>Seçili adliyede bulunan {SHOW_PREMIUM_FEATURES ? "Premium/Premium+ üyelerine" : "müsait avukatlara"} bildirilir.</li>
                         <li>Başvuru süresi 15 dakikadır.</li>
                         <li>Görev oluşturulduktan sonra iptal edilemez. (İptal edilmesi gerekiyorsa taraflar doğrudan iletişime geçer.)</li>
                     </ul>
@@ -144,11 +145,12 @@ const TermsOfUse = () => {
 
                     <h4 className="font-bold mt-4">5.2 – Göreve Başvuran Açısından</h4>
                     <p>Göreve başvuru yapabilmek için:</p>
-                    <p className="font-bold">➡️ Avukat olmanız yeterlidir.</p>
+                    <p className="font-bold">➡️ {SHOW_PREMIUM_FEATURES ? "Premium veya Premium+ üyelik zorunludur." : "Avukat olmanız yeterlidir."}</p>
                     <p>
                         Başvuru yapmak, görevin mutlaka size atanacağı anlamına gelmez.
+                        {SHOW_PREMIUM_FEATURES && " Seçilmediğiniz görevler için iade talep edilemez."}
                     </p>
-                    <p>Görev almak ve vermek tamamen ücretsizdir.</p>
+                    <p>{SHOW_PREMIUM_FEATURES ? "Premium hizmet bedeli yıllık olup, satın alındığı andan itibaren aktifleşir." : "Görev almak ve vermek tamamen ücretsizdir."}</p>
 
                     <h4 className="font-bold mt-4">5.3 – Göreve Atanan Açısından</h4>
                     <p>Görev atanması durumunda;</p>
@@ -215,11 +217,7 @@ const TermsOfUse = () => {
                         Görev sıklığı; şehir, adliye yoğunluğu, avukat sayısı ve görevin niteliğine göre değişir.
                         AvukatAgi hiçbir şekilde “belirli sayıda görev garantisi” vermez.
                     </p>
-                    <p>
-                        Görev sıklığı; şehir, adliye yoğunluğu, avukat sayısı ve görevin niteliğine göre değişir.
-                        AvukatAgi hiçbir şekilde “belirli sayıda görev garantisi” vermez.
-                    </p>
-                    <p>AvukatAgi bir platform hizmetidir; başvuru hakkı kazandırır ancak iş garantisi sağlamaz.</p>
+                    <p>{SHOW_PREMIUM_FEATURES ? "Premium üyelik bir hizmettir;" : "AvukatAgi bir platform hizmetidir;"} başvuru hakkı kazandırır ancak iş garantisi sağlamaz.</p>
 
                     <hr className="my-6 border-slate-200" />
 
@@ -231,9 +229,19 @@ const TermsOfUse = () => {
 
                     <hr className="my-6 border-slate-200" />
 
-                    <h3>12. ÜCRETSİZ HİZMET</h3>
-                    <p>AvukatAgi.net üzerinden sunulan hizmetler tamamen ücretsizdir.</p>
-                    <p>Hiçbir aşamada ücret talep edilmemektedir.</p>
+                    <h3>12. {SHOW_PREMIUM_FEATURES ? "PREMIUM ÜYELİK VE İADE" : "ÜCRETSİZ HİZMET"}</h3>
+                    {SHOW_PREMIUM_FEATURES ? (
+                        <>
+                            <p>Premium üyelik isteğe bağlıdır.</p>
+                            <p>Ödeme sonrası üyelik hemen başlar.</p>
+                            <p>İade koşulları Mesafeli Satış Sözleşmesi çerçevesinde değerlendirilir.</p>
+                        </>
+                    ) : (
+                        <>
+                            <p>AvukatAgi.net üzerinden sunulan hizmetler tamamen ücretsizdir.</p>
+                            <p>Hiçbir aşamada ücret talep edilmemektedir.</p>
+                        </>
+                    )}
 
                     <hr className="my-6 border-slate-200" />
 

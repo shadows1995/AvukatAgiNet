@@ -60,13 +60,12 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
     }
 
     if (!user.isPremium) {
-      if (isMobileApp) {
+      if (isMobileApp && !SHOW_PREMIUM_FEATURES) {
         showAlert({
           title: "Yetkisiz Erişim",
           message: "Bu göreve başvuramazsın.",
           type: "error"
         });
-        return;
         return;
       }
 
@@ -225,10 +224,10 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
           ) : (
             <button
               onClick={(e) => { e.stopPropagation(); handleApplyClick(); }}
-              disabled={hasApplied || (!user.isPremium && isMobileApp)}
+              disabled={hasApplied || (!user.isPremium && isMobileApp && !SHOW_PREMIUM_FEATURES)}
               className={`w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white transition duration-200 ${hasApplied
                 ? 'bg-slate-400 cursor-not-allowed'
-                : (!user.isPremium && isMobileApp)
+                : (!user.isPremium && isMobileApp && !SHOW_PREMIUM_FEATURES)
                   ? 'bg-slate-400 cursor-not-allowed'
                   : isPremium
                     ? 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
@@ -237,7 +236,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
             >
               {hasApplied
                 ? 'Başvuru Yapıldı'
-                : (!user.isPremium && isMobileApp)
+                : (!user.isPremium && isMobileApp && !SHOW_PREMIUM_FEATURES)
                   ? 'Başvuruya Kapalı'
                   : (isPremium || !SHOW_PREMIUM_FEATURES)
                     ? 'Hemen Başvur'

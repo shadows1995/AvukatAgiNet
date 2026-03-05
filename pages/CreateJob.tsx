@@ -7,6 +7,7 @@ import { supabase } from '../supabaseClient';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
 import { useMobileApp } from '../hooks/useMobileApp';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 const CreateJob = ({ user }: { user: User }) => {
   const navigate = useNavigate();
@@ -337,7 +338,7 @@ const CreateJob = ({ user }: { user: User }) => {
                     checked={formData.isUrgent}
                     onChange={(e) => {
                       if (!user.isPremium && e.target.checked) {
-                        if (isMobileApp) {
+                        if (isMobileApp && !SHOW_PREMIUM_FEATURES) {
                           showAlert({
                             title: "Erişim Kısıtlı",
                             message: "Your account does not have access to this feature.",
@@ -366,7 +367,7 @@ const CreateJob = ({ user }: { user: User }) => {
                   <label htmlFor="isUrgent" className="font-bold text-slate-900 flex items-center cursor-pointer text-base">
                     <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
                     Acil Görev
-                    {!user.isPremium && !isMobileApp && <span className="ml-3 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">PREMIUM</span>}
+                    {!user.isPremium && (!isMobileApp || SHOW_PREMIUM_FEATURES) && <span className="ml-3 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-0.5 rounded-full font-bold shadow-sm">PREMIUM</span>}
                   </label>
                   <p className="text-slate-500 mt-1.5 leading-relaxed">
                     Normal görevlerde başvuru toplama süresi 15 dakikadır. Acil görevlerde bu süre 5 dakikaya düşer ve göreviniz öne çıkarılır.

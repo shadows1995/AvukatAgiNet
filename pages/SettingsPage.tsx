@@ -6,6 +6,7 @@ import { User as UserType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
 import TaskDisputePage from './TaskDisputePage';
+import { SHOW_PREMIUM_FEATURES } from '../config';
 
 const NotificationSettingsTab = ({ user, onProfileUpdate, showNotification, askConfirmation }: {
   user: UserType,
@@ -829,9 +830,9 @@ const DeleteAccountTab = ({ showNotification, askConfirmation, user }: { showNot
               <li>Tüm profil bilgileriniz silinecek.</li>
               <li>Mevcut başvurularınız iptal edilecek.</li>
               <li>Yayınladığınız görevler sistemden kaldırılacak.</li>
-              {/* FOR_REVIEW: Hidden Premium Warning
-              <li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
-              */}
+              {SHOW_PREMIUM_FEATURES && (
+                <li>Premium üyeliğiniz varsa iptal edilecek (iade yapılmaz).</li>
+              )}
             </ul>
           </div>
         </div>
