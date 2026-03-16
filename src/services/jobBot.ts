@@ -81,6 +81,13 @@ export const runJobBot = async (supabase: SupabaseClient) => {
         const now = new Date();
         const trTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
         const dayOfWeek = trTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const hourOfDay = trTime.getHours();
+
+        // Rule: Only run between 09:00 and 18:00
+        if (hourOfDay < 9 || hourOfDay > 17) {
+            console.log(`🤖 Job Bot: Outside operating hours (09:00-18:00). Current hour (Turkey time): ${hourOfDay}. Skipping.`);
+            return;
+        }
 
         // Rule 2: No jobs on weekends
         if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -111,10 +118,19 @@ export const runJobBot = async (supabase: SupabaseClient) => {
 
         // 5. Process Each Courthouse
         for (const ch of selectedCourthouses) {
-            const now = new Date();
-            const tomorrow = new Date(now);
+            // Get current time in Turkey properly for today and tomorrow
+            const nowRaw = new Date();
+            const trNowStr = nowRaw.toLocaleString("en-US", { timeZone: "Europe/Istanbul" });
+            const trNow = new Date(trNowStr);
+            
+            const tomorrow = new Date(trNow);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            const targetDate = tomorrow.toISOString().split('T')[0];
+            
+            // Format YYYY-MM-DD for Turkey
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const targetDate = `${year}-${month}-${day}`;
 
             const { data: existingJobs } = await supabase
                 .from('jobs')
@@ -140,22 +156,14 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             }
 
             // Insert Job
-            // Calculate Time (Business Hours: 09:00 - 17:00)
-            // Fixed random logic for next day
-            const randomHour = Math.floor(Math.random() * (17 - 9)) + 9; // 9 to 16
+            // Calculate Time (Business Hours: 09:00 - 18:00)
+            const randomHour = Math.floor(Math.random() * (18 - 9)) + 9; // 9 to 17 (meaning up to 17:59)
             const randomMin = Math.floor(Math.random() * 60);
 
             const timeString = `${String(randomHour).padStart(2, '0')}:${String(randomMin).padStart(2, '0')}`;
 
             // Calculate Application Deadline (15 minutes from creation... wait, from creation NOW)
-            // Or relative to the job time? Usually deadline is immediate relative to posting time "15 dk suren var".
-            // If the job is for tomorrow, the deadline is probably "application deadline now"? 
-            // The bot creates the job NOW (or tomorrow?), but the 'date' field is for the hearing?
-            // "Görevlerin date ve time'ı (database de) ertesi günün mesai saatleri olsun."
-            // This means the hearing date is tomorrow.
-            // The job is posted NOW.
-
-            const deadlineDate = new Date();
+            const deadlineDate = new Date(nowRaw); // Save deadline in UTC equivalent time because Supabase expects UTC timestamp
             deadlineDate.setMinutes(deadlineDate.getMinutes() + 15);
 
             const { data: insertedJob, error: insertError } = await supabase.from('jobs').insert({
@@ -163,7 +171,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 description: jobDetails.description,
                 city: ch.city,
                 courthouse: ch.name,
-                date: targetDate, // Tomorrow
+                date: targetDate, // Tomorrow's date in Turkey Time
                 time: timeString,
                 job_type: jobDetails.jobType,
                 offered_fee: jobDetails.offeredFee,
