@@ -56,7 +56,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                     console.log('🤖 Job Bot: Auth user exists but missing profile. Attempting to recover...');
                     // Try to list users to find it (might need pagination, but let's hope it works or we just error)
                     const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-                    const authUser = users.find(u => u.email === BOT_EMAIL);
+                    const authUser = (users as any[]).find(u => u.email === BOT_EMAIL);
                     if (authUser) {
                         botUserId = authUser.id;
                     } else {
