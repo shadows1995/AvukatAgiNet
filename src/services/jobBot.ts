@@ -30,12 +30,15 @@ export const runJobBot = async (supabase: SupabaseClient) => {
         }
 
         // 2. Ensure Bot User Exists
-        const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-        const botUser = (users as any[])?.find(u => u.email === BOT_EMAIL);
+        const { data: existingProfile } = await supabase
+            .from('users')
+            .select('uid')
+            .eq('email', BOT_EMAIL)
+            .single();
 
-        let botUserId = botUser?.id;
+        let botUserId = existingProfile?.uid;
 
-        if (!botUser) {
+        if (!botUserId) {
             console.log('🤖 Job Bot: Bot user not found. Creating...');
             const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
                 email: BOT_EMAIL,
@@ -48,11 +51,25 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             });
 
             if (createError || !newUser.user) {
-                console.error('🤖 Job Bot: Failed to create bot user:', createError);
-                return;
+                // If it already exists in auth but not in users profile table, we need to handle that.
+                if (createError && (createError as any).code === 'email_exists') {
+                    console.log('🤖 Job Bot: Auth user exists but missing profile. Attempting to recover...');
+                    // Try to list users to find it (might need pagination, but let's hope it works or we just error)
+                    const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+                    const authUser = users.find(u => u.email === BOT_EMAIL);
+                    if (authUser) {
+                        botUserId = authUser.id;
+                    } else {
+                        console.error('🤖 Job Bot: Could not find existing auth user ID.');
+                        return;
+                    }
+                } else {
+                    console.error('🤖 Job Bot: Failed to create bot user:', createError);
+                    return;
+                }
+            } else {
+                botUserId = newUser.user.id;
             }
-
-            botUserId = newUser.user.id;
 
             // Create public user profile
             const { error: profileError } = await supabase.from('users').insert({
@@ -72,9 +89,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 console.error('🤖 Job Bot: Failed to create bot profile:', profileError);
             }
 
-            console.log('🤖 Job Bot: Bot user created successfully.');
-        } else {
-            botUserId = botUser.id;
+            console.log('🤖 Job Bot: Bot user profile created successfully.');
         }
 
         // 3. Check Day Rules
