@@ -189,10 +189,6 @@ export async function notifyNewJob(
 
         console.log(`🎯 Users matching location: ${usersToNotify.length}`);
 
-        if (usersToNotify.length === 0) {
-            return { success: true, message: 'No matching users for this courthouse', count: 0 };
-        }
-
         // 3. Prepare Messages
         let formattedDate = date; // Fallback
         try {
@@ -222,12 +218,33 @@ export async function notifyNewJob(
             `Ücret: ${offeredFee} TL\n\n` +
             `Başvurmak için avukatagi.net sitesini veya mobil uygulamasını ziyaret edin.`;
 
-
-        // 4. Send Notifications in Parallel
-        let sentSmsCount = 0;
         let sentTelegramCount = 0;
+        let sentSmsCount = 0;
         const promises = [];
 
+        // Global Telegram Post (If a global chat ID is configured)
+        // MUST happen regardless of whether personal users are matched!
+        const globalChatId = process.env.TELEGRAM_GLOBAL_CHAT_ID;
+        if (globalChatId) {
+            promises.push(
+                sendTelegramMessage(globalChatId, telegramMessage)
+                    .then(() => {
+                        console.log(`✅ Telegram broadcast sent to global group: ${globalChatId}`);
+                        sentTelegramCount++;
+                    })
+                    .catch(e => console.error(`❌ Global Telegram broadcast fail`, e))
+            );
+        }
+
+        if (usersToNotify.length === 0) {
+            // Wait for global broadcast if any, then return early for personal notifications
+            await Promise.allSettled(promises);
+            return { success: true, message: 'No matching personal users for this courthouse, but global broadcast processed.', counts: { sms: 0, telegram: sentTelegramCount } };
+        }
+
+
+
+        // 4. Send Notifications in Parallel
         for (const user of usersToNotify) {
             // SMS Logic
             // Include user if strict true, OR if legacy null (not strictly false)
@@ -249,19 +266,6 @@ export async function notifyNewJob(
                         .catch(e => console.error(`Telegram fail ${user.uid}`, e))
                 );
             }
-        }
-
-        // Global Telegram Post (If a global chat ID is configured)
-        const globalChatId = process.env.TELEGRAM_GLOBAL_CHAT_ID;
-        if (globalChatId) {
-            promises.push(
-                sendTelegramMessage(globalChatId, telegramMessage)
-                    .then(() => {
-                        console.log(`✅ Telegram broadcast sent to global group: ${globalChatId}`);
-                        sentTelegramCount++;
-                    })
-                    .catch(e => console.error(`❌ Global Telegram broadcast fail`, e))
-            );
         }
 
         await Promise.allSettled(promises);
