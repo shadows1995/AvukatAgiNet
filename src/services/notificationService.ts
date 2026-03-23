@@ -2,6 +2,28 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import axios from "axios";
 import { COURTHOUSES } from "../../data/courthouses.js";
 import { sendTelegramMessage } from "./telegramService.js";
+import fs from 'fs';
+import path from 'path';
+
+export function customLog(...args: any[]) {
+    try {
+        const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        const time = new Date().toISOString();
+        const logLine = `[${time}] ${msg}\n`;
+        fs.appendFileSync(path.join(process.cwd(), 'notification.log'), logLine);
+        console.log(...args);
+    } catch (e) { console.log(...args); }
+}
+
+export function customError(...args: any[]) {
+    try {
+        const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        const time = new Date().toISOString();
+        const logLine = `[ERROR ${time}] ${msg}\n`;
+        fs.appendFileSync(path.join(process.cwd(), 'notification.log'), logLine);
+        console.error(...args);
+    } catch (e) { console.error(...args); }
+}
 
 // Helper to send SMS via NetGSM XML API
 export async function sendSms(phone: string, message: string) {
@@ -67,10 +89,10 @@ export async function notifyNewJob(
     }
 ) {
     const { city, courthouse, jobType, jobId, createdBy, date, offeredFee, isOutside } = jobData;
-    console.log('📨 Notification Service: Processing new job:', { city, courthouse, jobType, createdBy, isOutside });
+    customLog('📨 Notification Service: Processing new job:', { city, courthouse, jobType, createdBy, isOutside });
 
     if (!courthouse || !jobType) {
-        console.log('❌ Notification Service: Missing required fields');
+        customError('❌ Notification Service: Missing required fields');
         return { success: false, error: 'Missing required fields' };
     }
 
@@ -85,13 +107,13 @@ export async function notifyNewJob(
         const { data: users, error } = await query;
 
         if (error) {
-            console.error('❌ Notification Service: Error fetching users:', error);
+            customError('❌ Notification Service: Error fetching users:', error);
             throw error;
         }
 
-        console.log(`📊 Total potential users found: ${users?.length || 0}`);
+        customLog(`📊 Total potential users found: ${users?.length || 0}`);
         if (!users || users.length === 0) {
-            console.log('⚠️ No users found to notify.');
+            customLog('⚠️ No users found to notify.');
             return { success: true, message: 'No users to notify', count: 0 };
         }
 
@@ -225,20 +247,25 @@ export async function notifyNewJob(
         // Global Telegram Post (If a global chat ID is configured)
         // MUST happen regardless of whether personal users are matched!
         const globalChatId = process.env.TELEGRAM_GLOBAL_CHAT_ID;
+        customLog(`[DEBUG] globalChatId configured as: >${globalChatId}<`);
         if (globalChatId) {
             promises.push(
                 sendTelegramMessage(globalChatId, telegramMessage)
                     .then(() => {
-                        console.log(`✅ Telegram broadcast sent to global group: ${globalChatId}`);
+                        customLog(`✅ Telegram broadcast sent to global group: ${globalChatId}`);
                         sentTelegramCount++;
                     })
-                    .catch(e => console.error(`❌ Global Telegram broadcast fail`, e))
+                    .catch(e => customError(`❌ Global Telegram broadcast fail`, e))
             );
+        } else {
+            customLog(`[DEBUG] Skipping global broadcast because globalChatId is falsy`);
         }
 
         if (usersToNotify.length === 0) {
+            customLog(`[DEBUG] No personal users to notify. Waiting for ${promises.length} promises.`);
             // Wait for global broadcast if any, then return early for personal notifications
-            await Promise.allSettled(promises);
+            const results = await Promise.allSettled(promises);
+            customLog(`[DEBUG] Early Return Promise Results:`, results.map(r => r.status));
             return { success: true, message: 'No matching personal users for this courthouse, but global broadcast processed.', counts: { sms: 0, telegram: sentTelegramCount } };
         }
 
@@ -268,9 +295,10 @@ export async function notifyNewJob(
             }
         }
 
-        await Promise.allSettled(promises);
-
-        console.log(`✅ Notifications sent. SMS: ${sentSmsCount}, Telegram: ${sentTelegramCount}`);
+        customLog(`[DEBUG] Waiting for ${promises.length} personal/global promises.`);
+        const resultsAll = await Promise.allSettled(promises);
+        customLog(`[DEBUG] All Promise Results:`, resultsAll.map(r => r.status));
+        customLog(`✅ Notifications sent. SMS: ${sentSmsCount}, Telegram: ${sentTelegramCount}`);
 
         return {
             success: true,
@@ -280,7 +308,7 @@ export async function notifyNewJob(
         };
 
     } catch (err: any) {
-        console.error('❌ Notification Service Error:', err);
+        customError('❌ Notification Service Error:', err);
         return { success: false, error: err.message };
     }
 }

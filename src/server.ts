@@ -154,6 +154,21 @@ app.get('/api/debug-telegram-env', (req, res) => {
     });
 });
 
+app.get('/api/debug-log', (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const logPath = path.join(process.cwd(), 'notification.log');
+        if (fs.existsSync(logPath)) {
+            res.type('text/plain').send(fs.readFileSync(logPath, 'utf8'));
+        } else {
+            res.type('text/plain').send('Log file not found or empty.');
+        }
+    } catch (e: any) {
+        res.type('text/plain').send('Error reading log: ' + e.message);
+    }
+});
+
 // Endpoint: Activate Beta Trial (Securely)
 app.post('/api/activate-beta', async (req, res) => {
     const { token } = req.body;
