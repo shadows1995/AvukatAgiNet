@@ -1,9 +1,5 @@
 import axios from 'axios';
 
-// Get token from env
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-
 /**
  * Sends a text message to a Telegram chat.
  * Uses service role / server-side logic solely.
@@ -12,10 +8,13 @@ const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
  * @param text The plain text message
  */
 export async function sendTelegramMessage(chatId: string, text: string): Promise<void> {
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     if (!TELEGRAM_BOT_TOKEN) {
         console.warn('⚠️ TELEGRAM_BOT_TOKEN is missing. Cannot send message.');
         return;
     }
+
+    const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
     try {
         await axios.post(`${TELEGRAM_API_URL}/sendMessage`, {
@@ -37,7 +36,10 @@ export async function sendTelegramMessage(chatId: string, text: string): Promise
  * @param secretToken Optional secret token for security
  */
 export async function setTelegramWebhook(url: string, secretToken?: string): Promise<any> {
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     if (!TELEGRAM_BOT_TOKEN) throw new Error('TELEGRAM_BOT_TOKEN missing');
+
+    const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
     const params: any = { url };
     if (secretToken) params.secret_token = secretToken;
