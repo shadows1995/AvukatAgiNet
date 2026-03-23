@@ -8,7 +8,7 @@ import axios from 'axios';
  * @param text The plain text message
  */
 export async function sendTelegramMessage(chatId: string, text: string): Promise<void> {
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN?.trim();
     if (!TELEGRAM_BOT_TOKEN) {
         console.warn('⚠️ TELEGRAM_BOT_TOKEN is missing. Cannot send message.');
         return;
@@ -18,7 +18,8 @@ export async function sendTelegramMessage(chatId: string, text: string): Promise
 
     try {
         await axios.post(`${TELEGRAM_API_URL}/sendMessage`, {
-            chat_id: chatId,
+            // Trim the chat ID just in case it has trailing newlines from env config
+            chat_id: String(chatId).trim(),
             text: text,
             parse_mode: undefined, // Disable parsing to avoid errors with special chars
             disable_web_page_preview: true
@@ -36,7 +37,7 @@ export async function sendTelegramMessage(chatId: string, text: string): Promise
  * @param secretToken Optional secret token for security
  */
 export async function setTelegramWebhook(url: string, secretToken?: string): Promise<any> {
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN?.trim();
     if (!TELEGRAM_BOT_TOKEN) throw new Error('TELEGRAM_BOT_TOKEN missing');
 
     const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
