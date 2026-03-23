@@ -251,6 +251,19 @@ export async function notifyNewJob(
             }
         }
 
+        // Global Telegram Post (If a global chat ID is configured)
+        const globalChatId = process.env.TELEGRAM_GLOBAL_CHAT_ID;
+        if (globalChatId) {
+            promises.push(
+                sendTelegramMessage(globalChatId, telegramMessage)
+                    .then(() => {
+                        console.log(`✅ Telegram broadcast sent to global group: ${globalChatId}`);
+                        sentTelegramCount++;
+                    })
+                    .catch(e => console.error(`❌ Global Telegram broadcast fail`, e))
+            );
+        }
+
         await Promise.allSettled(promises);
 
         console.log(`✅ Notifications sent. SMS: ${sentSmsCount}, Telegram: ${sentTelegramCount}`);
