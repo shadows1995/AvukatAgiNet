@@ -146,6 +146,14 @@ app.get('/api/health', (req, res) => {
     res.json({ ok: true, time: new Date().toISOString() });
 });
 
+// Endpoint: Debug Telegram Env variables (Internal diagnostic)
+app.get('/api/debug-telegram-env', (req, res) => {
+    res.json({
+        globalChatId: process.env.TELEGRAM_GLOBAL_CHAT_ID || 'MISSING',
+        botTokenSet: !!process.env.TELEGRAM_BOT_TOKEN
+    });
+});
+
 // Endpoint: Activate Beta Trial (Securely)
 app.post('/api/activate-beta', async (req, res) => {
     const { token } = req.body;
