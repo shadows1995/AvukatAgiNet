@@ -9,6 +9,7 @@ import { SHOW_PREMIUM_FEATURES } from './config';
 // Component Imports
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BetaWelcomeModal from './components/BetaWelcomeModal';
 import Dashboard from './pages/Dashboard';
 import HomePage from './pages/HomePage';
 import MyJobs from './pages/MyJobs';
@@ -48,6 +49,7 @@ import { AlertProvider } from './contexts/AlertContext';
 const AppContent = () => {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [showBetaModal, setShowBetaModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isMobileApp = useMobileApp();
@@ -178,6 +180,15 @@ const AppContent = () => {
     }
   }, [user]);
 
+  // Priority 1: Check Beta Status globally so mobile users on arbitrary routes don't skip it
+  useEffect(() => {
+    if (user && SHOW_PREMIUM_FEATURES && !user.claimed_beta_promo) {
+      setShowBetaModal(true);
+    } else {
+      setShowBetaModal(false);
+    }
+  }, [user]);
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -193,6 +204,17 @@ const AppContent = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar user={user} onLogout={handleLogout} />
+      
+      {showBetaModal && user && (
+        <BetaWelcomeModal
+           user={user}
+           onSuccess={() => {
+              setShowBetaModal(false);
+              fetchUserProfile(user.uid);
+           }}
+        />
+      )}
+
       <div className="flex-grow">
         <Routes>
           <Route path="/" element={user ? <Navigate to="/home" /> : <LandingPage />} />

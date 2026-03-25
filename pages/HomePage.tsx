@@ -9,7 +9,6 @@ import InteractiveSphere from '../components/InteractiveSphere';
 
 import SEO from '../components/SEO';
 import ProfileCompletionModal from '../components/ProfileCompletionModal';
-import BetaWelcomeModal from '../components/BetaWelcomeModal';
 import { useMobileApp } from '../hooks/useMobileApp';
 import { SHOW_PREMIUM_FEATURES } from '../config';
 
@@ -28,7 +27,6 @@ const HomePage = ({ user }: { user: User }) => {
 
    // Profile Completion State
    const [showCompletionModal, setShowCompletionModal] = useState(false);
-   const [showBetaModal, setShowBetaModal] = useState(false);
    const [missingFields, setMissingFields] = useState<string[]>([]);
 
    // Chart filter state
@@ -89,16 +87,10 @@ const HomePage = ({ user }: { user: User }) => {
       };
    }, []);
 
-   // Check Missing Fields AND Beta Status
+   // Check Missing Fields
    useEffect(() => {
       if (user) {
-         // Priority 1: Check Beta Status - ONLY if Premium features are enabled and they haven't claimed it yet
-         if (SHOW_PREMIUM_FEATURES && !user.claimed_beta_promo) {
-            setShowBetaModal(true);
-            return; // Stop here, do not check profile completion yet
-         }
-
-         // Priority 2: Check Missing Fields (Only if Premium/Trial Active)
+         // Check Missing Fields (Only if Premium/Trial Active)
          const missing = [];
          if (!user.phone) missing.push("Telefon Numarası");
          if (!user.preferredCourthouses || user.preferredCourthouses.length === 0) missing.push("Tercih Edilen Adliyeler");
@@ -266,15 +258,6 @@ const HomePage = ({ user }: { user: User }) => {
             title="Ana Sayfa - AvukatAğı"
             description="AvukatAğı ana sayfası. Güncel görevleri takip edin, yeni görev oluşturun ve istatistiklerinizi görüntüleyin."
          />
-
-         {showBetaModal && (
-            <BetaWelcomeModal
-               user={user}
-               onSuccess={() => {
-                  window.location.reload(); // Reload to refresh user state from Supabase
-               }}
-            />
-         )}
 
          <ProfileCompletionModal
             isOpen={showCompletionModal}
