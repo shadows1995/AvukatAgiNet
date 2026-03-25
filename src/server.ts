@@ -616,17 +616,6 @@ app.get('/rss', async (req, res) => {
     }
 });
 
-// Handle React routing, return all requests to React app
-// This must be the last route
-app.get(/.*/, (req, res) => {
-    // Log if we are serving index.html for a non-html request (likely a missing asset)
-    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
-        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
-    }
-    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
-});
-
-
 // Endpoint: Get Marketing Stats
 app.get('/api/admin/marketing-stats', async (req, res) => {
     try {
@@ -712,6 +701,17 @@ app.post('/api/admin/send-marketing', async (req, res) => {
         res.status(500).json({ error: 'Gönderim başarısız.', details: err.message });
     }
 });
+
+// Handle React routing, return all requests to React app
+// This must be the last route
+app.get(/.*/, (req, res) => {
+    // Log if we are serving index.html for a non-html request (likely a missing asset)
+    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
+        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
+    }
+    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+});
+
 
 // Endpoint: Manually trigger Job Bot
 app.post('/api/trigger-bot', async (req, res) => {
