@@ -1,0 +1,8 @@
+Total jobs in DB: 1000
+Hidden by Status (!= open): 51
+Hidden by Courthouse Filter: 949
+Hidden by Date Filter: 0
+Visible Jobs for Normal User with 0 Courthouses: 0
+--- ADMIN VIEW ---
+Hidden by Date Filter: 945
+Visible Jobs for Admin View: 4

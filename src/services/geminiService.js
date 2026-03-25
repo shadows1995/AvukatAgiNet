@@ -1,25 +1,17 @@
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
-
 dotenv.config();
-
 const apiKey = process.env.GEMINI_API_KEY;
-
 export const generateJobDetails = async (courthouse, allowedJobTypes) => {
     if (!apiKey) {
         console.error("Gemini API key is missing.");
         return null;
     }
-
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-
         const jobTypeInstruction = allowedJobTypes && allowedJobTypes.length > 0
             ? `Seçilecek görev türü SADECE şunlardan biri olabilir: ${allowedJobTypes.join(', ')}.`
             : 'Herhangi bir görev türü seçilebilir.';
-
         const prompt = `
         Sen bir Türk avukatısın. "${courthouse}" için gerçekçi bir tevkil (avukatlar arası iş yardımlaşması) görevi oluşturman gerekiyor.
         
@@ -58,22 +50,19 @@ export const generateJobDetails = async (courthouse, allowedJobTypes) => {
             "ownerName": "Rastgele Ad Soyad"
         }
         `;
-
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
-
         if (!text) {
             throw new Error("Empty response from Gemini");
         }
-
         // Clean up markdown code blocks if present
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
         const data = JSON.parse(jsonStr);
         return data;
-
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error generating job details with Gemini:", error);
         return null;
     }

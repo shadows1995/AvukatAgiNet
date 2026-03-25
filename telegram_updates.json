@@ -1,0 +1,3140 @@
+[
+  {
+    "update_id": 504689913,
+    "message": {
+      "message_id": 901,
+      "from": {
+        "id": 5338168743,
+        "is_bot": false,
+        "first_name": "Asena"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292857,
+      "new_chat_participant": {
+        "id": 5338168743,
+        "is_bot": false,
+        "first_name": "Asena"
+      },
+      "new_chat_member": {
+        "id": 5338168743,
+        "is_bot": false,
+        "first_name": "Asena"
+      },
+      "new_chat_members": [
+        {
+          "id": 5338168743,
+          "is_bot": false,
+          "first_name": "Asena"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689914,
+    "message": {
+      "message_id": 902,
+      "from": {
+        "id": 918673851,
+        "is_bot": false,
+        "first_name": "Av. Ümit",
+        "username": "umtluu"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292858,
+      "new_chat_participant": {
+        "id": 918673851,
+        "is_bot": false,
+        "first_name": "Av. Ümit",
+        "username": "umtluu"
+      },
+      "new_chat_member": {
+        "id": 918673851,
+        "is_bot": false,
+        "first_name": "Av. Ümit",
+        "username": "umtluu"
+      },
+      "new_chat_members": [
+        {
+          "id": 918673851,
+          "is_bot": false,
+          "first_name": "Av. Ümit",
+          "username": "umtluu"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689915,
+    "message": {
+      "message_id": 903,
+      "from": {
+        "id": 6265550509,
+        "is_bot": false,
+        "first_name": "Bilgem"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292859,
+      "new_chat_participant": {
+        "id": 6265550509,
+        "is_bot": false,
+        "first_name": "Bilgem"
+      },
+      "new_chat_member": {
+        "id": 6265550509,
+        "is_bot": false,
+        "first_name": "Bilgem"
+      },
+      "new_chat_members": [
+        {
+          "id": 6265550509,
+          "is_bot": false,
+          "first_name": "Bilgem"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689916,
+    "message": {
+      "message_id": 904,
+      "from": {
+        "id": 1555927809,
+        "is_bot": false,
+        "first_name": "Av. Merve"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292859,
+      "new_chat_participant": {
+        "id": 1555927809,
+        "is_bot": false,
+        "first_name": "Av. Merve"
+      },
+      "new_chat_member": {
+        "id": 1555927809,
+        "is_bot": false,
+        "first_name": "Av. Merve"
+      },
+      "new_chat_members": [
+        {
+          "id": 1555927809,
+          "is_bot": false,
+          "first_name": "Av. Merve"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689917,
+    "message": {
+      "message_id": 905,
+      "from": {
+        "id": 2124706293,
+        "is_bot": false,
+        "first_name": "Halil",
+        "last_name": "Göze"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292860,
+      "new_chat_participant": {
+        "id": 2124706293,
+        "is_bot": false,
+        "first_name": "Halil",
+        "last_name": "Göze"
+      },
+      "new_chat_member": {
+        "id": 2124706293,
+        "is_bot": false,
+        "first_name": "Halil",
+        "last_name": "Göze"
+      },
+      "new_chat_members": [
+        {
+          "id": 2124706293,
+          "is_bot": false,
+          "first_name": "Halil",
+          "last_name": "Göze"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689918,
+    "message": {
+      "message_id": 906,
+      "from": {
+        "id": 5058603350,
+        "is_bot": false,
+        "first_name": "Hande"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292860,
+      "new_chat_participant": {
+        "id": 5058603350,
+        "is_bot": false,
+        "first_name": "Hande"
+      },
+      "new_chat_member": {
+        "id": 5058603350,
+        "is_bot": false,
+        "first_name": "Hande"
+      },
+      "new_chat_members": [
+        {
+          "id": 5058603350,
+          "is_bot": false,
+          "first_name": "Hande"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689919,
+    "message": {
+      "message_id": 907,
+      "from": {
+        "id": 7266268837,
+        "is_bot": false,
+        "first_name": "Av.Gerçem"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292862,
+      "new_chat_participant": {
+        "id": 7266268837,
+        "is_bot": false,
+        "first_name": "Av.Gerçem"
+      },
+      "new_chat_member": {
+        "id": 7266268837,
+        "is_bot": false,
+        "first_name": "Av.Gerçem"
+      },
+      "new_chat_members": [
+        {
+          "id": 7266268837,
+          "is_bot": false,
+          "first_name": "Av.Gerçem"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689920,
+    "message": {
+      "message_id": 908,
+      "from": {
+        "id": 1466049330,
+        "is_bot": false,
+        "first_name": "Aleyna"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292862,
+      "new_chat_participant": {
+        "id": 1466049330,
+        "is_bot": false,
+        "first_name": "Aleyna"
+      },
+      "new_chat_member": {
+        "id": 1466049330,
+        "is_bot": false,
+        "first_name": "Aleyna"
+      },
+      "new_chat_members": [
+        {
+          "id": 1466049330,
+          "is_bot": false,
+          "first_name": "Aleyna"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689921,
+    "message": {
+      "message_id": 909,
+      "from": {
+        "id": 1794005486,
+        "is_bot": false,
+        "first_name": "Arb.Av.Ayşegül Çallıoğlu",
+        "last_name": "Antalya/Alanya",
+        "username": "AvArbAlanya"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292862,
+      "new_chat_participant": {
+        "id": 1794005486,
+        "is_bot": false,
+        "first_name": "Arb.Av.Ayşegül Çallıoğlu",
+        "last_name": "Antalya/Alanya",
+        "username": "AvArbAlanya"
+      },
+      "new_chat_member": {
+        "id": 1794005486,
+        "is_bot": false,
+        "first_name": "Arb.Av.Ayşegül Çallıoğlu",
+        "last_name": "Antalya/Alanya",
+        "username": "AvArbAlanya"
+      },
+      "new_chat_members": [
+        {
+          "id": 1794005486,
+          "is_bot": false,
+          "first_name": "Arb.Av.Ayşegül Çallıoğlu",
+          "last_name": "Antalya/Alanya",
+          "username": "AvArbAlanya"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689922,
+    "message": {
+      "message_id": 910,
+      "from": {
+        "id": 8190874965,
+        "is_bot": false,
+        "first_name": "Av.Zühal",
+        "last_name": "Seyyar Çakır"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292863,
+      "new_chat_participant": {
+        "id": 8190874965,
+        "is_bot": false,
+        "first_name": "Av.Zühal",
+        "last_name": "Seyyar Çakır"
+      },
+      "new_chat_member": {
+        "id": 8190874965,
+        "is_bot": false,
+        "first_name": "Av.Zühal",
+        "last_name": "Seyyar Çakır"
+      },
+      "new_chat_members": [
+        {
+          "id": 8190874965,
+          "is_bot": false,
+          "first_name": "Av.Zühal",
+          "last_name": "Seyyar Çakır"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689923,
+    "message": {
+      "message_id": 911,
+      "from": {
+        "id": 1214429465,
+        "is_bot": false,
+        "first_name": "Sema"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292864,
+      "new_chat_participant": {
+        "id": 1214429465,
+        "is_bot": false,
+        "first_name": "Sema"
+      },
+      "new_chat_member": {
+        "id": 1214429465,
+        "is_bot": false,
+        "first_name": "Sema"
+      },
+      "new_chat_members": [
+        {
+          "id": 1214429465,
+          "is_bot": false,
+          "first_name": "Sema"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689924,
+    "message": {
+      "message_id": 912,
+      "from": {
+        "id": 7344039076,
+        "is_bot": false,
+        "first_name": "Nurcan",
+        "last_name": "Hışım Uslu"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292865,
+      "new_chat_participant": {
+        "id": 7344039076,
+        "is_bot": false,
+        "first_name": "Nurcan",
+        "last_name": "Hışım Uslu"
+      },
+      "new_chat_member": {
+        "id": 7344039076,
+        "is_bot": false,
+        "first_name": "Nurcan",
+        "last_name": "Hışım Uslu"
+      },
+      "new_chat_members": [
+        {
+          "id": 7344039076,
+          "is_bot": false,
+          "first_name": "Nurcan",
+          "last_name": "Hışım Uslu"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689925,
+    "message": {
+      "message_id": 913,
+      "from": {
+        "id": 1617907804,
+        "is_bot": false,
+        "first_name": "Gönül",
+        "last_name": "Güvenç Tanrıöver"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292865,
+      "new_chat_participant": {
+        "id": 1617907804,
+        "is_bot": false,
+        "first_name": "Gönül",
+        "last_name": "Güvenç Tanrıöver"
+      },
+      "new_chat_member": {
+        "id": 1617907804,
+        "is_bot": false,
+        "first_name": "Gönül",
+        "last_name": "Güvenç Tanrıöver"
+      },
+      "new_chat_members": [
+        {
+          "id": 1617907804,
+          "is_bot": false,
+          "first_name": "Gönül",
+          "last_name": "Güvenç Tanrıöver"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689926,
+    "message": {
+      "message_id": 914,
+      "from": {
+        "id": 5342383240,
+        "is_bot": false,
+        "first_name": "Av.Esra",
+        "username": "FTH0102"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292866,
+      "new_chat_participant": {
+        "id": 5342383240,
+        "is_bot": false,
+        "first_name": "Av.Esra",
+        "username": "FTH0102"
+      },
+      "new_chat_member": {
+        "id": 5342383240,
+        "is_bot": false,
+        "first_name": "Av.Esra",
+        "username": "FTH0102"
+      },
+      "new_chat_members": [
+        {
+          "id": 5342383240,
+          "is_bot": false,
+          "first_name": "Av.Esra",
+          "username": "FTH0102"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689927,
+    "message": {
+      "message_id": 915,
+      "from": {
+        "id": 1759296637,
+        "is_bot": false,
+        "first_name": "P"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292867,
+      "new_chat_participant": {
+        "id": 1759296637,
+        "is_bot": false,
+        "first_name": "P"
+      },
+      "new_chat_member": {
+        "id": 1759296637,
+        "is_bot": false,
+        "first_name": "P"
+      },
+      "new_chat_members": [
+        {
+          "id": 1759296637,
+          "is_bot": false,
+          "first_name": "P"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689928,
+    "message": {
+      "message_id": 916,
+      "from": {
+        "id": 1209456497,
+        "is_bot": false,
+        "first_name": "Onur",
+        "last_name": "Kaya"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292867,
+      "new_chat_participant": {
+        "id": 1209456497,
+        "is_bot": false,
+        "first_name": "Onur",
+        "last_name": "Kaya"
+      },
+      "new_chat_member": {
+        "id": 1209456497,
+        "is_bot": false,
+        "first_name": "Onur",
+        "last_name": "Kaya"
+      },
+      "new_chat_members": [
+        {
+          "id": 1209456497,
+          "is_bot": false,
+          "first_name": "Onur",
+          "last_name": "Kaya"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689929,
+    "message": {
+      "message_id": 917,
+      "from": {
+        "id": 1490026565,
+        "is_bot": false,
+        "first_name": "Emine",
+        "last_name": "B"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292868,
+      "new_chat_participant": {
+        "id": 1490026565,
+        "is_bot": false,
+        "first_name": "Emine",
+        "last_name": "B"
+      },
+      "new_chat_member": {
+        "id": 1490026565,
+        "is_bot": false,
+        "first_name": "Emine",
+        "last_name": "B"
+      },
+      "new_chat_members": [
+        {
+          "id": 1490026565,
+          "is_bot": false,
+          "first_name": "Emine",
+          "last_name": "B"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689930,
+    "message": {
+      "message_id": 918,
+      "from": {
+        "id": 1476888027,
+        "is_bot": false,
+        "first_name": "Lütfullah"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292868,
+      "new_chat_participant": {
+        "id": 1476888027,
+        "is_bot": false,
+        "first_name": "Lütfullah"
+      },
+      "new_chat_member": {
+        "id": 1476888027,
+        "is_bot": false,
+        "first_name": "Lütfullah"
+      },
+      "new_chat_members": [
+        {
+          "id": 1476888027,
+          "is_bot": false,
+          "first_name": "Lütfullah"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689931,
+    "message": {
+      "message_id": 919,
+      "from": {
+        "id": 8516681082,
+        "is_bot": false,
+        "first_name": "Av."
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292868,
+      "new_chat_participant": {
+        "id": 8516681082,
+        "is_bot": false,
+        "first_name": "Av."
+      },
+      "new_chat_member": {
+        "id": 8516681082,
+        "is_bot": false,
+        "first_name": "Av."
+      },
+      "new_chat_members": [
+        {
+          "id": 8516681082,
+          "is_bot": false,
+          "first_name": "Av."
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689932,
+    "message": {
+      "message_id": 920,
+      "from": {
+        "id": 6013676728,
+        "is_bot": false,
+        "first_name": "Av. Halime Bektaş Bursa"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292868,
+      "new_chat_participant": {
+        "id": 6013676728,
+        "is_bot": false,
+        "first_name": "Av. Halime Bektaş Bursa"
+      },
+      "new_chat_member": {
+        "id": 6013676728,
+        "is_bot": false,
+        "first_name": "Av. Halime Bektaş Bursa"
+      },
+      "new_chat_members": [
+        {
+          "id": 6013676728,
+          "is_bot": false,
+          "first_name": "Av. Halime Bektaş Bursa"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689933,
+    "message": {
+      "message_id": 921,
+      "from": {
+        "id": 6732464717,
+        "is_bot": false,
+        "first_name": "Nagihan"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292869,
+      "new_chat_participant": {
+        "id": 6732464717,
+        "is_bot": false,
+        "first_name": "Nagihan"
+      },
+      "new_chat_member": {
+        "id": 6732464717,
+        "is_bot": false,
+        "first_name": "Nagihan"
+      },
+      "new_chat_members": [
+        {
+          "id": 6732464717,
+          "is_bot": false,
+          "first_name": "Nagihan"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689934,
+    "message": {
+      "message_id": 922,
+      "from": {
+        "id": 5159375485,
+        "is_bot": false,
+        "first_name": "Av. Ayşe Nur ATEŞ",
+        "username": "opiapia"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292870,
+      "new_chat_participant": {
+        "id": 5159375485,
+        "is_bot": false,
+        "first_name": "Av. Ayşe Nur ATEŞ",
+        "username": "opiapia"
+      },
+      "new_chat_member": {
+        "id": 5159375485,
+        "is_bot": false,
+        "first_name": "Av. Ayşe Nur ATEŞ",
+        "username": "opiapia"
+      },
+      "new_chat_members": [
+        {
+          "id": 5159375485,
+          "is_bot": false,
+          "first_name": "Av. Ayşe Nur ATEŞ",
+          "username": "opiapia"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689935,
+    "message": {
+      "message_id": 923,
+      "from": {
+        "id": 1823652162,
+        "is_bot": false,
+        "first_name": "Burcu",
+        "last_name": "Yılgör"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292871,
+      "new_chat_participant": {
+        "id": 1823652162,
+        "is_bot": false,
+        "first_name": "Burcu",
+        "last_name": "Yılgör"
+      },
+      "new_chat_member": {
+        "id": 1823652162,
+        "is_bot": false,
+        "first_name": "Burcu",
+        "last_name": "Yılgör"
+      },
+      "new_chat_members": [
+        {
+          "id": 1823652162,
+          "is_bot": false,
+          "first_name": "Burcu",
+          "last_name": "Yılgör"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689936,
+    "message": {
+      "message_id": 924,
+      "from": {
+        "id": 7273740116,
+        "is_bot": false,
+        "first_name": "Av.Derya Betül Özer 🐈‍⬛"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292871,
+      "new_chat_participant": {
+        "id": 7273740116,
+        "is_bot": false,
+        "first_name": "Av.Derya Betül Özer 🐈‍⬛"
+      },
+      "new_chat_member": {
+        "id": 7273740116,
+        "is_bot": false,
+        "first_name": "Av.Derya Betül Özer 🐈‍⬛"
+      },
+      "new_chat_members": [
+        {
+          "id": 7273740116,
+          "is_bot": false,
+          "first_name": "Av.Derya Betül Özer 🐈‍⬛"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689937,
+    "message": {
+      "message_id": 925,
+      "from": {
+        "id": 1432066841,
+        "is_bot": false,
+        "first_name": "Av. Gülşah",
+        "username": "avgulsahkok"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292872,
+      "new_chat_participant": {
+        "id": 1432066841,
+        "is_bot": false,
+        "first_name": "Av. Gülşah",
+        "username": "avgulsahkok"
+      },
+      "new_chat_member": {
+        "id": 1432066841,
+        "is_bot": false,
+        "first_name": "Av. Gülşah",
+        "username": "avgulsahkok"
+      },
+      "new_chat_members": [
+        {
+          "id": 1432066841,
+          "is_bot": false,
+          "first_name": "Av. Gülşah",
+          "username": "avgulsahkok"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689938,
+    "message": {
+      "message_id": 926,
+      "from": {
+        "id": 819625714,
+        "is_bot": false,
+        "first_name": "Ali"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292872,
+      "new_chat_participant": {
+        "id": 819625714,
+        "is_bot": false,
+        "first_name": "Ali"
+      },
+      "new_chat_member": {
+        "id": 819625714,
+        "is_bot": false,
+        "first_name": "Ali"
+      },
+      "new_chat_members": [
+        {
+          "id": 819625714,
+          "is_bot": false,
+          "first_name": "Ali"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689939,
+    "message": {
+      "message_id": 927,
+      "from": {
+        "id": 7619692206,
+        "is_bot": false,
+        "first_name": "Av. Tuğçe M.",
+        "username": "tugcemistac"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292873,
+      "new_chat_participant": {
+        "id": 7619692206,
+        "is_bot": false,
+        "first_name": "Av. Tuğçe M.",
+        "username": "tugcemistac"
+      },
+      "new_chat_member": {
+        "id": 7619692206,
+        "is_bot": false,
+        "first_name": "Av. Tuğçe M.",
+        "username": "tugcemistac"
+      },
+      "new_chat_members": [
+        {
+          "id": 7619692206,
+          "is_bot": false,
+          "first_name": "Av. Tuğçe M.",
+          "username": "tugcemistac"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689940,
+    "message": {
+      "message_id": 928,
+      "from": {
+        "id": 5849682751,
+        "is_bot": false,
+        "first_name": "Yücel Çalışcı"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292873,
+      "new_chat_participant": {
+        "id": 5849682751,
+        "is_bot": false,
+        "first_name": "Yücel Çalışcı"
+      },
+      "new_chat_member": {
+        "id": 5849682751,
+        "is_bot": false,
+        "first_name": "Yücel Çalışcı"
+      },
+      "new_chat_members": [
+        {
+          "id": 5849682751,
+          "is_bot": false,
+          "first_name": "Yücel Çalışcı"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689941,
+    "message": {
+      "message_id": 929,
+      "from": {
+        "id": 1261396505,
+        "is_bot": false,
+        "first_name": "Şevval",
+        "last_name": "Aslan"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292875,
+      "new_chat_participant": {
+        "id": 1261396505,
+        "is_bot": false,
+        "first_name": "Şevval",
+        "last_name": "Aslan"
+      },
+      "new_chat_member": {
+        "id": 1261396505,
+        "is_bot": false,
+        "first_name": "Şevval",
+        "last_name": "Aslan"
+      },
+      "new_chat_members": [
+        {
+          "id": 1261396505,
+          "is_bot": false,
+          "first_name": "Şevval",
+          "last_name": "Aslan"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689942,
+    "message": {
+      "message_id": 930,
+      "from": {
+        "id": 8199059105,
+        "is_bot": false,
+        "first_name": "Av. Onur Can",
+        "last_name": "Eroğlu",
+        "username": "requiem744"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292878,
+      "new_chat_participant": {
+        "id": 8199059105,
+        "is_bot": false,
+        "first_name": "Av. Onur Can",
+        "last_name": "Eroğlu",
+        "username": "requiem744"
+      },
+      "new_chat_member": {
+        "id": 8199059105,
+        "is_bot": false,
+        "first_name": "Av. Onur Can",
+        "last_name": "Eroğlu",
+        "username": "requiem744"
+      },
+      "new_chat_members": [
+        {
+          "id": 8199059105,
+          "is_bot": false,
+          "first_name": "Av. Onur Can",
+          "last_name": "Eroğlu",
+          "username": "requiem744"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689943,
+    "message": {
+      "message_id": 931,
+      "from": {
+        "id": 1169452912,
+        "is_bot": false,
+        "first_name": "Mustafa Kirici"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292878,
+      "new_chat_participant": {
+        "id": 1169452912,
+        "is_bot": false,
+        "first_name": "Mustafa Kirici"
+      },
+      "new_chat_member": {
+        "id": 1169452912,
+        "is_bot": false,
+        "first_name": "Mustafa Kirici"
+      },
+      "new_chat_members": [
+        {
+          "id": 1169452912,
+          "is_bot": false,
+          "first_name": "Mustafa Kirici"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689944,
+    "message": {
+      "message_id": 932,
+      "from": {
+        "id": 7011472810,
+        "is_bot": false,
+        "first_name": "Av. Sultan Tayşi",
+        "username": "avsultantaysi"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292879,
+      "new_chat_participant": {
+        "id": 7011472810,
+        "is_bot": false,
+        "first_name": "Av. Sultan Tayşi",
+        "username": "avsultantaysi"
+      },
+      "new_chat_member": {
+        "id": 7011472810,
+        "is_bot": false,
+        "first_name": "Av. Sultan Tayşi",
+        "username": "avsultantaysi"
+      },
+      "new_chat_members": [
+        {
+          "id": 7011472810,
+          "is_bot": false,
+          "first_name": "Av. Sultan Tayşi",
+          "username": "avsultantaysi"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689945,
+    "message": {
+      "message_id": 933,
+      "from": {
+        "id": 1114453476,
+        "is_bot": false,
+        "first_name": "Hümeyra Büyük"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292885,
+      "new_chat_participant": {
+        "id": 1114453476,
+        "is_bot": false,
+        "first_name": "Hümeyra Büyük"
+      },
+      "new_chat_member": {
+        "id": 1114453476,
+        "is_bot": false,
+        "first_name": "Hümeyra Büyük"
+      },
+      "new_chat_members": [
+        {
+          "id": 1114453476,
+          "is_bot": false,
+          "first_name": "Hümeyra Büyük"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689946,
+    "message": {
+      "message_id": 934,
+      "from": {
+        "id": 1568337414,
+        "is_bot": false,
+        "first_name": "Esra"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292887,
+      "new_chat_participant": {
+        "id": 1568337414,
+        "is_bot": false,
+        "first_name": "Esra"
+      },
+      "new_chat_member": {
+        "id": 1568337414,
+        "is_bot": false,
+        "first_name": "Esra"
+      },
+      "new_chat_members": [
+        {
+          "id": 1568337414,
+          "is_bot": false,
+          "first_name": "Esra"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689947,
+    "message": {
+      "message_id": 935,
+      "from": {
+        "id": 5586309930,
+        "is_bot": false,
+        "first_name": "Nimet",
+        "last_name": "ŞAHİN"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292889,
+      "new_chat_participant": {
+        "id": 5586309930,
+        "is_bot": false,
+        "first_name": "Nimet",
+        "last_name": "ŞAHİN"
+      },
+      "new_chat_member": {
+        "id": 5586309930,
+        "is_bot": false,
+        "first_name": "Nimet",
+        "last_name": "ŞAHİN"
+      },
+      "new_chat_members": [
+        {
+          "id": 5586309930,
+          "is_bot": false,
+          "first_name": "Nimet",
+          "last_name": "ŞAHİN"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689948,
+    "message": {
+      "message_id": 936,
+      "from": {
+        "id": 1497803739,
+        "is_bot": false,
+        "first_name": "Av.Büşra Yılmaz"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292890,
+      "new_chat_participant": {
+        "id": 1497803739,
+        "is_bot": false,
+        "first_name": "Av.Büşra Yılmaz"
+      },
+      "new_chat_member": {
+        "id": 1497803739,
+        "is_bot": false,
+        "first_name": "Av.Büşra Yılmaz"
+      },
+      "new_chat_members": [
+        {
+          "id": 1497803739,
+          "is_bot": false,
+          "first_name": "Av.Büşra Yılmaz"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689949,
+    "message": {
+      "message_id": 937,
+      "from": {
+        "id": 8044860757,
+        "is_bot": false,
+        "first_name": "Tuğçe"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292890,
+      "new_chat_participant": {
+        "id": 8044860757,
+        "is_bot": false,
+        "first_name": "Tuğçe"
+      },
+      "new_chat_member": {
+        "id": 8044860757,
+        "is_bot": false,
+        "first_name": "Tuğçe"
+      },
+      "new_chat_members": [
+        {
+          "id": 8044860757,
+          "is_bot": false,
+          "first_name": "Tuğçe"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689950,
+    "message": {
+      "message_id": 938,
+      "from": {
+        "id": 1344645034,
+        "is_bot": false,
+        "first_name": "Kübra Nur"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292891,
+      "new_chat_participant": {
+        "id": 1344645034,
+        "is_bot": false,
+        "first_name": "Kübra Nur"
+      },
+      "new_chat_member": {
+        "id": 1344645034,
+        "is_bot": false,
+        "first_name": "Kübra Nur"
+      },
+      "new_chat_members": [
+        {
+          "id": 1344645034,
+          "is_bot": false,
+          "first_name": "Kübra Nur"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689951,
+    "message": {
+      "message_id": 939,
+      "from": {
+        "id": 1556269472,
+        "is_bot": false,
+        "first_name": "Betül",
+        "language_code": "tr"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292891,
+      "new_chat_participant": {
+        "id": 1556269472,
+        "is_bot": false,
+        "first_name": "Betül",
+        "language_code": "tr"
+      },
+      "new_chat_member": {
+        "id": 1556269472,
+        "is_bot": false,
+        "first_name": "Betül",
+        "language_code": "tr"
+      },
+      "new_chat_members": [
+        {
+          "id": 1556269472,
+          "is_bot": false,
+          "first_name": "Betül",
+          "language_code": "tr"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689952,
+    "message": {
+      "message_id": 940,
+      "from": {
+        "id": 2113631628,
+        "is_bot": false,
+        "first_name": "Av. Serdar Alp",
+        "last_name": "Yıldırım",
+        "username": "avalpyildirim"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292898,
+      "new_chat_participant": {
+        "id": 2113631628,
+        "is_bot": false,
+        "first_name": "Av. Serdar Alp",
+        "last_name": "Yıldırım",
+        "username": "avalpyildirim"
+      },
+      "new_chat_member": {
+        "id": 2113631628,
+        "is_bot": false,
+        "first_name": "Av. Serdar Alp",
+        "last_name": "Yıldırım",
+        "username": "avalpyildirim"
+      },
+      "new_chat_members": [
+        {
+          "id": 2113631628,
+          "is_bot": false,
+          "first_name": "Av. Serdar Alp",
+          "last_name": "Yıldırım",
+          "username": "avalpyildirim"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689953,
+    "message": {
+      "message_id": 941,
+      "from": {
+        "id": 1507063974,
+        "is_bot": false,
+        "first_name": "Şebnem"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292898,
+      "new_chat_participant": {
+        "id": 1507063974,
+        "is_bot": false,
+        "first_name": "Şebnem"
+      },
+      "new_chat_member": {
+        "id": 1507063974,
+        "is_bot": false,
+        "first_name": "Şebnem"
+      },
+      "new_chat_members": [
+        {
+          "id": 1507063974,
+          "is_bot": false,
+          "first_name": "Şebnem"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689954,
+    "message": {
+      "message_id": 942,
+      "from": {
+        "id": 5770175765,
+        "is_bot": false,
+        "first_name": "Osman"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292899,
+      "new_chat_participant": {
+        "id": 5770175765,
+        "is_bot": false,
+        "first_name": "Osman"
+      },
+      "new_chat_member": {
+        "id": 5770175765,
+        "is_bot": false,
+        "first_name": "Osman"
+      },
+      "new_chat_members": [
+        {
+          "id": 5770175765,
+          "is_bot": false,
+          "first_name": "Osman"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689955,
+    "message": {
+      "message_id": 943,
+      "from": {
+        "id": 1089794016,
+        "is_bot": false,
+        "first_name": "Avukat Muhammed YATMAZ (Ağrı)",
+        "username": "Avmuhammedytmz_Agri"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292903,
+      "new_chat_participant": {
+        "id": 1089794016,
+        "is_bot": false,
+        "first_name": "Avukat Muhammed YATMAZ (Ağrı)",
+        "username": "Avmuhammedytmz_Agri"
+      },
+      "new_chat_member": {
+        "id": 1089794016,
+        "is_bot": false,
+        "first_name": "Avukat Muhammed YATMAZ (Ağrı)",
+        "username": "Avmuhammedytmz_Agri"
+      },
+      "new_chat_members": [
+        {
+          "id": 1089794016,
+          "is_bot": false,
+          "first_name": "Avukat Muhammed YATMAZ (Ağrı)",
+          "username": "Avmuhammedytmz_Agri"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689956,
+    "message": {
+      "message_id": 944,
+      "from": {
+        "id": 1299296294,
+        "is_bot": false,
+        "first_name": "Yalova-Avukat&LAW",
+        "language_code": "tr"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292903,
+      "new_chat_participant": {
+        "id": 1299296294,
+        "is_bot": false,
+        "first_name": "Yalova-Avukat&LAW",
+        "language_code": "tr"
+      },
+      "new_chat_member": {
+        "id": 1299296294,
+        "is_bot": false,
+        "first_name": "Yalova-Avukat&LAW",
+        "language_code": "tr"
+      },
+      "new_chat_members": [
+        {
+          "id": 1299296294,
+          "is_bot": false,
+          "first_name": "Yalova-Avukat&LAW",
+          "language_code": "tr"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689957,
+    "message": {
+      "message_id": 945,
+      "from": {
+        "id": 703839302,
+        "is_bot": false,
+        "first_name": "Avukat Agi Tevkil",
+        "username": "avukatagi",
+        "language_code": "tr"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292912,
+      "migrate_to_chat_id": -1003829465915
+    }
+  },
+  {
+    "update_id": 504689958,
+    "message": {
+      "message_id": 946,
+      "from": {
+        "id": 8396340419,
+        "is_bot": false,
+        "first_name": "Avukat",
+        "last_name": "Gül"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292912,
+      "new_chat_participant": {
+        "id": 8396340419,
+        "is_bot": false,
+        "first_name": "Avukat",
+        "last_name": "Gül"
+      },
+      "new_chat_member": {
+        "id": 8396340419,
+        "is_bot": false,
+        "first_name": "Avukat",
+        "last_name": "Gül"
+      },
+      "new_chat_members": [
+        {
+          "id": 8396340419,
+          "is_bot": false,
+          "first_name": "Avukat",
+          "last_name": "Gül"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689959,
+    "message": {
+      "message_id": 1,
+      "from": {
+        "id": 1087968824,
+        "is_bot": true,
+        "first_name": "Group",
+        "username": "GroupAnonymousBot"
+      },
+      "sender_chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "supergroup"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "supergroup"
+      },
+      "date": 1774292912,
+      "migrate_from_chat_id": -4624996488
+    }
+  },
+  {
+    "update_id": 504689960,
+    "my_chat_member": {
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "supergroup"
+      },
+      "from": {
+        "id": 703839302,
+        "is_bot": false,
+        "first_name": "Avukat Agi Tevkil",
+        "username": "avukatagi",
+        "language_code": "tr"
+      },
+      "date": 1774292912,
+      "old_chat_member": {
+        "user": {
+          "id": 7820699198,
+          "is_bot": true,
+          "first_name": "AvukatAgi",
+          "username": "AvukatAgiBot"
+        },
+        "status": "left"
+      },
+      "new_chat_member": {
+        "user": {
+          "id": 7820699198,
+          "is_bot": true,
+          "first_name": "AvukatAgi",
+          "username": "AvukatAgiBot"
+        },
+        "status": "member"
+      }
+    }
+  },
+  {
+    "update_id": 504689961,
+    "message": {
+      "message_id": 947,
+      "from": {
+        "id": 8105530892,
+        "is_bot": false,
+        "first_name": "Av. Selman OK"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292915,
+      "new_chat_participant": {
+        "id": 8105530892,
+        "is_bot": false,
+        "first_name": "Av. Selman OK"
+      },
+      "new_chat_member": {
+        "id": 8105530892,
+        "is_bot": false,
+        "first_name": "Av. Selman OK"
+      },
+      "new_chat_members": [
+        {
+          "id": 8105530892,
+          "is_bot": false,
+          "first_name": "Av. Selman OK"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689962,
+    "message": {
+      "message_id": 948,
+      "from": {
+        "id": 7326050117,
+        "is_bot": false,
+        "first_name": "sabahattin"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292916,
+      "new_chat_participant": {
+        "id": 7326050117,
+        "is_bot": false,
+        "first_name": "sabahattin"
+      },
+      "new_chat_member": {
+        "id": 7326050117,
+        "is_bot": false,
+        "first_name": "sabahattin"
+      },
+      "new_chat_members": [
+        {
+          "id": 7326050117,
+          "is_bot": false,
+          "first_name": "sabahattin"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689963,
+    "message": {
+      "message_id": 949,
+      "from": {
+        "id": 6741318487,
+        "is_bot": false,
+        "first_name": "Berna",
+        "last_name": "Ç"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292918,
+      "new_chat_participant": {
+        "id": 6741318487,
+        "is_bot": false,
+        "first_name": "Berna",
+        "last_name": "Ç"
+      },
+      "new_chat_member": {
+        "id": 6741318487,
+        "is_bot": false,
+        "first_name": "Berna",
+        "last_name": "Ç"
+      },
+      "new_chat_members": [
+        {
+          "id": 6741318487,
+          "is_bot": false,
+          "first_name": "Berna",
+          "last_name": "Ç"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689964,
+    "message": {
+      "message_id": 950,
+      "from": {
+        "id": 1262372889,
+        "is_bot": false,
+        "first_name": "Av. Buse Y.",
+        "username": "Themisbl",
+        "language_code": "tr"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292918,
+      "new_chat_participant": {
+        "id": 1262372889,
+        "is_bot": false,
+        "first_name": "Av. Buse Y.",
+        "username": "Themisbl",
+        "language_code": "tr"
+      },
+      "new_chat_member": {
+        "id": 1262372889,
+        "is_bot": false,
+        "first_name": "Av. Buse Y.",
+        "username": "Themisbl",
+        "language_code": "tr"
+      },
+      "new_chat_members": [
+        {
+          "id": 1262372889,
+          "is_bot": false,
+          "first_name": "Av. Buse Y.",
+          "username": "Themisbl",
+          "language_code": "tr"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689965,
+    "message": {
+      "message_id": 951,
+      "from": {
+        "id": 1551644666,
+        "is_bot": false,
+        "first_name": "ARABULUCU AVUKAT ONUR",
+        "last_name": "KALE",
+        "username": "onurkale80"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292922,
+      "new_chat_participant": {
+        "id": 1551644666,
+        "is_bot": false,
+        "first_name": "ARABULUCU AVUKAT ONUR",
+        "last_name": "KALE",
+        "username": "onurkale80"
+      },
+      "new_chat_member": {
+        "id": 1551644666,
+        "is_bot": false,
+        "first_name": "ARABULUCU AVUKAT ONUR",
+        "last_name": "KALE",
+        "username": "onurkale80"
+      },
+      "new_chat_members": [
+        {
+          "id": 1551644666,
+          "is_bot": false,
+          "first_name": "ARABULUCU AVUKAT ONUR",
+          "last_name": "KALE",
+          "username": "onurkale80"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689966,
+    "message": {
+      "message_id": 952,
+      "from": {
+        "id": 6833062996,
+        "is_bot": false,
+        "first_name": "Av. Aleyna Çattın"
+      },
+      "chat": {
+        "id": -4624996488,
+        "title": "Avukatağı Tevkil Otomatik",
+        "type": "group",
+        "all_members_are_administrators": false,
+        "accepted_gift_types": {
+          "unlimited_gifts": false,
+          "limited_gifts": false,
+          "unique_gifts": false,
+          "premium_subscription": false,
+          "gifts_from_channels": false
+        }
+      },
+      "date": 1774292927,
+      "new_chat_participant": {
+        "id": 6833062996,
+        "is_bot": false,
+        "first_name": "Av. Aleyna Çattın"
+      },
+      "new_chat_member": {
+        "id": 6833062996,
+        "is_bot": false,
+        "first_name": "Av. Aleyna Çattın"
+      },
+      "new_chat_members": [
+        {
+          "id": 6833062996,
+          "is_bot": false,
+          "first_name": "Av. Aleyna Çattın"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689967,
+    "message": {
+      "message_id": 2,
+      "from": {
+        "id": 1433527913,
+        "is_bot": false,
+        "first_name": "Tuğçe",
+        "username": "tuce14"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293575,
+      "new_chat_participant": {
+        "id": 1433527913,
+        "is_bot": false,
+        "first_name": "Tuğçe",
+        "username": "tuce14"
+      },
+      "new_chat_member": {
+        "id": 1433527913,
+        "is_bot": false,
+        "first_name": "Tuğçe",
+        "username": "tuce14"
+      },
+      "new_chat_members": [
+        {
+          "id": 1433527913,
+          "is_bot": false,
+          "first_name": "Tuğçe",
+          "username": "tuce14"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689968,
+    "message": {
+      "message_id": 3,
+      "from": {
+        "id": 1147042593,
+        "is_bot": false,
+        "first_name": "Nazik"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293619,
+      "new_chat_participant": {
+        "id": 1147042593,
+        "is_bot": false,
+        "first_name": "Nazik"
+      },
+      "new_chat_member": {
+        "id": 1147042593,
+        "is_bot": false,
+        "first_name": "Nazik"
+      },
+      "new_chat_members": [
+        {
+          "id": 1147042593,
+          "is_bot": false,
+          "first_name": "Nazik"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689969,
+    "message": {
+      "message_id": 4,
+      "from": {
+        "id": 703839302,
+        "is_bot": false,
+        "first_name": "Avukat Agi Tevkil",
+        "username": "avukatagi",
+        "language_code": "tr"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293629,
+      "new_chat_photo": [
+        {
+          "file_id": "AgACAgQAAyEFAATkQQM7AAMEacGSfQRRJly0RqlbN6UB8VUywIUAAvANaxtYYAhSk8yKpURYFtMBAAMCAANhAAM6BA",
+          "file_unique_id": "AQAD8A1rG1hgCFIAAQ",
+          "file_size": 13038,
+          "width": 160,
+          "height": 160
+        },
+        {
+          "file_id": "AgACAgQAAyEFAATkQQM7AAMEacGSfQRRJly0RqlbN6UB8VUywIUAAvANaxtYYAhSk8yKpURYFtMBAAMCAANiAAM6BA",
+          "file_unique_id": "AQAD8A1rG1hgCFJn",
+          "file_size": 37374,
+          "width": 320,
+          "height": 320
+        },
+        {
+          "file_id": "AgACAgQAAyEFAATkQQM7AAMEacGSfQRRJly0RqlbN6UB8VUywIUAAvANaxtYYAhSk8yKpURYFtMBAAMCAANjAAM6BA",
+          "file_unique_id": "AQAD8A1rG1hgCFIB",
+          "file_size": 101361,
+          "width": 640,
+          "height": 640
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689970,
+    "message": {
+      "message_id": 5,
+      "from": {
+        "id": 6271963288,
+        "is_bot": false,
+        "first_name": "Av.",
+        "last_name": "Polat"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293644,
+      "new_chat_participant": {
+        "id": 6271963288,
+        "is_bot": false,
+        "first_name": "Av.",
+        "last_name": "Polat"
+      },
+      "new_chat_member": {
+        "id": 6271963288,
+        "is_bot": false,
+        "first_name": "Av.",
+        "last_name": "Polat"
+      },
+      "new_chat_members": [
+        {
+          "id": 6271963288,
+          "is_bot": false,
+          "first_name": "Av.",
+          "last_name": "Polat"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689971,
+    "message": {
+      "message_id": 6,
+      "from": {
+        "id": 933863072,
+        "is_bot": false,
+        "first_name": "Av. Şeyma",
+        "username": "ssymm11"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293655,
+      "new_chat_participant": {
+        "id": 933863072,
+        "is_bot": false,
+        "first_name": "Av. Şeyma",
+        "username": "ssymm11"
+      },
+      "new_chat_member": {
+        "id": 933863072,
+        "is_bot": false,
+        "first_name": "Av. Şeyma",
+        "username": "ssymm11"
+      },
+      "new_chat_members": [
+        {
+          "id": 933863072,
+          "is_bot": false,
+          "first_name": "Av. Şeyma",
+          "username": "ssymm11"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689972,
+    "message": {
+      "message_id": 7,
+      "from": {
+        "id": 1317326065,
+        "is_bot": false,
+        "first_name": "Erdem",
+        "username": "Erdoo92"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293665,
+      "new_chat_participant": {
+        "id": 1317326065,
+        "is_bot": false,
+        "first_name": "Erdem",
+        "username": "Erdoo92"
+      },
+      "new_chat_member": {
+        "id": 1317326065,
+        "is_bot": false,
+        "first_name": "Erdem",
+        "username": "Erdoo92"
+      },
+      "new_chat_members": [
+        {
+          "id": 1317326065,
+          "is_bot": false,
+          "first_name": "Erdem",
+          "username": "Erdoo92"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689973,
+    "message": {
+      "message_id": 8,
+      "from": {
+        "id": 345186974,
+        "is_bot": false,
+        "first_name": "Ercan",
+        "last_name": "Çelik"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293753,
+      "new_chat_participant": {
+        "id": 345186974,
+        "is_bot": false,
+        "first_name": "Ercan",
+        "last_name": "Çelik"
+      },
+      "new_chat_member": {
+        "id": 345186974,
+        "is_bot": false,
+        "first_name": "Ercan",
+        "last_name": "Çelik"
+      },
+      "new_chat_members": [
+        {
+          "id": 345186974,
+          "is_bot": false,
+          "first_name": "Ercan",
+          "last_name": "Çelik"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689974,
+    "message": {
+      "message_id": 9,
+      "from": {
+        "id": 7064870190,
+        "is_bot": false,
+        "first_name": "Av. Ayşe Aslıhan",
+        "last_name": "Yeniçeri"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293789,
+      "new_chat_participant": {
+        "id": 7064870190,
+        "is_bot": false,
+        "first_name": "Av. Ayşe Aslıhan",
+        "last_name": "Yeniçeri"
+      },
+      "new_chat_member": {
+        "id": 7064870190,
+        "is_bot": false,
+        "first_name": "Av. Ayşe Aslıhan",
+        "last_name": "Yeniçeri"
+      },
+      "new_chat_members": [
+        {
+          "id": 7064870190,
+          "is_bot": false,
+          "first_name": "Av. Ayşe Aslıhan",
+          "last_name": "Yeniçeri"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689975,
+    "message": {
+      "message_id": 10,
+      "from": {
+        "id": 8427541036,
+        "is_bot": false,
+        "first_name": "Nvz"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293813,
+      "new_chat_participant": {
+        "id": 8427541036,
+        "is_bot": false,
+        "first_name": "Nvz"
+      },
+      "new_chat_member": {
+        "id": 8427541036,
+        "is_bot": false,
+        "first_name": "Nvz"
+      },
+      "new_chat_members": [
+        {
+          "id": 8427541036,
+          "is_bot": false,
+          "first_name": "Nvz"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689976,
+    "message": {
+      "message_id": 11,
+      "from": {
+        "id": 1427648072,
+        "is_bot": false,
+        "first_name": "Av.Güllü Eren",
+        "last_name": "Ulak",
+        "username": "Av_Gullu_Eren"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293895,
+      "new_chat_participant": {
+        "id": 1427648072,
+        "is_bot": false,
+        "first_name": "Av.Güllü Eren",
+        "last_name": "Ulak",
+        "username": "Av_Gullu_Eren"
+      },
+      "new_chat_member": {
+        "id": 1427648072,
+        "is_bot": false,
+        "first_name": "Av.Güllü Eren",
+        "last_name": "Ulak",
+        "username": "Av_Gullu_Eren"
+      },
+      "new_chat_members": [
+        {
+          "id": 1427648072,
+          "is_bot": false,
+          "first_name": "Av.Güllü Eren",
+          "last_name": "Ulak",
+          "username": "Av_Gullu_Eren"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689977,
+    "message": {
+      "message_id": 12,
+      "from": {
+        "id": 5747068522,
+        "is_bot": false,
+        "first_name": "Av. Emray"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293911,
+      "new_chat_participant": {
+        "id": 5747068522,
+        "is_bot": false,
+        "first_name": "Av. Emray"
+      },
+      "new_chat_member": {
+        "id": 5747068522,
+        "is_bot": false,
+        "first_name": "Av. Emray"
+      },
+      "new_chat_members": [
+        {
+          "id": 5747068522,
+          "is_bot": false,
+          "first_name": "Av. Emray"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689978,
+    "message": {
+      "message_id": 13,
+      "from": {
+        "id": 2034539116,
+        "is_bot": false,
+        "first_name": "Hüseyin",
+        "last_name": "Ali Gülbetekin"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774293973,
+      "new_chat_participant": {
+        "id": 2034539116,
+        "is_bot": false,
+        "first_name": "Hüseyin",
+        "last_name": "Ali Gülbetekin"
+      },
+      "new_chat_member": {
+        "id": 2034539116,
+        "is_bot": false,
+        "first_name": "Hüseyin",
+        "last_name": "Ali Gülbetekin"
+      },
+      "new_chat_members": [
+        {
+          "id": 2034539116,
+          "is_bot": false,
+          "first_name": "Hüseyin",
+          "last_name": "Ali Gülbetekin"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689979,
+    "message": {
+      "message_id": 14,
+      "from": {
+        "id": 1383371871,
+        "is_bot": false,
+        "first_name": "Av. Ahmet Faruk",
+        "last_name": "SAYLAM",
+        "username": "AvAFSAYLAM"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294069,
+      "new_chat_participant": {
+        "id": 1383371871,
+        "is_bot": false,
+        "first_name": "Av. Ahmet Faruk",
+        "last_name": "SAYLAM",
+        "username": "AvAFSAYLAM"
+      },
+      "new_chat_member": {
+        "id": 1383371871,
+        "is_bot": false,
+        "first_name": "Av. Ahmet Faruk",
+        "last_name": "SAYLAM",
+        "username": "AvAFSAYLAM"
+      },
+      "new_chat_members": [
+        {
+          "id": 1383371871,
+          "is_bot": false,
+          "first_name": "Av. Ahmet Faruk",
+          "last_name": "SAYLAM",
+          "username": "AvAFSAYLAM"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689980,
+    "message": {
+      "message_id": 15,
+      "from": {
+        "id": 6239956968,
+        "is_bot": false,
+        "first_name": "Yasemin",
+        "last_name": "Gündeşli"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294302,
+      "new_chat_participant": {
+        "id": 6239956968,
+        "is_bot": false,
+        "first_name": "Yasemin",
+        "last_name": "Gündeşli"
+      },
+      "new_chat_member": {
+        "id": 6239956968,
+        "is_bot": false,
+        "first_name": "Yasemin",
+        "last_name": "Gündeşli"
+      },
+      "new_chat_members": [
+        {
+          "id": 6239956968,
+          "is_bot": false,
+          "first_name": "Yasemin",
+          "last_name": "Gündeşli"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689981,
+    "message": {
+      "message_id": 16,
+      "from": {
+        "id": 6404028550,
+        "is_bot": false,
+        "first_name": "Rabia",
+        "last_name": "Yıldırım",
+        "username": "avrabiayildirim"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294401,
+      "new_chat_participant": {
+        "id": 6404028550,
+        "is_bot": false,
+        "first_name": "Rabia",
+        "last_name": "Yıldırım",
+        "username": "avrabiayildirim"
+      },
+      "new_chat_member": {
+        "id": 6404028550,
+        "is_bot": false,
+        "first_name": "Rabia",
+        "last_name": "Yıldırım",
+        "username": "avrabiayildirim"
+      },
+      "new_chat_members": [
+        {
+          "id": 6404028550,
+          "is_bot": false,
+          "first_name": "Rabia",
+          "last_name": "Yıldırım",
+          "username": "avrabiayildirim"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689982,
+    "message": {
+      "message_id": 17,
+      "from": {
+        "id": 703839302,
+        "is_bot": false,
+        "first_name": "Avukat Agi Tevkil",
+        "username": "avukatagi",
+        "language_code": "tr"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294518,
+      "new_chat_photo": [
+        {
+          "file_id": "AgACAgQAAyEFAATkQQM7AAMRacGV9m5ExZmazj3xyHTpUdz1S6EAAl8NaxtpUhBSsxGAfxt42-sBAAMCAANhAAM6BA",
+          "file_unique_id": "AQADXw1rG2lSEFIAAQ",
+          "file_size": 5923,
+          "width": 160,
+          "height": 160
+        },
+        {
+          "file_id": "AgACAgQAAyEFAATkQQM7AAMRacGV9m5ExZmazj3xyHTpUdz1S6EAAl8NaxtpUhBSsxGAfxt42-sBAAMCAANiAAM6BA",
+          "file_unique_id": "AQADXw1rG2lSEFJn",
+          "file_size": 14775,
+          "width": 320,
+          "height": 320
+        },
+        {
+          "file_id": "AgACAgQAAyEFAATkQQM7AAMRacGV9m5ExZmazj3xyHTpUdz1S6EAAl8NaxtpUhBSsxGAfxt42-sBAAMCAANjAAM6BA",
+          "file_unique_id": "AQADXw1rG2lSEFIB",
+          "file_size": 28753,
+          "width": 640,
+          "height": 640
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689983,
+    "message": {
+      "message_id": 18,
+      "from": {
+        "id": 8568766015,
+        "is_bot": false,
+        "first_name": "Fatma",
+        "last_name": "Algün"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294717,
+      "new_chat_participant": {
+        "id": 8568766015,
+        "is_bot": false,
+        "first_name": "Fatma",
+        "last_name": "Algün"
+      },
+      "new_chat_member": {
+        "id": 8568766015,
+        "is_bot": false,
+        "first_name": "Fatma",
+        "last_name": "Algün"
+      },
+      "new_chat_members": [
+        {
+          "id": 8568766015,
+          "is_bot": false,
+          "first_name": "Fatma",
+          "last_name": "Algün"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689984,
+    "message": {
+      "message_id": 19,
+      "from": {
+        "id": 6495333795,
+        "is_bot": false,
+        "first_name": "Av.Aslınur",
+        "last_name": "Varlık"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294882,
+      "new_chat_participant": {
+        "id": 6495333795,
+        "is_bot": false,
+        "first_name": "Av.Aslınur",
+        "last_name": "Varlık"
+      },
+      "new_chat_member": {
+        "id": 6495333795,
+        "is_bot": false,
+        "first_name": "Av.Aslınur",
+        "last_name": "Varlık"
+      },
+      "new_chat_members": [
+        {
+          "id": 6495333795,
+          "is_bot": false,
+          "first_name": "Av.Aslınur",
+          "last_name": "Varlık"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689985,
+    "message": {
+      "message_id": 20,
+      "from": {
+        "id": 1314974309,
+        "is_bot": false,
+        "first_name": "Av Aysena",
+        "last_name": "T.",
+        "username": "dbsnjs"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294977,
+      "new_chat_participant": {
+        "id": 1314974309,
+        "is_bot": false,
+        "first_name": "Av Aysena",
+        "last_name": "T.",
+        "username": "dbsnjs"
+      },
+      "new_chat_member": {
+        "id": 1314974309,
+        "is_bot": false,
+        "first_name": "Av Aysena",
+        "last_name": "T.",
+        "username": "dbsnjs"
+      },
+      "new_chat_members": [
+        {
+          "id": 1314974309,
+          "is_bot": false,
+          "first_name": "Av Aysena",
+          "last_name": "T.",
+          "username": "dbsnjs"
+        }
+      ]
+    }
+  },
+  {
+    "update_id": 504689986,
+    "message": {
+      "message_id": 21,
+      "from": {
+        "id": 1919904924,
+        "is_bot": false,
+        "first_name": "Av.İsmail Kaya"
+      },
+      "chat": {
+        "id": -1003829465915,
+        "title": "Avukatağı Tevkil Otomatik",
+        "username": "avukatagitevkiloto",
+        "type": "supergroup"
+      },
+      "date": 1774294993,
+      "new_chat_participant": {
+        "id": 1919904924,
+        "is_bot": false,
+        "first_name": "Av.İsmail Kaya"
+      },
+      "new_chat_member": {
+        "id": 1919904924,
+        "is_bot": false,
+        "first_name": "Av.İsmail Kaya"
+      },
+      "new_chat_members": [
+        {
+          "id": 1919904924,
+          "is_bot": false,
+          "first_name": "Av.İsmail Kaya"
+        }
+      ]
+    }
+  }
+]

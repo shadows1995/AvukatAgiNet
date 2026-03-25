@@ -41,7 +41,8 @@ const HomePage = ({ user }: { user: User }) => {
          const { data: jobsData, error } = await supabase
             .from('jobs')
             .select('*')
-            .order('updated_at', { ascending: false });
+            .order('updated_at', { ascending: false })
+            .limit(100);
 
          if (!error && jobsData) {
             const mappedJobs = jobsData.map((d: any) => ({

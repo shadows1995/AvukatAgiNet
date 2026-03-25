@@ -55,13 +55,11 @@ export async function notifyNewJob(supabase, jobData) {
     }
     try {
         // 1. Find Users (Fetch Telegram fields too)
+        // Fixed: Added sms_notifications_enabled to select
         let query = supabase
             .from('users')
-            .select('uid, phone, full_name, membership_type, preferred_courthouses, telegram_chat_id, telegram_notifications_enabled')
-            // .in('membership_type', ['premium', 'premium_plus']) // REMOVED: SMS/Telegram for everyone configured
-            .neq('uid', createdBy) // Exclude the job creator
-            .or(`sms_notifications_enabled.eq.true,telegram_notifications_enabled.eq.true`) // Fetch if EITHER is enabled
-        ;
+            .select('uid, phone, full_name, membership_type, preferred_courthouses, telegram_chat_id, telegram_notifications_enabled, sms_notifications_enabled')
+            .neq('uid', createdBy); // Exclude the job creator
         const { data: users, error } = await query;
         if (error) {
             console.error('❌ Notification Service: Error fetching users:', error);
@@ -85,7 +83,6 @@ export async function notifyNewJob(supabase, jobData) {
         // 2. Filter users by courthouse preference
         let usersToNotify = [];
         const targetCourthouse = normalizeString(courthouse);
-        // ... Existing Filtering Logic ...
         if (isOutside) {
             // Outside Job Filtering
             const cityCourthouses = COURTHOUSES[city] || [];
@@ -143,7 +140,6 @@ export async function notifyNewJob(supabase, jobData) {
                     if (!prefs)
                         return false;
                     let userCourthouses = [];
-                    // ... extraction logic ...
                     if (Array.isArray(prefs)) {
                         userCourthouses = prefs.map((p) => typeof p === 'string' ? p : (p?.name || p?.label || '')).filter(Boolean);
                     }
@@ -183,57 +179,63 @@ export async function notifyNewJob(supabase, jobData) {
             });
         }
         console.log(`🎯 Users matching location: ${usersToNotify.length}`);
-        if (usersToNotify.length === 0) {
-            return { success: true, message: 'No matching users for this courthouse', count: 0 };
-        }
         // 3. Prepare Messages
-        let dateStr = '';
-        if (date) {
-            try {
+        let formattedDate = date; // Fallback
+        try {
+            if (date && date.includes('-')) {
                 const [y, m, d] = date.split('-');
-                dateStr = `${d}.${m}.${y} tarihli, `;
+                if (d && m && y) {
+                    formattedDate = `${d}/${m}/${y}`;
+                }
             }
-            catch (e) {
-                dateStr = `${date} tarihli, `;
-            }
+        }
+        catch (e) {
+            console.error('Date parsing error', e);
         }
         const feeStr = offeredFee ? `${offeredFee} TL ücretli ` : '';
-        // SMS Message
+        // SMS Message (Uses specific grammar "tarihli")
+        let smsDatePart = formattedDate ? `${formattedDate} tarihli, ` : '';
         let smsMessage = isOutside
-            ? `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${dateStr}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`
-            : `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${dateStr}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
+            ? `Sayın Meslektaşımız, ${city}'da (Adliye Dışı), ${smsDatePart}yeni bir görev açıldı. Görev yeri : ${courthouse}. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`
+            : `Sayın Meslektaşımız, ${courthouse} adliyesinde, ${smsDatePart}${feeStr}yeni bir ${jobType} görevi açıldı. Hemen incelemek için AvukatAğı uygulamasını ziyaret ediniz.`;
         // Telegram Message
         let telegramMessage = `📢 AvukatAğı Platformunda yeni görev yayınlandı.\n\n` +
             `Görev detayları:\n` +
             `Şehir: ${city}\n` +
             (isOutside ? `Görev Yeri: ${courthouse} (Adliye Dışı)\n` : `Adliye: ${courthouse}\n`) +
             `Görev Türü: ${jobType}\n` +
-            `Tarih: ${date}\n` +
+            `Tarih: ${formattedDate}\n` + // Uses DD/MM/YYYY
             `Ücret: ${offeredFee} TL\n\n` +
             `Başvurmak için avukatagi.net sitesini veya mobil uygulamasını ziyaret edin.`;
-        // 4. Send Notifications in Parallel
-        let sentSmsCount = 0;
         let sentTelegramCount = 0;
+        let sentSmsCount = 0;
         const promises = [];
+        // Global Telegram Post (If a global chat ID is configured)
+        // MUST happen regardless of whether personal users are matched!
+        const globalChatId = process.env.TELEGRAM_GLOBAL_CHAT_ID;
+        if (globalChatId) {
+            promises.push(sendTelegramMessage(globalChatId, telegramMessage)
+                .then(() => {
+                console.log(`✅ Telegram broadcast sent to global group: ${globalChatId}`);
+                sentTelegramCount++;
+            })
+                .catch(e => console.error(`❌ Global Telegram broadcast fail`, e)));
+        }
+        if (usersToNotify.length === 0) {
+            // Wait for global broadcast if any, then return early for personal notifications
+            await Promise.allSettled(promises);
+            return { success: true, message: 'No matching personal users for this courthouse, but global broadcast processed.', counts: { sms: 0, telegram: sentTelegramCount } };
+        }
+        // 4. Send Notifications in Parallel
         for (const user of usersToNotify) {
             // SMS Logic
-            // Users have a column `sms_notifications_enabled` (we assume true for now if existing logic implies it, 
-            // but the query specifically checks filtering. 
-            // However, the query uses OR. So we must check specific flags per user.
-            // Note: DB column is sms_notifications_enabled. 
-            // If undefined, maybe default to true? Or false? 
-            // The query `or(sms.eq.true)` implies we only fetched those who enabled it OR telegram.
-            // Check SMS eligibility
-            if (user.phone && user.sms_notifications_enabled !== false) {
-                // Assuming default is true if null? Or strictly true? 
-                // Let's rely on the query filtering, but since it's OR, we double check.
-                // Actually, if query is OR, a user could have SMS=false but TELEGRAM=true.
-                if (user.sms_notifications_enabled === true) {
-                    promises.push(sendSms(user.phone, smsMessage)
-                        .then(res => { if (res && res.success)
-                        sentSmsCount++; })
-                        .catch(e => console.error(`SMS fail ${user.uid}`, e)));
-                }
+            // Include user if strict true, OR if legacy null (not strictly false)
+            const isSmsEnabled = user.sms_notifications_enabled !== false;
+            if (user.phone && isSmsEnabled) {
+                promises.push(sendSms(user.phone, smsMessage)
+                    .then(res => { if (res && res.success)
+                    sentSmsCount++; })
+                    .catch(e => console.error(`SMS fail ${user.uid}`, e)));
             }
             // Telegram Logic
             if (user.telegram_notifications_enabled && user.telegram_chat_id) {

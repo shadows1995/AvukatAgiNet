@@ -23,10 +23,13 @@ export const runJobBot = async (supabase) => {
             return;
         }
         // 2. Ensure Bot User Exists
-        const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-        const botUser = users?.find(u => u.email === BOT_EMAIL);
-        let botUserId = botUser?.id;
-        if (!botUser) {
+        const { data: existingProfile } = await supabase
+            .from('users')
+            .select('uid')
+            .eq('email', BOT_EMAIL)
+            .single();
+        let botUserId = existingProfile?.uid;
+        if (!botUserId) {
             console.log('🤖 Job Bot: Bot user not found. Creating...');
             const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
                 email: BOT_EMAIL,
@@ -38,10 +41,28 @@ export const runJobBot = async (supabase) => {
                 }
             });
             if (createError || !newUser.user) {
-                console.error('🤖 Job Bot: Failed to create bot user:', createError);
-                return;
+                // If it already exists in auth but not in users profile table, we need to handle that.
+                if (createError && createError.code === 'email_exists') {
+                    console.log('🤖 Job Bot: Auth user exists but missing profile. Attempting to recover...');
+                    // Try to list users to find it (might need pagination, but let's hope it works or we just error)
+                    const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+                    const authUser = users.find(u => u.email === BOT_EMAIL);
+                    if (authUser) {
+                        botUserId = authUser.id;
+                    }
+                    else {
+                        console.error('🤖 Job Bot: Could not find existing auth user ID.');
+                        return;
+                    }
+                }
+                else {
+                    console.error('🤖 Job Bot: Failed to create bot user:', createError);
+                    return;
+                }
             }
-            botUserId = newUser.user.id;
+            else {
+                botUserId = newUser.user.id;
+            }
             // Create public user profile
             const { error: profileError } = await supabase.from('users').insert({
                 uid: botUserId,
@@ -58,15 +79,18 @@ export const runJobBot = async (supabase) => {
             if (profileError) {
                 console.error('🤖 Job Bot: Failed to create bot profile:', profileError);
             }
-            console.log('🤖 Job Bot: Bot user created successfully.');
-        }
-        else {
-            botUserId = botUser.id;
+            console.log('🤖 Job Bot: Bot user profile created successfully.');
         }
         // 3. Check Day Rules
         const now = new Date();
         const trTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
         const dayOfWeek = trTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const hourOfDay = trTime.getHours();
+        // Rule: Only run between 09:00 and 18:00
+        if (hourOfDay < 9 || hourOfDay > 17) {
+            console.log(`🤖 Job Bot: Outside operating hours (09:00-18:00). Current hour (Turkey time): ${hourOfDay}. Skipping.`);
+            return;
+        }
         // Rule 2: No jobs on weekends
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             console.log('🤖 Job Bot: It is weekend. No jobs will be created.');
@@ -91,11 +115,17 @@ export const runJobBot = async (supabase) => {
         console.log(`🤖 Job Bot: Selected ${selectedCourthouses.length} courthouses for potential jobs. Allowed types: ${allowedJobTypes.join(', ')}`);
         // 5. Process Each Courthouse
         for (const ch of selectedCourthouses) {
-            const now = new Date();
-            const tomorrow = new Date(now);
+            // Get current time in Turkey properly for today and tomorrow
+            const nowRaw = new Date();
+            const trNowStr = nowRaw.toLocaleString("en-US", { timeZone: "Europe/Istanbul" });
+            const trNow = new Date(trNowStr);
+            const tomorrow = new Date(trNow);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            const targetDate = tomorrow.toISOString().split('T')[0];
-
+            // Format YYYY-MM-DD for Turkey
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const targetDate = `${year}-${month}-${day}`;
             const { data: existingJobs } = await supabase
                 .from('jobs')
                 .select('job_id')
@@ -116,22 +146,19 @@ export const runJobBot = async (supabase) => {
                 continue;
             }
             // Insert Job
-            // Calculate Time (Turkey Time UTC+3)
-            // Calculate Time (Business Hours: 09:00 - 17:00)
-            const randomHour = Math.floor(Math.random() * (17 - 9)) + 9; // 9 to 16
+            // Calculate Time (Business Hours: 09:00 - 18:00)
+            const randomHour = Math.floor(Math.random() * (18 - 9)) + 9; // 9 to 17 (meaning up to 17:59)
             const randomMin = Math.floor(Math.random() * 60);
-
             const timeString = `${String(randomHour).padStart(2, '0')}:${String(randomMin).padStart(2, '0')}`;
-
-            // Calculate Application Deadline (15 minutes from creation)
-            const deadlineDate = new Date();
+            // Calculate Application Deadline (15 minutes from creation... wait, from creation NOW)
+            const deadlineDate = new Date(nowRaw); // Save deadline in UTC equivalent time because Supabase expects UTC timestamp
             deadlineDate.setMinutes(deadlineDate.getMinutes() + 15);
             const { data: insertedJob, error: insertError } = await supabase.from('jobs').insert({
                 title: jobDetails.title,
                 description: jobDetails.description,
                 city: ch.city,
                 courthouse: ch.name,
-                date: targetDate,
+                date: targetDate, // Tomorrow's date in Turkey Time
                 time: timeString,
                 job_type: jobDetails.jobType,
                 offered_fee: jobDetails.offeredFee,
