@@ -252,7 +252,7 @@ const NotificationSettingsTab = ({ user, onProfileUpdate, showNotification, askC
 
       {/* WhatsApp Group Link */}
       <a
-        href="https://chat.whatsapp.com/C3c7Y6X7BNbDphBtAsCSkQ"
+        href="https://chat.whatsapp.com/E7KfyMClOi269q9lToZ63X"
         target="_blank"
         rel="noopener noreferrer"
         className="block bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
