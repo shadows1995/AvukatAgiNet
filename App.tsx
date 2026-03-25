@@ -43,6 +43,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminUserDetail from './pages/admin/AdminUserDetail';
 import AdminSecurity from './pages/admin/AdminSecurity';
 import AdminDisputes from './pages/admin/AdminDisputes';
+import AdminMarketing from './pages/admin/AdminMarketing';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { AlertProvider } from './contexts/AlertContext';
 
@@ -257,6 +258,7 @@ const AppContent = () => {
               <Route path="users/:userId" element={<AdminUserDetail />} />
               <Route path="security" element={<AdminSecurity />} />
               <Route path="disputes" element={<AdminDisputes />} />
+              <Route path="marketing" element={<AdminMarketing />} />
             </Route>
           </Route>
 

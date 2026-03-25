@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Briefcase, Users, Shield, AlertCircle,
-    LogOut, Menu, X, Clock
+    LogOut, Menu, X, Clock, Mail
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 
@@ -26,6 +26,7 @@ const AdminLayout = () => {
         { to: '/admin/jobs', icon: Briefcase, label: 'Görev Yönetimi' },
         { to: '/admin/users', icon: Users, label: 'Kullanıcı Yönetimi' },
         { to: '/admin/disputes', icon: AlertCircle, label: 'Şikayet Yönetimi' },
+        { to: '/admin/marketing', icon: Mail, label: 'E-Posta Kampanyası' },
         { to: '/admin/security', icon: Shield, label: 'Güvenlik & Loglar' },
     ];
 

@@ -627,6 +627,92 @@ app.get(/.*/, (req, res) => {
 });
 
 
+// Endpoint: Get Marketing Stats
+app.get('/api/admin/marketing-stats', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) return res.status(401).json({ error: "No token provided" });
+
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) return res.status(401).json({ error: "Invalid token" });
+
+        const { data: profile } = await supabase.from('users').select('role').eq('uid', user.id).single();
+        if (profile?.role !== 'admin') return res.status(403).json({ error: "Unauthorized" });
+
+        const { count: sentCount } = await supabase.from('marketing_emails').select('*', { count: 'exact', head: true }).eq('sent', true);
+        const { count: unsentCount } = await supabase.from('marketing_emails').select('*', { count: 'exact', head: true }).eq('sent', false);
+
+        res.json({ sent: sentCount || 0, unsent: unsentCount || 0, total: (sentCount || 0) + (unsentCount || 0) });
+    } catch (err: any) {
+        console.error('Marketing Stats Error:', err);
+        res.status(500).json({ error: 'Failed to fetch stats', details: err.message });
+    }
+});
+
+// Endpoint: Send 100 marketing emails
+app.post('/api/admin/send-marketing', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) return res.status(401).json({ error: "No token provided" });
+        
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) return res.status(401).json({ error: "Invalid token" });
+
+        const { data: profile } = await supabase.from('users').select('role').eq('uid', user.id).single();
+        if (profile?.role !== 'admin') return res.status(403).json({ error: "Unauthorized" });
+
+        const { data: unsentEmails, error: fetchError } = await supabase
+            .from('marketing_emails')
+            .select('*')
+            .eq('sent', false)
+            .limit(100);
+
+        if (fetchError) throw fetchError;
+
+        if (!unsentEmails || unsentEmails.length === 0) {
+            return res.json({ message: 'Tüm gönderimler tamamlandı.', count: 0 });
+        }
+
+        const MAILTRAP_TOKEN = '6f03fcbc60f27b98ec05e5bc932eb05c';
+        
+        const payload = {
+            from: { email: "hello@avukatagi.net", name: "AvukatAğı" },
+            to: unsentEmails.map((e: any) => ({ email: e.email, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() })),
+            template_uuid: "029f73fa-3a7a-4850-a6ab-4241898bd502",
+            template_variables: {}
+        };
+
+        const response = await fetch("https://bulk.api.mailtrap.io/api/send", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${MAILTRAP_TOKEN}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Mailtrap API error: ${response.status} ${errorText}`);
+        }
+
+        const sentEmails = unsentEmails.map((e: any) => e.email);
+        const { error: updateError } = await supabase
+            .from('marketing_emails')
+            .update({ sent: true, sent_at: new Date().toISOString() })
+            .in('email', sentEmails);
+
+        if (updateError) throw updateError;
+
+        res.json({ message: `Başarıyla ${sentEmails.length} kişiye e-posta gönderildi.`, count: sentEmails.length });
+    } catch (err: any) {
+        console.error('Marketing Bulk Send Error:', err);
+        res.status(500).json({ error: 'Gönderim başarısız.', details: err.message });
+    }
+});
+
 // Endpoint: Manually trigger Job Bot
 app.post('/api/trigger-bot', async (req, res) => {
     try {
