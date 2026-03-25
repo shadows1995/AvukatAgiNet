@@ -639,8 +639,8 @@ app.post('/api/trigger-bot', async (req, res) => {
     }
 });
 
-// Job Bot Schedule (Every 2 minutes)
-cron.schedule('*/3 * * * *', async () => {
+// Job Bot Schedule (Every 15 minutes)
+cron.schedule('*/15 * * * *', async () => {
     console.log('🤖 Cron Job: Triggering Job Bot...');
     await runJobBot(supabase);
 });
