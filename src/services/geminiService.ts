@@ -23,46 +23,32 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         const genAI = new GoogleGenerativeAI(apiKey);
 
 
-        const jobTypeInstruction = allowedJobTypes && allowedJobTypes.length > 0
-            ? `Seçilecek görev türü SADECE şunlardan biri olabilir: ${allowedJobTypes.join(', ')}.`
-            : 'Herhangi bir görev türü seçilebilir.';
+        const firstNames = ["Ahmet", "Mehmet", "Ali", "Can", "Burak", "Emre", "Barış", "Hüseyin", "Yusuf", "Mustafa", "Murat", "Hakan", "Oğuz", "Osman", "Fatih", "Serkan", "Gökhan", "Yasin", "İbrahim", "Kemal", "Ayşe", "Fatma", "Zeynep", "Elif", "Merve", "Büşra", "Ceren", "Derya", "Esra", "Gizem", "Seda", "Meltem", "Aslı", "Burcu", "Dilek", "Betül", "Tuğba", "Kübra", "Yasemin"];
+        const lastNames = ["Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Yıldız", "Yıldırım", "Öztürk", "Aydın", "Özdemir", "Arslan", "Doğan", "Kılıç", "Aslan", "Çetin", "Kara", "Koç", "Kurt", "Özkan", "Şimşek", "Polat", "Öz", "Erdoğan", "Yavuz", "Can", "Acar", "Güneş", "Bozkurt", "Turan", "Yalçın", "Güler"];
+        const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const generatedOwnerName = `Av. ${randomFirstName} ${randomLastName}`;
 
         const prompt = `
-        Sen bir Türk avukatısın. "${courthouse}" için gerçekçi bir tevkil (avukatlar arası iş yardımlaşması) görevi oluşturman gerekiyor.
-        
+        Sen Türkiye'de yoğun çalışan bir avukatsın ve tevkil (başka bir avukattan iş için yardım alma) platformuna bir görev ilanı açıyorsun. İlanın GERÇEK BİR İNSAN tarafından yazılmış gibi tamamen doğal, günlük avukat jargonuyla ve her defasında birbirinden FARKLI stillerde olmalı. Kesinlikle robotik veya kalıp cümleler (örn: "Önemli bir duruşma, destek rica olunur") kullanma.
+
+        GÖREV BİLGİLERİ:
+        - Adliye: ${courthouse}
+        - Geçerli Görev Türleri: ${allowedJobTypes ? allowedJobTypes.join(', ') : 'Herhangi bir tür'}
+
         KURALLAR:
-        1. ${jobTypeInstruction}
-        2. GÖREV TÜRÜ "Diğer" İSE: Konu mutlaka idari kurumlarla (Göç İdaresi, Tapu, Nüfus vb.) ilgili olmalı.
-        3. GÖREV TÜRÜ "İcra İşlemi" İSE: Konu mutlaka icra dairesindeki fiziksel işlemlerle ilgili olmalı (fotokopi, haciz vb.).
-        4. GÖREV TÜRÜ "Duruşma" İSE: Mahkeme türü belirtilmeli ama çok detaya girilmemeli.
+        1. Asla selamlama ifadeleri kullanma ("Merhaba", "İyi çalışmalar", "Değerli meslektaşlar" vb. YASAK). Her zaman doğrudan konuya ve göreve başla.
+        2. İçerik ve Mazeret: Görevin içeriğiyle ilgili doğrudan, net bilgiler ver. Mazeretler çok detaylı olmasın, olabildiğince net, kısa ve doğal olsun (örneğin: "Başka duruşmayla çakıştığı için", "Şehir dışında olacağım için", "Dosyadan belge sureti alınacak"). Gereksiz uzun hikayelere girme.
+        3. Başlıklar: Kesinlikle mahkeme numarası veya adliye numarası KULLANMA. İçi boş ve aşırı tekrar eden başlıklar yerine, görevin niteliğini belirten kısa ve farklı başlıklar at. Örnek: "Asliye Ceza Duruşması", "İş Mahkemesi Tanık Beyanı", "İcra Dairesinde Haciz İşlemi", "Karakol İfade Temsili".
+        4. Ücret: Genelde 800 - 1500 TL arası makul bir ücret ver. ANCAK "Duruşma" görevi ise ücret KESİNLİKLE 900 TL'den az olamaz (En az 900 TL).
+        5. Asla markdown veya ekstra metin kullanma! Sadece aşağıdaki yapıda JSON olarak yanıt ver.
 
-        EĞER GÖREV TÜRÜ "Duruşma" İSE BAŞLIK KURALI:
-        - Başlık SADECE mahkeme türünü içermeli. Asla dosya detayı veya uzun açıklama olmamalı.
-        - Örnek Başlıklar: "Asliye Ceza Tevkil", "İş Mahkemesi Tevkil", "Ağır Ceza Duruşma", "Sulh Hukuk Tevkil".
-        
-        EĞER DİĞER TÜRDE İSE BAŞLIK KURALI:
-        - Başlık çok kısa ve genel olmalı.
-        - Örnekler: "Tapu İşlemi", "İcra Dosya İnceleme", "Haciz İşlemi", "Karakol İfade".
-
-        AÇIKLAMA KURALI (ÇOK ÖNEMLİ):
-        - Kesinlikle "Abi", "Abla", "Kardeşim" gibi laubali ifadeler kullanma.
-        - Resmi, kısa ve net bir avukat dili kullan.
-        - SADECE 2 CÜMLE OLSUN. Uzatmak yasak.
-        - Durumu net bir şekilde ifade et ve yardım iste.
-        - Örnek: "Duruşmaya katılım sağlayamayacağız. Önemli bir duruşma, meslektaş desteği rica olunur."
-        - Örnek: "İcra dairesinde dosya fotokopisi alınması gerekmektedir. Yardımcı olabilecek meslektaşımız var mı?"
-
-        ÜCRET KURALI:
-        - Genelde 800 - 1500 TL arası makul bir ücret ver.
-        - ANCAK "Duruşma" görevi ise ücret KESİNLİKLE 900 TL'den az olamaz (En az 900 TL).
-        
-        Lütfen aşağıdaki formatta geçerli bir JSON çıktısı ver (Markdown yok, sadece JSON):
+        ÇIKTI FORMATI:
         {
-            "title": "Kısa ve genel başlık (Yukarıdaki kurallara uygun)",
-            "description": "2 cümlelik, samimi, insansı açıklama.",
+            "title": "Kısa, numarasız, doğal başlık (Örn: Aile Mahkemesi Ön İnceleme Duruşması)",
+            "description": "Selamlamasız, direkt konuya giren, kısa ve doğal mazeretli açıklama",
             "jobType": "Duruşma" | "İcra İşlemi" | "Dosya İnceleme" | "Haciz" | "Dilekçe" | "Diğer",
-            "offeredFee": 1200,
-            "ownerName": "Rastgele Ad Soyad"
+            "offeredFee": 1200
         }
         `;
 
@@ -79,6 +65,7 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         const data = JSON.parse(jsonStr) as GeneratedJob;
+        data.ownerName = generatedOwnerName;
         return data;
 
     } catch (error) {
