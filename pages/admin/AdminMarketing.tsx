@@ -22,9 +22,9 @@ const AdminMarketing = () => {
             
             const data = await res.json();
             setStats({ sent: data.sent, unsent: data.unsent, total: data.total });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Marketing stats fetch error:", error);
-            setMessage({ type: 'error', text: 'İstatistikler yüklenirken hata oluştu.' });
+            setMessage({ type: 'error', text: 'İstatistikler yüklenirken hata oluştu: ' + String(error.message || error) });
         } finally {
             setLoading(false);
         }
@@ -57,10 +57,10 @@ const AdminMarketing = () => {
             setMessage({ type: 'success', text: data.message });
             fetchStats(); // update the counter
         } catch (error: any) {
-            console.error("Batch send error:", error);
-            setMessage({ type: 'error', text: error.message || 'Gönderim başarısız.' });
+            console.error("Marketing send batch error:", error);
+            setMessage({ type: 'error', text: "Gönderim başarısız: " + String(error.message || error) }); 
         } finally {
-            setSending(false);
+            setSending(false); 
         }
     };
 
