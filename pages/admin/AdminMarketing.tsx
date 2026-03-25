@@ -13,7 +13,7 @@ const AdminMarketing = () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
 
-            const apiUrl = import.meta.env.VITE_API_URL || '';
+            const apiUrl = window.location.origin;
             const res = await fetch(`${apiUrl}/api/admin/marketing-stats`, {
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
             });
@@ -44,7 +44,7 @@ const AdminMarketing = () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) throw new Error("Oturum bulunamadı");
 
-            const apiUrl = import.meta.env.VITE_API_URL || '';
+            const apiUrl = window.location.origin;
             const res = await fetch(`${apiUrl}/api/admin/send-marketing`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
