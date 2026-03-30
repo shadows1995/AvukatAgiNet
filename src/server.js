@@ -561,38 +561,55 @@ app.post('/api/admin/send-marketing', async (req, res) => {
             return res.json({ message: 'Tüm gönderimler tamamlandı.', count: 0 });
         }
 
-        const MAILTRAP_TOKEN = '6f03fcbc60f27b98ec05e5bc932eb05c';
+        const validEmails = [];
+        const invalidEmails = [];
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
         
-        const payload = {
-            from: { email: "hello@avukatagi.net", name: "AvukatAğı" },
-            to: unsentEmails.map((e) => ({ email: e.email, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() })),
-            template_uuid: "029f73fa-3a7a-4850-a6ab-4241898bd502",
-            template_variables: {}
-        };
-
-        const response = await fetch("https://bulk.api.mailtrap.io/api/send", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${MAILTRAP_TOKEN}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Mailtrap API error: ${response.status} ${errorText}`);
+        for (const e of unsentEmails) {
+            const emailStr = e.email ? e.email.trim() : "";
+            if (emailRegex.test(emailStr)) {
+                validEmails.push({ ...e, cleanEmail: emailStr });
+            } else {
+                invalidEmails.push(e);
+            }
         }
 
-        const sentEmails = unsentEmails.map((e) => e.email);
+        const MAILTRAP_TOKEN = '6f03fcbc60f27b98ec05e5bc932eb05c';
+        
+        if (validEmails.length > 0) {
+            const payload = {
+                from: { email: "hello@avukatagi.net", name: "AvukatAğı" },
+                to: validEmails.map((e) => ({ email: e.cleanEmail, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Değerli Meslektaşımız' })),
+                template_uuid: "029f73fa-3a7a-4850-a6ab-4241898bd502",
+                template_variables: {}
+            };
+
+            const response = await fetch("https://bulk.api.mailtrap.io/api/send", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${MAILTRAP_TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Mailtrap API error: ${response.status} ${errorText}`);
+            }
+        }
+
+        // Mark both valid and invalid emails as 'sent' so invalid ones don't block the queue forever
+        const processedEmails = unsentEmails.map((e) => e.email);
         const { error: updateError } = await supabase
             .from('marketing_emails')
             .update({ sent: true, sent_at: new Date().toISOString() })
-            .in('email', sentEmails);
+            .in('email', processedEmails);
 
         if (updateError) throw updateError;
 
-        res.json({ message: `Başarıyla ${sentEmails.length} kişiye e-posta gönderildi.`, count: sentEmails.length });
+        const message = `Başarıyla ${validEmails.length} kişiye gönderildi. ${invalidEmails.length > 0 ? `(${invalidEmails.length} geçersiz adres atlandı)` : ''}`;
+        res.json({ message, count: validEmails.length });
     } catch (err) {
         console.error('Marketing Bulk Send Error:', err);
         res.status(500).json({ error: 'Gönderim başarısız.', details: err.message });
