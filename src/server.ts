@@ -664,11 +664,32 @@ app.post('/api/admin/send-marketing', async (req, res) => {
             return res.json({ message: 'Tüm gönderimler tamamlandı.', count: 0 });
         }
 
+        // Filter out invalid emails
+        const validEmails = unsentEmails.filter((e: any) => {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return e.email && emailRegex.test(e.email);
+        });
+
+        const invalidEmails = unsentEmails.filter((e: any) => !validEmails.includes(e));
+
+        if (invalidEmails.length > 0) {
+            console.warn(`Skipping ${invalidEmails.length} invalid emails.`);
+            // Mark invalid emails as sent so they don't block the queue
+            await supabase
+                .from('marketing_emails')
+                .update({ sent: true, sent_at: new Date().toISOString() })
+                .in('email', invalidEmails.map((e: any) => e.email));
+        }
+
+        if (validEmails.length === 0) {
+             return res.json({ message: 'Geçerli e-posta adresi bulunamadı. Hatalı adresler atlandı.', count: 0 });
+        }
+
         const MAILTRAP_TOKEN = '6f03fcbc60f27b98ec05e5bc932eb05c';
         
         const payload = {
             from: { email: "hello@avukatagi.net", name: "AvukatAğı" },
-            to: unsentEmails.map((e: any) => ({ email: e.email, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() })),
+            to: validEmails.map((e: any) => ({ email: e.email, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() })),
             template_uuid: "029f73fa-3a7a-4850-a6ab-4241898bd502",
             template_variables: {}
         };
@@ -687,7 +708,7 @@ app.post('/api/admin/send-marketing', async (req, res) => {
             throw new Error(`Mailtrap API error: ${response.status} ${errorText}`);
         }
 
-        const sentEmails = unsentEmails.map((e: any) => e.email);
+        const sentEmails = validEmails.map((e: any) => e.email);
         const { error: updateError } = await supabase
             .from('marketing_emails')
             .update({ sent: true, sent_at: new Date().toISOString() })
@@ -695,7 +716,7 @@ app.post('/api/admin/send-marketing', async (req, res) => {
 
         if (updateError) throw updateError;
 
-        res.json({ message: `Başarıyla ${sentEmails.length} kişiye e-posta gönderildi.`, count: sentEmails.length });
+        res.json({ message: `Başarıyla ${sentEmails.length} kişiye e-posta gönderildi. ${invalidEmails.length > 0 ? `(${invalidEmails.length} hatalı e-posta atlandı)` : ''}`, count: sentEmails.length });
     } catch (err: any) {
         console.error('Marketing Bulk Send Error:', err);
         res.status(500).json({ error: 'Gönderim başarısız.', details: err.message });

@@ -563,7 +563,7 @@ app.post('/api/admin/send-marketing', async (req, res) => {
 
         const validEmails = [];
         const invalidEmails = [];
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         
         for (const e of unsentEmails) {
             const emailStr = e.email ? e.email.trim() : "";
