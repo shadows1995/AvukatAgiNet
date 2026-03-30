@@ -52,7 +52,7 @@ const AdminMarketing = () => {
 
             const data = await res.json();
             
-            if (!res.ok) throw new Error(data.error || 'Bilinmeyen hata');
+            if (!res.ok) throw new Error(data.details || data.error || 'Bilinmeyen hata');
 
             setMessage({ type: 'success', text: data.message });
             fetchStats(); // update the counter
