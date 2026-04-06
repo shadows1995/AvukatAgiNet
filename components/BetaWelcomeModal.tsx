@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { User } from '../types';
-import { Sparkles, Rocket, Info, Check } from 'lucide-react';
+import { Sparkles, Rocket, Info, Check, X } from 'lucide-react';
 
 interface BetaWelcomeModalProps {
     user: User;
@@ -44,12 +44,49 @@ const BetaWelcomeModal: React.FC<BetaWelcomeModalProps> = ({ user, onSuccess }) 
         }
     };
 
+    const activateBetaAndClose = () => {
+        // Background activation, do not block UI
+        (async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.access_token) {
+                    const apiUrl = import.meta.env.VITE_API_URL || '';
+                    await fetch(`${apiUrl}/api/activate-beta`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ token: session.access_token })
+                    });
+                }
+            } catch (err) {
+                console.warn("Background beta activation error:", err);
+            }
+        })();
+        
+        onSuccess();
+    };
+
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative border border-white/20 max-h-[90vh] overflow-y-auto mx-4">
+        <div 
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in fade-in duration-300"
+            onClick={activateBetaAndClose}
+        >
+            <div 
+                className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative border border-white/20 max-h-[90vh] overflow-y-auto mx-4"
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Header Background */}
                 <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-center relative overflow-hidden">
+                    <button 
+                        onClick={activateBetaAndClose}
+                        className="absolute top-4 right-4 z-20 text-white/70 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-2 transition-colors"
+                        aria-label="Kapat"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                    
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                     <div className="relative z-10 flex flex-col items-center">
                         <div className="bg-white/20 p-4 rounded-full mb-4 backdrop-blur-sm border border-white/30 animate-pulse">
