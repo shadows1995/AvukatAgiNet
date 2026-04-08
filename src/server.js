@@ -616,15 +616,6 @@ app.post('/api/admin/send-marketing', async (req, res) => {
     }
 });
 
-// Handle React routing, return all requests to React app
-// This must be the last route
-app.get(/.*/, (req, res) => {
-    // Log if we are serving index.html for a non-html request (likely a missing asset)
-    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
-        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
-    }
-    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
-});
 // This block is shifting the endpoints to be securely processed correctly before the Express wildcard
 
 
@@ -1192,6 +1183,15 @@ app.post('/api/referral/list', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+// Handle React routing, return all requests to React app
+// This must be the absolute last route
+app.get(/.*/, (req, res) => {
+    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
+        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
+    }
+    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 app.listen(port, () => {
