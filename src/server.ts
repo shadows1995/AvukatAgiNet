@@ -1381,6 +1381,85 @@ app.post('/api/referral/list', async (req, res) => {
 
 // Handle React routing, return all requests to React app
 // This must be the absolute last route
+
+// --- JOB ASSIGNMENT AND REWARD ENDPOINT ---
+app.post('/api/jobs/assign', async (req, res) => {
+    const { token, jobId, applicationId, applicantId, applicantName, jobTitle } = req.body;
+    if (!token || !jobId || !applicationId || !applicantId) return res.status(400).json({ error: 'Missing parameters' });
+
+    try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+        // 1. Verify job ownership and status
+        const { data: jobInfo, error: jobError } = await supabase.from('jobs').select('status, created_by').eq('job_id', jobId).single();
+        if (jobError || !jobInfo) return res.status(404).json({ error: 'Job not found' });
+        if (jobInfo.created_by !== user.id) return res.status(403).json({ error: 'Forbidden. Not your job.' });
+        if (jobInfo.status !== 'open') return res.status(400).json({ error: 'Job is not open.' });
+
+        // 2. Perform updates (Job to in_progress)
+        const { error: jobUpdateError } = await supabase.from('jobs').update({
+            selected_applicant: applicantId,
+            status: 'in_progress'
+        }).eq('job_id', jobId);
+        if (jobUpdateError) throw jobUpdateError;
+
+        // 3. Update application
+        const { error: appUpdateError } = await supabase.from('applications').update({
+            status: 'accepted'
+        }).eq('application_id', applicationId);
+        if (appUpdateError) throw appUpdateError;
+
+        // 4. Notifications
+        await supabase.from('notifications').insert([
+            {
+                user_id: applicantId,
+                title: "Başvurunuz Kabul Edildi! 🎉",
+                message: `Tebrikler! "${jobTitle}" görevi için seçildiniz. Görev sahibiyle iletişime geçebilirsiniz.`,
+                type: "success",
+                read: false,
+                created_at: new Date().toISOString(),
+                metadata: { jobId: jobId, type: 'application_accepted_applicant' }
+            },
+            {
+                user_id: user.id,
+                title: "Görev Atandı ✅ +15 Gün Premium",
+                message: `"${jobTitle}" görevi Av. ${applicantName}'e atandı. Görev Verme Ödülü olarak +15 Gün Premium kazandınız.`,
+                type: "info",
+                read: false,
+                created_at: new Date().toISOString(),
+                metadata: { jobId: jobId, type: 'application_accepted_owner' }
+            }
+        ]);
+
+        // 5. Reward Owner (+15 days)
+        const { data: ownerData } = await supabase.from('users').select('is_premium, membership_type, premium_until').eq('uid', user.id).single();
+        if (ownerData) {
+           let newUntil = ownerData.premium_until;
+           const nowMs = Date.now();
+           if (!newUntil || new Date(newUntil).getTime() < nowMs) {
+               newUntil = new Date(nowMs + (15 * 24 * 60 * 60 * 1000)).toISOString();
+           } else {
+               newUntil = new Date(new Date(newUntil).getTime() + (15 * 24 * 60 * 60 * 1000)).toISOString();
+           }
+
+           let newType = ownerData.membership_type;
+           if (newType !== 'premium_plus') newType = 'premium';
+
+           await supabase.from('users').update({
+               membership_type: newType,
+               is_premium: true, 
+               premium_until: newUntil
+           }).eq('uid', user.id);
+        }
+
+        res.json({ success: true, message: 'Görev başarıyla atandı ve 15 gün premium kazandınız!' });
+    } catch (err) {
+        console.error('Error assigning job:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.get(/.*/, (req, res) => {
     if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
         console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);

@@ -297,49 +297,28 @@ const MyJobs = () => {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
 
-      // 1. Update Job
-      const { error: jobError } = await supabase.from('jobs').update({
-        selected_applicant: app.applicantId,
-        status: 'in_progress'
-      }).eq('job_id', job.jobId);
-
-      if (jobError) throw jobError;
-
-      // 2. Update Application
-      const { error: appError } = await supabase.from('applications').update({
-        status: 'accepted'
-      }).eq('application_id', app.applicationId);
-
-      if (appError) throw appError;
-
-      // 3. Notify Applicant
-      await supabase.from('notifications').insert({
-        user_id: app.applicantId,
-        title: "Başvurunuz Kabul Edildi! 🎉",
-        message: `Tebrikler! "${job.title}" görevi için seçildiniz. Görev sahibiyle iletişime geçebilirsiniz.`,
-        type: "success",
-        read: false,
-        created_at: new Date().toISOString(),
-        metadata: { jobId: job.jobId, type: 'application_accepted_applicant' }
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/jobs/assign`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+            token: session?.access_token,
+            jobId: job.jobId,
+            applicationId: app.applicationId,
+            applicantId: app.applicantId,
+            applicantName: app.applicantName,
+            jobTitle: job.title
+         })
       });
-
-      // 4. Notify Owner (Self)
-      if (user) {
-        await supabase.from('notifications').insert({
-          user_id: user.id,
-          title: "Görev Atandı ✅",
-          message: `"${job.title}" görevi Av. ${app.applicantName}'e atandı.`,
-          type: "info",
-          read: false,
-          created_at: new Date().toISOString(),
-          metadata: { jobId: job.jobId, type: 'application_accepted_owner' }
-        });
+      
+      const data = await response.json();
+      if (!response.ok) {
+         throw new Error(data.error || 'Atama başarısız oldu.');
       }
 
       // Trigger SMS Notification (Fire and forget)
-      const apiUrl = import.meta.env.VITE_API_URL || '';
       fetch(`${apiUrl}/api/notify-application-approved`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

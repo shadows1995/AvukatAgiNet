@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircle, AlertCircle, Briefcase, MapPin, Search, Loader2, BarChart3, Search as SearchIcon, TrendingUp, CheckCircle, Wallet, X } from 'lucide-react';
+import { PlusCircle, AlertCircle, Briefcase, MapPin, Search, Loader2, BarChart3, Search as SearchIcon, TrendingUp, CheckCircle, Wallet, X, Gift } from 'lucide-react';
 import { User, Job, JobType } from '../types';
 import { supabase } from '../supabaseClient';
 import JobCard from '../components/JobCard';
@@ -162,6 +162,17 @@ const Dashboard = ({ user }: { user: User }) => {
             {errorMsg}
           </div>
         )}
+
+        {/* HEADER BANNER FOR REWARD */}
+        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 p-4 rounded-xl mb-6 flex items-center shadow-sm">
+          <div className="bg-white p-2 rounded-full mr-4 shadow-sm border border-indigo-100">
+            <Gift className="w-6 h-6 text-indigo-600" />
+          </div>
+          <div>
+            <h3 className="font-bold text-indigo-900">Tevkil Verin, Kazanın! 🎁</h3>
+            <p className="text-sm text-indigo-700">Oluşturduğunuz her görev bir meslektaşınıza atandığında <strong>15 Gün Premium</strong> üyeliğiniz uzatılır.</p>
+          </div>
+        </div>
 
         {/* Warning if no courthouses selected */}
         {userCourthouses.length === 0 && (

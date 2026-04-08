@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Loader2, Briefcase, Send, AlertCircle } from 'lucide-react';
+import { PlusCircle, Loader2, Briefcase, Send, AlertCircle, Gift } from 'lucide-react';
 import { User, JobType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
@@ -154,6 +154,17 @@ const CreateJob = ({ user }: { user: User }) => {
           <p className="text-primary-100 mt-2 relative z-10 text-lg">Meslektaşlarınızla paylaşmak için yeni bir görev oluşturun.</p>
         </div>
         <div className="p-8 md:p-10">
+
+          {/* REWARD BANNER */}
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 p-4 rounded-xl mb-8 flex items-center shadow-sm">
+            <div className="bg-white p-2 rounded-full mr-4 shadow-sm border border-indigo-100">
+              <Gift className="w-6 h-6 text-indigo-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-indigo-900">Tevkil Verin, Kazanın! 🎁</h3>
+              <p className="text-sm text-indigo-700">Buradan oluşturduğunuz görevi bir meslektaşınıza atadığınızda <strong>15 Gün Premium</strong> kazanırsınız.</p>
+            </div>
+          </div>
 
           {/* Location Type Toggle */}
           <div className="flex justify-center mb-10">
