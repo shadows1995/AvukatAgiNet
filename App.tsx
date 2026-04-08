@@ -89,7 +89,9 @@ const AppContent = () => {
           sms_notifications_enabled: userData.sms_notifications_enabled,
           telegram_chat_id: userData.telegram_chat_id,
           telegram_notifications_enabled: userData.telegram_notifications_enabled,
-          telegram_connected_at: userData.telegram_connected_at
+          telegram_connected_at: userData.telegram_connected_at,
+          referral_code: userData.referral_code,
+          referred_by: userData.referred_by
         };
         setUser(mappedUser);
       }
