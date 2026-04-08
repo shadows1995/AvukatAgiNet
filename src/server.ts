@@ -723,15 +723,7 @@ app.post('/api/admin/send-marketing', async (req, res) => {
     }
 });
 
-// Handle React routing, return all requests to React app
-// This must be the last route
-app.get(/.*/, (req, res) => {
-    // Log if we are serving index.html for a non-html request (likely a missing asset)
-    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
-        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
-    }
-    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
-});
+// Removed React routing wildcard from middle of file to place it at the end
 
 
 // Endpoint: Manually trigger Job Bot
@@ -1248,6 +1240,152 @@ app.post('/api/delete-account', async (req, res) => {
         console.error('Delete Account Error:', err);
         res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
+});
+
+// --- REFERRAL SYSTEM ENDPOINTS ---
+
+// 1. Generate Referral Code
+app.post('/api/referral/generate', async (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.status(401).json({ error: 'Missing token' });
+
+    try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+        const uid = user.id;
+
+        const { data: existingUser, error: checkError } = await supabase.from('users').select('referral_code').eq('uid', uid).single();
+        if (checkError && checkError.code !== 'PGRST116') return res.status(500).json({ error: 'Database error' });
+        
+        if (existingUser && existingUser.referral_code) {
+           return res.json({ referral_code: existingUser.referral_code });
+        }
+
+        let generatedCode;
+        let isUnique = false;
+        let attempts = 0;
+        
+        while (!isUnique && attempts < 5) {
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            // Using update since the user row is created on signup via trigger
+            const { error: updateError } = await supabase.from('users').update({ referral_code: generatedCode }).eq('uid', uid);
+            // Ignore if 0 rows but no duplicate key error - actually if it fails uniquely it throws 23505 duplicate key
+            if (!updateError) {
+                // Confirm it was actually updated
+                const { data: confirmCheck } = await supabase.from('users').select('referral_code').eq('uid', uid).single();
+                if (confirmCheck && confirmCheck.referral_code === generatedCode) {
+                    isUnique = true;
+                } else if (!confirmCheck) {
+                    return res.status(500).json({ error: 'User does not exist in users table yet.' });
+                }
+            } else if (updateError.code !== '23505') {
+                return res.status(500).json({ error: 'Could not update user referral code.' });
+            } else {
+                attempts++;
+            }
+        }
+
+        if (!isUnique) return res.status(500).json({ error: 'Could not generate a unique code, try again.' });
+        res.json({ referral_code: generatedCode });
+    } catch (err) {
+        console.error('Error generating referral code:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// 2. Apply Referral Code
+app.post('/api/referral/apply', async (req, res) => {
+    const { token, referralCode } = req.body;
+    if (!token || !referralCode) return res.status(400).json({ error: 'Missing parameters' });
+
+    try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+        const uid = user.id;
+
+        const { data: currentUser, error: userError } = await supabase.from('users')
+            .select('uid, referred_by, referral_code, is_premium, membership_type, premium_until, premium_plan')
+            .eq('uid', uid)
+            .single();
+
+        if (userError || !currentUser) return res.status(500).json({ error: 'User not found' });
+        
+        if (currentUser.referred_by) {
+            return res.status(400).json({ error: 'You have already used a referral code' });
+        }
+
+        if (currentUser.referral_code === referralCode) {
+            return res.status(400).json({ error: 'You cannot use your own referral code' });
+        }
+
+        const { data: friendUser, error: friendError } = await supabase.from('users')
+            .select('uid, is_premium, membership_type, premium_until, premium_plan')
+            .eq('referral_code', referralCode)
+            .single();
+
+        if (friendError || !friendUser) return res.status(400).json({ error: 'Invalid referral code' });
+
+        const extendPremium = (dbUser) => {
+           let newUntil = dbUser.premium_until;
+           const nowMs = Date.now();
+           if (!newUntil || new Date(newUntil).getTime() < nowMs) {
+               newUntil = new Date(nowMs + (30 * 24 * 60 * 60 * 1000)).toISOString();
+           } else {
+               newUntil = new Date(new Date(newUntil).getTime() + (30 * 24 * 60 * 60 * 1000)).toISOString();
+           }
+
+           let newType = dbUser.membership_type;
+           if (newType !== 'premium_plus') newType = 'premium';
+
+           return { membership_type: newType, is_premium: true, premium_until: newUntil };
+        };
+
+        const currentUpdates = { ...extendPremium(currentUser), referred_by: friendUser.uid };
+        const friendUpdates = extendPremium(friendUser);
+
+        await supabase.from('users').update(currentUpdates).eq('uid', uid);
+        await supabase.from('users').update(friendUpdates).eq('uid', friendUser.uid);
+
+        res.json({ message: 'Referral applied successfully', premium_until: currentUpdates.premium_until });
+    } catch (err) {
+        console.error('Error applying referral:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// 3. Get Referrals
+app.post('/api/referral/list', async (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.status(401).json({ error: 'Missing token' });
+
+    try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+        const uid = user.id;
+
+        const { data: referrals, error } = await supabase.from('users')
+            .select('full_name, created_at')
+            .eq('referred_by', uid)
+            .order('created_at', { ascending: false });
+
+        if (error) return res.status(500).json({ error: 'Database error' });
+
+        res.json({ referrals: referrals || [] });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Handle React routing, return all requests to React app
+// This must be the absolute last route
+app.get(/.*/, (req, res) => {
+    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
+        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
+    }
+    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 app.listen(port, () => {
