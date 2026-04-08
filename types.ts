@@ -48,6 +48,8 @@ export interface User {
   telegram_chat_id?: string;
   telegram_notifications_enabled?: boolean;
   telegram_connected_at?: string;
+  referral_code?: string;
+  referred_by?: string;
 }
 
 // Firestore Job Collection Schema

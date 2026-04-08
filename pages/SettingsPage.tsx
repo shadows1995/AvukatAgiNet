@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { User, User as UserIcon } from 'lucide-react';
-import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield, Trash2, Bell } from 'lucide-react';
+import { Gavel, Award, FileText, Camera, Check, Info, Loader2, X, AlertTriangle, CheckCircle, Shield, Trash2, Bell, Users, Gift, Copy } from 'lucide-react';
 import { User as UserType } from '../types';
 import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { supabase } from '../supabaseClient';
@@ -980,6 +980,212 @@ const PhotoTab = ({ showNotification, user, onProfileUpdate }: { showNotificatio
   );
 };
 
+const ReferralTab = ({ showNotification, user, onProfileUpdate }: { showNotification: (type: 'success' | 'error', message: string) => void, user: UserType, onProfileUpdate: () => void }) => {
+  const [loading, setLoading] = useState(false);
+  const [referralCodeInput, setReferralCodeInput] = useState('');
+  const [referredUsers, setReferredUsers] = useState<any[]>([]);
+  const [isLoadingReferrals, setIsLoadingReferrals] = useState(true);
+
+  const fetchReferrals = async () => {
+    setIsLoadingReferrals(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) return;
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/referral/list`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+      if (res.ok) setReferredUsers(data.referrals || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingReferrals(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReferrals();
+  }, []);
+
+  const generateCode = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/referral/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Kod oluşturulamadı');
+
+      showNotification('success', 'Referans kodunuz başarıyla oluşturuldu.');
+      onProfileUpdate();
+    } catch (e: any) {
+      showNotification('error', e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyCode = async () => {
+    if (referralCodeInput.length !== 6) {
+      showNotification('error', 'Lütfen 6 haneli geçerli bir referans kodu girin.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/referral/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, referralCode: referralCodeInput })
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Hata oluştu, kod geçersiz veya kullanılmış olabilir.');
+
+      showNotification('success', 'Kod başarıyla uygulandı! Premium süreniz uzatıldı.');
+      setReferralCodeInput('');
+      onProfileUpdate();
+    } catch (e: any) {
+      showNotification('error', e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in">
+      <div className="border-b border-indigo-100 pb-4">
+        <h3 className="text-xl font-bold text-indigo-700 flex items-center">
+          <Gift className="w-6 h-6 mr-2" />
+          Referans Sistemi
+        </h3>
+        <p className="text-sm text-slate-500 mt-1">Arkadaşlarınızı davet edin, premium üyeliğinizi ücretsiz uzatın!</p>
+      </div>
+
+      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 rounded-xl p-6 shadow-sm">
+        <h4 className="font-bold text-slate-800 mb-2">Benim Referans Kodum</h4>
+        {user.referral_code ? (
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="text-3xl font-mono font-bold text-indigo-600 tracking-widest bg-white inline-block px-8 py-3 rounded-xl border border-indigo-200 shadow-sm">
+              {user.referral_code}
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(user.referral_code || '');
+                showNotification('success', 'Kod kopyalandı!');
+              }}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl shadow transition"
+              title="Kopyala"
+            >
+              <Copy className="w-5 h-5" />
+            </button>
+            <p className="text-sm text-slate-500 sm:max-w-xs mt-2 sm:mt-0">
+              Bu kodu henüz üye olmamış meslektaşlarınızla paylaşın. Onlar kodu girerek üye olduklarında ikiniz de 1 ay premium kazanırsınız.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600">Henüz bir referans kodunuz yok. Hemen bir tane oluşturarak meslektaşlarınızı davet etmeye başlayın.</p>
+            <button
+              onClick={generateCode}
+              disabled={loading}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium shadow transition flex items-center"
+            >
+              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Referans Kodu Oluştur
+            </button>
+          </div>
+        )}
+      </div>
+
+      {!user.referred_by && (
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <h4 className="font-bold text-slate-800 mb-2">Arkadaşımın Referansını Tanıt</h4>
+          <p className="text-sm text-slate-500 mb-4">Size davet gönderen meslektaşınızın 6 haneli kodunu girerek hemen 1 ay premium kazanın.</p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              maxLength={6}
+              value={referralCodeInput}
+              onChange={(e) => setReferralCodeInput(e.target.value.replace(/\D/g, ''))}
+              className="bg-slate-50 border-slate-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg h-12 w-full sm:w-48 text-center text-xl tracking-widest font-mono"
+              placeholder="000000"
+            />
+            <button
+              onClick={applyCode}
+              disabled={loading || referralCodeInput.length !== 6}
+              className={`px-6 py-2 h-12 rounded-lg font-medium transition flex items-center justify-center ${referralCodeInput.length === 6 ? 'bg-green-600 hover:bg-green-700 text-white shadow-md' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+            >
+              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Kodu Uygula
+            </button>
+          </div>
+        </div>
+      )}
+
+      {user.referred_by && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-green-800 flex items-center space-x-3">
+          <CheckCircle className="w-6 h-6 flex-shrink-0" />
+          <p className="text-sm">Tebrikler! Bir arkadaşınızın referans kodunu kullanarak 1 aylık Premium kazandınız.</p>
+        </div>
+      )}
+
+      <div>
+        <h4 className="font-bold text-slate-800 mb-4 flex items-center">
+          <Users className="w-5 h-5 mr-2 text-slate-500" /> Davet Ettiğim Kişiler
+        </h4>
+        {isLoadingReferrals ? (
+          <div className="flex justify-center p-8">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-300" />
+          </div>
+        ) : referredUsers.length > 0 ? (
+          <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-slate-50 uppercase text-slate-500 border-b">
+                <tr>
+                  <th scope="col" className="px-6 py-3 font-medium">Katılan Meslektaşınız</th>
+                  <th scope="col" className="px-6 py-3 font-medium">Kayıt Tarihi</th>
+                  <th scope="col" className="px-6 py-3 font-medium text-right">Kazanılan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {referredUsers.map((r, i) => (
+                  <tr key={i} className="hover:bg-slate-50">
+                    <td className="px-6 py-4 font-medium text-slate-800">{r.full_name}</td>
+                    <td className="px-6 py-4 text-slate-500">{new Date(r.created_at).toLocaleDateString('tr-TR')}</td>
+                    <td className="px-6 py-4 text-right">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                        +1 Ay Premium
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center text-slate-500">
+            <Users className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+            <p>Henüz kimseyi davet etmediniz.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpdate: () => void }) => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'personal');
@@ -1041,6 +1247,7 @@ const SettingsPage = ({ user, onProfileUpdate }: { user: UserType, onProfileUpda
     { id: 'photo', label: 'Profil Fotoğrafı', icon: Camera, component: <PhotoTab showNotification={showNotification} user={user} onProfileUpdate={onProfileUpdate} /> },
     { id: 'delete', label: 'Hesabı Sil', icon: Trash2, component: <DeleteAccountTab showNotification={showNotification} askConfirmation={askConfirmation} user={user} /> },
     { id: 'notifications', label: 'Bildirim Ayarları', icon: Bell, component: <NotificationSettingsTab user={user} onProfileUpdate={onProfileUpdate} showNotification={showNotification} askConfirmation={askConfirmation} /> },
+    { id: 'referral', label: 'Referans Sistemi', icon: Gift, component: <ReferralTab showNotification={showNotification} user={user} onProfileUpdate={onProfileUpdate} /> },
   ];
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component;

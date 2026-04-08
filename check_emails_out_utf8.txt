@@ -1,0 +1,12 @@
+﻿[dotenv@17.2.3] injecting env (25) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+Checking 100 emails...
+Found 0 invalid emails.
+No obvious invalid emails. Some samples:
+[
+  'efe@erten.av.tr',
+  'alper@nayci.av.tr',
+  'alperonar@istanbulbarosu.org.tr',
+  'av.alperoner@outlook.com.tr',
+  'alpersarica@istanbulbarosu.org.tr'
+]
+Payload To (first 2): [{"email":"efe@erten.av.tr","name":"Alper Efe Erten"},{"email":"alper@nayci.av.tr","name":"Alper Nayc├ä┬▒"}]
