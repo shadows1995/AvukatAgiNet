@@ -189,13 +189,7 @@ export const RegisterPage = () => {
       return;
     }
 
-    // Password Complexity Check
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(formData.password)) {
-      showNotification('error', "Şifreniz en az 6 karakter olmalı ve en az bir harf ile bir rakam içermelidir.");
-      return;
-    }
-
+    // Removed Password Complexity Check based on user request
     setIsLoading(true);
     try {
       // Normalize phone number (remove spaces, parentheses, etc.)

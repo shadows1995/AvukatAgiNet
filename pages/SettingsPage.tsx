@@ -573,8 +573,9 @@ const PasswordChangeTab = ({ showNotification }: { showNotification: (type: 'suc
       showNotification('error', 'Şifreler eşleşmiyor.');
       return;
     }
-    if (password.length < 6) {
-      showNotification('error', 'Şifre en az 6 karakter olmalıdır.');
+
+    if (!password || password.trim() === '') {
+      showNotification('error', 'Şifre boş bırakılamaz.');
       return;
     }
 
