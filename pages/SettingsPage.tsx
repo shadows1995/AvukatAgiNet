@@ -574,8 +574,8 @@ const PasswordChangeTab = ({ showNotification }: { showNotification: (type: 'suc
       return;
     }
 
-    if (!password || password.trim() === '') {
-      showNotification('error', 'Şifre boş bırakılamaz.');
+    if (password.length < 6) {
+      showNotification('error', 'Şifre en az 6 karakter olmalıdır.');
       return;
     }
 

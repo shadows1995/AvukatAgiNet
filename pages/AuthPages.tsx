@@ -189,7 +189,11 @@ export const RegisterPage = () => {
       return;
     }
 
-    // Removed Password Complexity Check based on user request
+    if (formData.password.length < 6) {
+      showNotification('error', "Şifreniz en az 6 karakter olmalıdır.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Normalize phone number (remove spaces, parentheses, etc.)
