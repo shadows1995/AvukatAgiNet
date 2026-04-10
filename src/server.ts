@@ -666,8 +666,10 @@ app.post('/api/admin/send-marketing', async (req, res) => {
 
         // Filter out invalid emails
         const validEmails = unsentEmails.filter((e: any) => {
+            if (!e.email) return false;
+            const email = e.email.trim();
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            return e.email && emailRegex.test(e.email);
+            return emailRegex.test(email) && !email.includes('..') && !email.includes('.@') && !email.startsWith('.');
         });
 
         const invalidEmails = unsentEmails.filter((e: any) => !validEmails.includes(e));

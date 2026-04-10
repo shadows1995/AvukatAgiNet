@@ -742,8 +742,10 @@ app.post('/api/admin/send-marketing', function (req, res) { return __awaiter(voi
                     return [2 /*return*/, res.json({ message: 'Tüm gönderimler tamamlandı.', count: 0 })];
                 }
                 validEmails_1 = unsentEmails.filter(function (e) {
+                    if (!e.email) return false;
+                    var email = e.email.trim();
                     var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                    return e.email && emailRegex.test(e.email);
+                    return emailRegex.test(email) && !email.includes('..') && !email.includes('.@') && !email.startsWith('.');
                 });
                 invalidEmails = unsentEmails.filter(function (e) { return !validEmails_1.includes(e); });
                 if (!(invalidEmails.length > 0)) return [3 /*break*/, 5];
