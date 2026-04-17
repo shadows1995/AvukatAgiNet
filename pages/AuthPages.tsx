@@ -224,6 +224,11 @@ export const RegisterPage = () => {
         }
       }
 
+      const now = new Date();
+      const premiumUntilDate = new Date();
+      premiumUntilDate.setMonth(now.getMonth() + 2);
+      const isPromoActive = !SHOW_PREMIUM_FEATURES;
+
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -234,9 +239,15 @@ export const RegisterPage = () => {
             baro_number: formData.barNo,
             baro_city: formData.barCity,
             city: formData.barCity,
-            role: 'free',
+            role: isPromoActive ? 'premium' : 'free',
+            is_premium: isPromoActive,
+            membership_type: isPromoActive ? 'premium_plus' : 'free',
+            premium_since: isPromoActive ? now.toISOString() : null,
+            premium_until: isPromoActive ? premiumUntilDate.toISOString() : null,
+            premium_plan: isPromoActive ? 'beta' : null,
+            claimed_beta_promo: isPromoActive ? true : false,
             job_status: 'active',
-            created_at: new Date().toISOString(),
+            created_at: now.toISOString(),
           }
         }
       });
@@ -258,7 +269,7 @@ export const RegisterPage = () => {
         console.log("Signup Successful, User ID:", data.user.id);
         // Attempt to update profile fields (if the user exists from trigger)
         // If trigger failed/delayed, this might miss, but it won't crash.
-        const { error: updateError } = await supabase.from('users').upsert({
+        const upsertPayload: any = {
           uid: data.user.id,
           email: formData.email,
           full_name: `${formData.firstName} ${formData.lastName}`,
@@ -266,12 +277,24 @@ export const RegisterPage = () => {
           baro_city: formData.barCity,
           city: formData.barCity,
           phone: cleanPhone,
-          role: UserRole.FREE,
+          role: isPromoActive ? UserRole.PREMIUM : UserRole.FREE,
           rating: 0,
           completed_jobs: 0,
           job_status: 'active',
-          created_at: new Date().toISOString() // Fallback if trigger didn't run
-        }, { onConflict: 'uid' });
+          created_at: now.toISOString() // Fallback if trigger didn't run
+        };
+
+        if (isPromoActive) {
+          upsertPayload.is_premium = true;
+          upsertPayload.membership_type = 'premium_plus';
+          upsertPayload.premium_until = premiumUntilDate.toISOString();
+          upsertPayload.premium_since = now.toISOString();
+          upsertPayload.premium_price = 0;
+          upsertPayload.premium_plan = 'beta';
+          upsertPayload.claimed_beta_promo = true;
+        }
+
+        const { error: updateError } = await supabase.from('users').upsert(upsertPayload, { onConflict: 'uid' });
 
         if (updateError) {
           console.error("Profile update error (non-fatal):", updateError);

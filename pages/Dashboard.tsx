@@ -4,6 +4,7 @@ import { PlusCircle, AlertCircle, Briefcase, MapPin, Search, Loader2, BarChart3,
 import { User, Job, JobType } from '../types';
 import { supabase } from '../supabaseClient';
 import JobCard from '../components/JobCard';
+import { COURTHOUSES } from '../data/courthouses';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
 const Dashboard = ({ user }: { user: User }) => {
@@ -107,7 +108,19 @@ const Dashboard = ({ user }: { user: User }) => {
     if (filterType !== 'ALL' && job.jobType !== filterType) return false;
 
     // Admins see all jobs, others see only their preferred courthouses
-    if (user.role !== 'admin' && !userCourthouses.includes(job.courthouse)) return false;
+    if (user.role !== 'admin') {
+      const cityCourthouses = COURTHOUSES[job.city] || [];
+      const isOutside = !cityCourthouses.includes(job.courthouse);
+
+      if (isOutside) {
+        // For outside jobs (Adliye dışı), show if user is from that city or monitors any courthouse in that city
+        const hasCourthouseInCity = cityCourthouses.some(ch => userCourthouses.includes(ch));
+        if (job.city !== user.city && !hasCourthouseInCity) return false;
+      } else {
+        // For normal courthouse jobs, strictly check against monitored list
+        if (!userCourthouses.includes(job.courthouse)) return false;
+      }
+    }
 
     // Filter expired jobs: hide if job date/time passed AND user is not involved
     if (job.date) {
