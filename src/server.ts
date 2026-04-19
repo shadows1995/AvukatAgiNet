@@ -89,7 +89,8 @@ app.post('/api/notify-new-job', async (req, res) => {
             createdBy, // Use this to potentially exclude self-notification?
             offeredFee,
             date,
-            time
+            time,
+            targetUsers: result.targetUsers
         }).catch(err => console.error("Async Push Error:", err));
 
         res.json(result);
@@ -1026,24 +1027,13 @@ import { sendPushNotification } from './services/pushService.js';
 // Helper: Notify users of new job (Push)
 // Called within /api/notify-new-job logic
 async function sendNewJobPush(parsedJob: any) {
-    // 1. Find target users (courthouse match)
-    // We need to fetch users who have this courthouse in their preferred list
     try {
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('uid, preferred_courthouses, full_name')
-            .contains('preferred_courthouses', [parsedJob.courthouse]);
-
-        if (error) {
-            console.error('❌ Failed to fetch users for push:', error);
+        if (!parsedJob.targetUsers || parsedJob.targetUsers.length === 0) {
+            console.log(`📣 No users found in targetUsers for push notification.`);
             return;
         }
 
-        if (!users || users.length === 0) {
-            return;
-        }
-
-        console.log(`📣 Sending New Job Push to ${users.length} users.`);
+        console.log(`📣 Sending New Job Push to ${parsedJob.targetUsers.length} users.`);
 
         // Format Date (YYYY-MM-DD -> DD/MM/YYYY)
         let formattedDate = parsedJob.date;
@@ -1060,9 +1050,9 @@ async function sendNewJobPush(parsedJob: any) {
         const body = `${parsedJob.city} - ${parsedJob.courthouse}\n📅 ${formattedDate} ${timeStr}\n💰 ${parsedJob.offeredFee} TL\nDetaylar için dokunun.`;
 
         // Use Promise.all for speed
-        await Promise.all(users.map(u =>
+        await Promise.all(parsedJob.targetUsers.map((uid: string) =>
             sendPushNotification({
-                user_id: u.uid,
+                user_id: uid,
                 title,
                 body,
                 data: { jobId: parsedJob.jobId, type: 'new_job' }

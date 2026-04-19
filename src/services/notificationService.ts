@@ -304,7 +304,8 @@ export async function notifyNewJob(
             success: true,
             message: 'Notifications processed',
             counts: { sms: sentSmsCount, telegram: sentTelegramCount },
-            totalTargets: usersToNotify.length
+            totalTargets: usersToNotify.length,
+            targetUsers: usersToNotify.map(u => u.uid)
         };
 
     } catch (err: any) {

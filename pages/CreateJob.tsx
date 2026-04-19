@@ -88,7 +88,7 @@ const CreateJob = ({ user }: { user: User }) => {
       // Force 'Diğer' if outside
       const finalJobType = isOutside ? JobType.DIGER : formData.type;
 
-      const { error } = await supabase.from('jobs').insert({
+      const { data: insertedData, error } = await supabase.from('jobs').insert({
         title: formData.title,
         job_type: finalJobType,
         city: formData.city,
@@ -104,7 +104,7 @@ const CreateJob = ({ user }: { user: User }) => {
         applications_count: 0,
         is_urgent: formData.isUrgent,
         application_deadline: deadlineDate.toISOString(),
-      });
+      }).select('job_id').single();
 
       if (error) throw error;
 
@@ -117,7 +117,7 @@ const CreateJob = ({ user }: { user: User }) => {
           city: formData.city,
           courthouse: formData.courthouse,
           jobType: finalJobType,
-          jobId: null,
+          jobId: insertedData?.job_id,
           createdBy: user.uid,
           date: formData.date,
           time: formData.time,
