@@ -75,24 +75,12 @@ app.post('/api/notify-new-job', async (req, res) => {
         jobId,
         createdBy,
         date,
+        time,
         offeredFee,
         isOutside
     });
 
     if (result.success) {
-        // Trigger Push Notification asynchronously (fire and forget)
-        sendNewJobPush({
-            city,
-            courthouse,
-            jobType,
-            jobId,
-            createdBy, // Use this to potentially exclude self-notification?
-            offeredFee,
-            date,
-            time,
-            targetUsers: result.targetUsers
-        }).catch(err => console.error("Async Push Error:", err));
-
         res.json(result);
     } else {
         res.status(500).json(result);

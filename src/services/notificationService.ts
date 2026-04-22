@@ -85,11 +85,12 @@ export async function notifyNewJob(
         jobId: string;
         createdBy: string;
         date: string;
+        time?: string;
         offeredFee: string;
         isOutside?: boolean;
     }
 ) {
-    const { city, courthouse, jobType, jobId, createdBy, date, offeredFee, isOutside } = jobData;
+    const { city, courthouse, jobType, jobId, createdBy, date, time, offeredFee, isOutside } = jobData;
     customLog('📨 Notification Service: Processing new job:', { city, courthouse, jobType, createdBy, isOutside });
 
     if (!courthouse || !jobType) {
@@ -297,14 +298,18 @@ export async function notifyNewJob(
             }
 
             // APP Push Notification Logic
+            const pushTitle = isOutside ? `Yeni Görev: ${jobType} 📢` : `Yeni Görev: ${jobType}`;
+            const timeStr = time ? `⏰ ${time}` : '';
+            const pushBody = isOutside 
+                ? `${city} - ${courthouse} (Adliye Dışı)\n📅 ${formattedDate} ${timeStr}\n💰 ${offeredFee} TL\nDetaylar için dokunun.`
+                : `${city} - ${courthouse}\n📅 ${formattedDate} ${timeStr}\n💰 ${offeredFee} TL\nDetaylar için dokunun.`;
+
             promises.push(
                 sendPushNotification({
                     user_id: user.uid,
-                    title: isOutside ? 'Yeni Görev (Adliye Dışı) 📢' : 'Yeni Görev 📢',
-                    body: isOutside 
-                        ? `${city}'da (Adliye Dışı) ${offeredFee} TL ücretli yeni bir görev açıldı. Tıklayarak inceleyebilirsiniz.`
-                        : `${courthouse} adliyesinde ${offeredFee} TL ücretli yeni bir görev açıldı. Tıklayarak inceleyebilirsiniz.`,
-                    data: { route: `/dashboard/job/${jobId}` }
+                    title: pushTitle,
+                    body: pushBody,
+                    data: { jobId: jobId, type: 'new_job', route: `/dashboard/job/${jobId}` }
                 })
                 .then(() => sentPushCount++)
                 .catch(e => console.error(`Push fail ${user.uid}`, e))

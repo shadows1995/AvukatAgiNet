@@ -219,6 +219,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                         jobId: insertedJob.job_id,
                         createdBy: botUserId,
                         date: targetDate,
+                        time: timeString,
                         offeredFee: String(jobDetails.offeredFee)
                     });
                     console.log(`🤖 Job Bot: 📨 Notification triggered for job ${insertedJob.job_id}`);
