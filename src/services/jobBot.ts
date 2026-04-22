@@ -98,9 +98,9 @@ export const runJobBot = async (supabase: SupabaseClient) => {
         const dayOfWeek = trTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
         const hourOfDay = trTime.getHours();
 
-        // Rule: Only run between 09:00 and 18:00
-        if (hourOfDay < 9 || hourOfDay > 17) {
-            console.log(`🤖 Job Bot: Outside operating hours (09:00-18:00). Current hour (Turkey time): ${hourOfDay}. Skipping.`);
+        // Rule: Only run between 09:00 and 23:00
+        if (hourOfDay < 9 || hourOfDay > 22) {
+            console.log(`🤖 Job Bot: Outside operating hours (09:00-23:00). Current hour (Turkey time): ${hourOfDay}. Skipping.`);
             return;
         }
 
@@ -138,13 +138,14 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             const trNowStr = nowRaw.toLocaleString("en-US", { timeZone: "Europe/Istanbul" });
             const trNow = new Date(trNowStr);
             
-            const tomorrow = new Date(trNow);
-            tomorrow.setDate(tomorrow.getDate() + 1);
+            const targetDateObj = new Date(trNow);
+            const daysToAdd = Math.random() < 0.5 ? 1 : 2; // Next 1 or 2 days
+            targetDateObj.setDate(targetDateObj.getDate() + daysToAdd);
             
             // Format YYYY-MM-DD for Turkey
-            const year = tomorrow.getFullYear();
-            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const year = targetDateObj.getFullYear();
+            const month = String(targetDateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(targetDateObj.getDate()).padStart(2, '0');
             const targetDate = `${year}-${month}-${day}`;
 
             const { data: existingJobs } = await supabase
@@ -186,7 +187,7 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 description: jobDetails.description,
                 city: ch.city,
                 courthouse: ch.name,
-                date: targetDate, // Tomorrow's date in Turkey Time
+                date: targetDate, // Randomly next 1 or 2 days in Turkey Time
                 time: timeString,
                 job_type: jobDetails.jobType,
                 offered_fee: jobDetails.offeredFee,
