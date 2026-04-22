@@ -22,6 +22,18 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
+  const isBotJob = Boolean(job.ownerName?.startsWith('Av. ') && job.ownerPhone?.match(/^555\d{7}$/));
+  
+  const getFakeAssigneeInitials = (id: string) => {
+    const firsts = ["A.", "M.", "K.", "S.", "E.", "B.", "C.", "T.", "O.", "F.", "H.", "Y.", "R.", "Z."];
+    const lasts = ["Y.", "K.", "D.", "Ö.", "Ş.", "Ç.", "A.", "T.", "G."];
+    let hash = 0;
+    for (let i = 0; i < (id || "").length; i++) {
+        hash = hash + id.charCodeAt(i);
+    }
+    return `${firsts[hash % firsts.length]} ${lasts[(hash * 3) % lasts.length]}`;
+  };
+
   // Calculate deadline
   const applicationWindowMinutes = job.isUrgent ? 5 : 15;
   const jobCreatedTime = new Date(job.createdAt).getTime();
@@ -141,7 +153,7 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
               {timeLeft > 0 ? (
                 <span>Son Başvuru: {formatTime(timeLeft)}</span>
               ) : (
-                <span>Başvuru Süresi Doldu</span>
+                <span>{isBotJob ? 'Görev Atandı' : 'Başvuru Süresi Doldu'}</span>
               )}
             </div>
             <div className="flex items-center text-slate-500 text-sm">
@@ -217,9 +229,13 @@ const JobCard: React.FC<{ job: Job, user: User, hasApplied?: boolean }> = ({ job
           ) : timeLeft <= 0 ? (
             <button
               disabled
-              className="w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white bg-slate-400 cursor-not-allowed"
+              className={`w-full flex justify-center items-center px-4 py-2.5 rounded-lg shadow-sm text-sm font-semibold text-white ${isBotJob ? 'bg-green-600 border border-green-700' : 'bg-slate-400 cursor-not-allowed'}`}
             >
-              Başvuru Süresi Doldu
+              {isBotJob ? (
+                <><CheckCircle className="w-4 h-4 mr-2" /> Görev Atandı: {getFakeAssigneeInitials(job.jobId || '')}</>
+              ) : (
+                'Başvuru Süresi Doldu'
+              )}
             </button>
           ) : (
             <button
