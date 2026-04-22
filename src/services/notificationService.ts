@@ -2,6 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import axios from "axios";
 import { COURTHOUSES } from "../../data/courthouses.js";
 import { sendTelegramMessage } from "./telegramService.js";
+import { sendPushNotification } from "./pushService.js";
 import fs from 'fs';
 import path from 'path';
 
@@ -242,6 +243,7 @@ export async function notifyNewJob(
 
         let sentTelegramCount = 0;
         let sentSmsCount = 0;
+        let sentPushCount = 0;
         const promises = [];
 
         // Global Telegram Post (If a global chat ID is configured)
@@ -293,17 +295,31 @@ export async function notifyNewJob(
                         .catch(e => console.error(`Telegram fail ${user.uid}`, e))
                 );
             }
+
+            // APP Push Notification Logic
+            promises.push(
+                sendPushNotification({
+                    user_id: user.uid,
+                    title: isOutside ? 'Yeni Görev (Adliye Dışı) 📢' : 'Yeni Görev 📢',
+                    body: isOutside 
+                        ? `${city}'da (Adliye Dışı) ${offeredFee} TL ücretli yeni bir görev açıldı. Tıklayarak inceleyebilirsiniz.`
+                        : `${courthouse} adliyesinde ${offeredFee} TL ücretli yeni bir görev açıldı. Tıklayarak inceleyebilirsiniz.`,
+                    data: { route: `/dashboard/job/${jobId}` }
+                })
+                .then(() => sentPushCount++)
+                .catch(e => console.error(`Push fail ${user.uid}`, e))
+            );
         }
 
         customLog(`[DEBUG] Waiting for ${promises.length} personal/global promises.`);
         const resultsAll = await Promise.allSettled(promises);
         customLog(`[DEBUG] All Promise Results:`, resultsAll.map(r => r.status));
-        customLog(`✅ Notifications sent. SMS: ${sentSmsCount}, Telegram: ${sentTelegramCount}`);
+        customLog(`✅ Notifications sent. SMS: ${sentSmsCount}, Telegram: ${sentTelegramCount}, Push: ${sentPushCount}`);
 
         return {
             success: true,
             message: 'Notifications processed',
-            counts: { sms: sentSmsCount, telegram: sentTelegramCount },
+            counts: { sms: sentSmsCount, telegram: sentTelegramCount, push: sentPushCount },
             totalTargets: usersToNotify.length,
             targetUsers: usersToNotify.map(u => u.uid)
         };
