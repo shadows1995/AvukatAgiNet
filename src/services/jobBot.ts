@@ -132,7 +132,8 @@ export const runJobBot = async (supabase: SupabaseClient) => {
         console.log(`🤖 Job Bot: Selected ${selectedCourthouses.length} courthouses for potential jobs. Allowed types: ${allowedJobTypes.join(', ')}`);
 
         // 5. Process Each Courthouse
-        for (const ch of selectedCourthouses) {
+        for (let i = 0; i < selectedCourthouses.length; i++) {
+            const ch = selectedCourthouses[i];
             // Get current time in Turkey properly for today and tomorrow
             const nowRaw = new Date();
             const trNowStr = nowRaw.toLocaleString("en-US", { timeZone: "Europe/Istanbul" });
@@ -226,6 +227,12 @@ export const runJobBot = async (supabase: SupabaseClient) => {
                 } catch (notifyError) {
                     console.error('🤖 Job Bot: Failed to trigger notification:', notifyError);
                 }
+            }
+
+            // Wait 2 minutes 13 seconds (133000 ms) before processing the next courthouse
+            if (i < selectedCourthouses.length - 1) {
+                console.log(`🤖 Job Bot: Waiting 2 minutes 13 seconds before creating the next job...`);
+                await new Promise(resolve => setTimeout(resolve, 133000));
             }
         }
 
