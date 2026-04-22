@@ -52,7 +52,12 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         }
         `;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            generationConfig: {
+                responseMimeType: "application/json"
+            }
+        });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
@@ -65,6 +70,11 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         const data = JSON.parse(jsonStr) as GeneratedJob;
+        if (!data.title || !data.description || !data.jobType) {
+            console.error("Gemini returned invalid Job format:", data);
+            return null;
+        }
+        
         data.ownerName = generatedOwnerName;
         return data;
 
