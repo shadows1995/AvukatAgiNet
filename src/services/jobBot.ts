@@ -140,9 +140,32 @@ export const runJobBot = async (supabase: SupabaseClient) => {
             const trNow = new Date(trNowStr);
             
             const targetDateObj = new Date(trNow);
-            const daysToAdd = Math.random() < 0.5 ? 1 : 2; // Next 1 or 2 days
+            let daysToAdd = Math.random() < 0.5 ? 1 : 2; // Next 1 or 2 days
             targetDateObj.setDate(targetDateObj.getDate() + daysToAdd);
             
+            // Resmi Tatiller ve Hafta Sonu Kontrolü
+            const fixedHolidays = ['01-01', '04-23', '05-01', '05-19', '07-15', '08-30', '10-29'];
+            const movingHolidays = [
+                '2024-04-10', '2024-04-11', '2024-04-12', '2024-06-16', '2024-06-17', '2024-06-18', '2024-06-19', // 2024
+                '2025-03-30', '2025-03-31', '2025-04-01', '2025-06-06', '2025-06-07', '2025-06-08', '2025-06-09', // 2025
+                '2026-03-20', '2026-03-21', '2026-03-22', '2026-05-27', '2026-05-28', '2026-05-29', '2026-05-30', // 2026
+            ];
+
+            const isHolidayOrWeekend = (d: Date) => {
+                const dayOfWeek = d.getDay();
+                if (dayOfWeek === 0 || dayOfWeek === 6) return true; // Sunday or Saturday
+                const mmdd = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                if (fixedHolidays.includes(mmdd)) return true;
+                const yyyymmdd = `${d.getFullYear()}-${mmdd}`;
+                if (movingHolidays.includes(yyyymmdd)) return true;
+                return false;
+            };
+
+            // İleri sarcak kadar devam et
+            while (isHolidayOrWeekend(targetDateObj)) {
+                targetDateObj.setDate(targetDateObj.getDate() + 1);
+            }
+
             // Format YYYY-MM-DD for Turkey
             const year = targetDateObj.getFullYear();
             const month = String(targetDateObj.getMonth() + 1).padStart(2, '0');
