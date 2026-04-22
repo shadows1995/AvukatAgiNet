@@ -40,7 +40,7 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         1. Asla selamlama ifadeleri kullanma ("Merhaba", "İyi çalışmalar", "Değerli meslektaşlar" vb. YASAK). Her zaman doğrudan konuya ve göreve başla.
         2. İçerik ve Mazeret: Görevin içeriğiyle ilgili doğrudan, net bilgiler ver. Mazeretler çok detaylı olmasın, olabildiğince net, kısa ve doğal olsun (örneğin: "Başka duruşmayla çakıştığı için", "Şehir dışında olacağım için", "Dosyadan belge sureti alınacak"). Gereksiz uzun hikayelere girme.
         3. Başlıklar: Kesinlikle mahkeme numarası veya adliye numarası KULLANMA. İçi boş ve aşırı tekrar eden başlıklar yerine, görevin niteliğini belirten kısa ve farklı başlıklar at. Örnek: "Asliye Ceza Duruşması", "İş Mahkemesi Tanık Beyanı", "İcra Dairesinde Haciz İşlemi", "Karakol İfade Temsili".
-        4. Ücret: Genelde 800 - 1500 TL arası makul bir ücret ver. ANCAK "Duruşma" görevi ise ücret KESİNLİKLE 900 TL'den az olamaz (En az 900 TL).
+        4. Ücret: Genelde 800 - 1500 TL arası makul bir ücret ver. Ücret KESİNLİKLE 100'ün katları olmalıdır (Örn: 800, 1000, 1300. Asla 1250, 1350 gibi küsuratlı olamaz). ANCAK "Duruşma" görevi ise ücret KESİNLİKLE 900 TL'den az olamaz.
         5. Asla markdown veya ekstra metin kullanma! Sadece aşağıdaki yapıda JSON olarak yanıt ver.
 
         ÇIKTI FORMATI:
@@ -74,7 +74,12 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
             console.error("Gemini returned invalid Job format:", data);
             return null;
         }
-        
+
+        // Ensure fee is a multiple of 100
+        if (data.offeredFee) {
+            data.offeredFee = Math.round(data.offeredFee / 100) * 100;
+        }
+                
         data.ownerName = generatedOwnerName;
         return data;
 
