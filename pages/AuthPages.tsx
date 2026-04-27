@@ -7,7 +7,7 @@ import { COURTHOUSES, TURKISH_CITIES } from '../data/courthouses';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAlert } from '../contexts/AlertContext';
 import { useMobileApp } from '../hooks/useMobileApp';
-import { SHOW_PREMIUM_FEATURES } from '../config';
+import { SHOW_PREMIUM_FEATURES, IS_BETA_PROMO_ACTIVE } from '../config';
 
 import InteractiveSphere from '../components/InteractiveSphere';
 import SEO from '../components/SEO';
@@ -227,7 +227,7 @@ export const RegisterPage = () => {
       const now = new Date();
       const premiumUntilDate = new Date();
       premiumUntilDate.setMonth(now.getMonth() + 2);
-      const isPromoActive = !SHOW_PREMIUM_FEATURES;
+      const isPromoActive = IS_BETA_PROMO_ACTIVE;
 
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
