@@ -95,8 +95,14 @@ const AppContent = () => {
         };
         setUser(mappedUser);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching user profile:", error);
+      if (error?.code === 'PGRST116') {
+        console.error("User profile missing. Signing out...");
+        supabase.auth.signOut();
+        setUser(null);
+        alert("Hesap profiliniz bulunamadı. Lütfen kayıt işleminizi tamamladığınızdan emin olun veya destek ile iletişime geçin.");
+      }
     } finally {
       setAuthLoading(false);
     }

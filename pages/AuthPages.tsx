@@ -428,6 +428,11 @@ export const LoginPage = () => {
         password
       });
       if (error) throw error;
+      
+      // Fallback: If for some reason the component doesn't unmount, stop the spinner after a few seconds
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 3000);
     } catch (err: any) {
       console.error(err);
       if (err.message && (err.message.includes('Email not confirmed') || err.message.includes('Email not verified'))) {
