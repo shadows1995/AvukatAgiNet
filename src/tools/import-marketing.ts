@@ -17,7 +17,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 async function importCsv() {
     try {
-        const filePath = path.resolve('istanbul_email_only_with_names_v2.csv');
+        const filePath = path.resolve('emails.csv');
         console.log("Reading CSV from:", filePath);
         
         const content = fs.readFileSync(filePath, 'utf8');
