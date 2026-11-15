@@ -58,6 +58,18 @@ const AppContent = () => {
   const fetchUserProfile = async (uid: string) => {
     try {
       const { data: userData, error } = await supabase.from('users').select('*').eq('uid', uid).single();
+      
+      if (error) {
+        console.error("Error fetching user profile from supabase:", error);
+        if (error.code === 'PGRST116') {
+          console.error("User profile missing. Signing out...");
+          await supabase.auth.signOut();
+          setUser(null);
+          alert("Hesap profiliniz bulunamadı. Lütfen kayıt işleminizi tamamladığınızdan emin olun veya destek ile iletişime geçin.");
+        }
+        return;
+      }
+
       if (userData) {
         const mappedUser: User = {
           uid: userData.uid,
@@ -95,14 +107,8 @@ const AppContent = () => {
         };
         setUser(mappedUser);
       }
-    } catch (error: any) {
-      console.error("Error fetching user profile:", error);
-      if (error?.code === 'PGRST116') {
-        console.error("User profile missing. Signing out...");
-        supabase.auth.signOut();
-        setUser(null);
-        alert("Hesap profiliniz bulunamadı. Lütfen kayıt işleminizi tamamladığınızdan emin olun veya destek ile iletişime geçin.");
-      }
+    } catch (err: any) {
+      console.error("Exception fetching user profile:", err);
     } finally {
       setAuthLoading(false);
     }

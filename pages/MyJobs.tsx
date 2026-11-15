@@ -258,7 +258,8 @@ const MyJobs = () => {
       }
 
       const [hour, minute] = job.time.split(':').map(Number);
-      const jobDate = new Date(year, month - 1, day, hour, minute);
+      const isoTr = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour ?? 0).padStart(2, '0')}:${String(minute ?? 0).padStart(2, '0')}:00+03:00`;
+      const jobDate = new Date(isoTr);
 
       // Current time
       const now = new Date();

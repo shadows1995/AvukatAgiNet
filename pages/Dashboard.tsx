@@ -125,19 +125,28 @@ const Dashboard = ({ user }: { user: User }) => {
     // Filter expired jobs: hide if job date/time passed AND user is not involved
     if (job.date) {
       try {
-        // Parse date (YYYY-MM-DD) and time (HH:MM)
-        const jobDate = new Date(job.date);
-        if (job.time) {
-          const [hours, minutes] = job.time.split(':').map(Number);
-          jobDate.setHours(hours, minutes);
+        let year: number, month: number, day: number;
+        if (job.date.includes('.')) {
+          [day, month, year] = job.date.split('.').map(Number);
         } else {
-          // If no time, assume end of day
-          jobDate.setHours(23, 59, 59);
+          [year, month, day] = job.date.split('-').map(Number);
         }
+
+        let hours = 23, minutes = 59, seconds = 59;
+        if (job.time) {
+          const timeParts = job.time.split(':').map(Number);
+          hours = timeParts[0] ?? 23;
+          minutes = timeParts[1] ?? 59;
+          seconds = timeParts[2] ?? 0;
+        }
+
+        // Parse in Turkey Time (UTC+03:00) to avoid UTC-midnight shift and local timezone discrepancies
+        const isoTr = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}+03:00`;
+        const jobDate = new Date(isoTr);
 
         const now = new Date();
         const isExpired = jobDate < now;
-        const isInvolved = job.createdBy === user.uid || job.assignedTo === user.uid;
+        const isInvolved = job.createdBy === user.uid || job.selectedApplicant === user.uid;
 
         if (isExpired && !isInvolved) {
           return false;
