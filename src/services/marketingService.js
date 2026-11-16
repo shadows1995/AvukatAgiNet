@@ -649,3 +649,37 @@ export async function sendMarketingBatch(supabase, options = {}) {
         message: `Başarıyla ${sentEmailAddresses.length} kişiye e-posta gönderildi.${invalidEmails.length > 0 ? ` (${invalidEmails.length} hatalı adres temizlendi)` : ""}${postBatchRotationMsg}`
     };
 }
+/**
+ * Sends a single test email of the current active campaign to a specified email address
+ * without modifying the marketing_emails queue or daily counters.
+ */
+export async function sendTestMarketingEmail(supabase, targetEmail) {
+    const state = await getOrInitCampaignState(supabase);
+    const htmlBody = buildMarketingEmailHtml(state.currentCampaign);
+    const textBody = buildMarketingEmailText(state.currentCampaign);
+    const payload = {
+        from: { email: "hello@avukatagi.net", name: "AvukatAğı" },
+        to: [{ email: targetEmail.trim(), name: "Değerli Meslektaşımız (Test)" }],
+        subject: `[TEST] ${state.currentCampaign.subject}`,
+        html: htmlBody,
+        text: textBody,
+        category: `Test_Campaign_${state.campaignNumber}`
+    };
+    const response = await fetch("https://bulk.api.mailtrap.io/api/send", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${DEFAULT_MAILTRAP_TOKEN}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Mailtrap API error: ${response.status} ${errorText}`);
+    }
+    return {
+        subject: state.currentCampaign.subject,
+        campaignNumber: state.campaignNumber,
+        angleTitle: state.currentCampaign.angleTitle
+    };
+}

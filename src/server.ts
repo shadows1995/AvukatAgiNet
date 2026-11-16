@@ -19,6 +19,7 @@ import {
     saveCampaignState,
     rotateToNextCampaign,
     sendMarketingBatch,
+    sendTestMarketingEmail,
     buildMarketingEmailHtml,
     generateNextCampaignContent
 } from "./services/marketingService.js";
@@ -653,6 +654,25 @@ app.get('/api/admin/marketing-stats', async (req, res) => {
     } catch (err: any) {
         console.error('Marketing Stats Error:', err);
         res.status(500).json({ error: 'Failed to fetch stats', details: err.message });
+    }
+});
+
+// Endpoint: Send a test marketing email to a single address (e.g., vahdetbicak@gmail.com)
+app.post('/api/admin/marketing-send-test', async (req, res) => {
+    try {
+        if (!(await verifyAdminRequest(req, res))) return;
+
+        const { email } = req.body || {};
+        const targetEmail = (email || 'vahdetbicak@gmail.com').trim();
+        const result = await sendTestMarketingEmail(supabase, targetEmail);
+
+        res.json({
+            message: `Test e-postası (${result.subject}) başarıyla ${targetEmail} adresine gönderildi!`,
+            ...result
+        });
+    } catch (err: any) {
+        console.error('Marketing Test Send Error:', err);
+        res.status(500).json({ error: 'Test gönderimi başarısız.', details: err.message });
     }
 });
 

@@ -51,6 +51,8 @@ const AdminMarketing = () => {
     const [rotating, setRotating] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false);
     const [addingEmails, setAddingEmails] = useState(false);
+    const [sendingTest, setSendingTest] = useState(false);
+    const [testEmailInput, setTestEmailInput] = useState<string>('vahdetbicak@gmail.com');
     const [dailyLimitInput, setDailyLimitInput] = useState<number>(100);
     const [newEmailsText, setNewEmailsText] = useState<string>('');
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -87,6 +89,35 @@ const AdminMarketing = () => {
     useEffect(() => {
         fetchStats();
     }, []);
+
+    const handleSendTest = async () => {
+        if (!testEmailInput.trim()) return;
+        setSendingTest(true);
+        setMessage(null);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) throw new Error("Oturum bulunamadı");
+
+            const apiUrl = window.location.origin;
+            const res = await fetch(`${apiUrl}/api/admin/marketing-send-test`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: testEmailInput.trim() })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.details || data.error || 'Test gönderilemedi');
+
+            setMessage({ type: 'success', text: data.message });
+        } catch (error: any) {
+            setMessage({ type: 'error', text: "Test gönderimi başarısız: " + String(error.message || error) });
+        } finally {
+            setSendingTest(false);
+        }
+    };
 
     const handleSendBatch = async () => {
         const limit = campaignState?.dailyLimit || 100;
@@ -442,18 +473,29 @@ const AdminMarketing = () => {
                         </div>
                     )}
 
-                    <div className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white">
-                        <div className="text-sm text-slate-600">
-                            <p className="font-semibold text-slate-800">Manuel Parti Gönderimi</p>
-                            <p className="text-xs text-slate-500">
-                                Otomatik cron saatini beklemeden sıradaki {campaignState?.dailyLimit || 100} kişiye bu e-postayı hemen gönderebilirsiniz.
-                            </p>
+                    <div className="p-6 flex flex-col lg:flex-row items-center justify-between gap-4 bg-white">
+                        <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
+                            <input
+                                type="email"
+                                value={testEmailInput}
+                                onChange={(e) => setTestEmailInput(e.target.value)}
+                                placeholder="Test e-posta adresi..."
+                                className="w-full sm:w-64 rounded-xl border-slate-300 text-sm py-2.5 px-3"
+                            />
+                            <button
+                                onClick={handleSendTest}
+                                disabled={sendingTest || !testEmailInput.trim()}
+                                className="w-full sm:w-auto flex items-center justify-center px-4 py-2.5 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-900 transition disabled:opacity-50 whitespace-nowrap"
+                            >
+                                {sendingTest ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Mail className="w-4 h-4 mr-1.5" />}
+                                Kendime Test Gönder
+                            </button>
                         </div>
 
                         <button
                             onClick={handleSendBatch}
                             disabled={sending}
-                            className="flex items-center px-6 py-3.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition disabled:opacity-50 shadow-md"
+                            className="w-full lg:w-auto flex items-center justify-center px-6 py-3.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 transition disabled:opacity-50 shadow-md"
                         >
                             {sending ? (
                                 <>
