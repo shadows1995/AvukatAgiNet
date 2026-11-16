@@ -14,6 +14,14 @@ import { Builder } from 'xml2js';
 
 import { COURTHOUSES } from '../data/courthouses.js';
 import { verifyGarantiCallback } from "./services/garantiPaymentService.js";
+import {
+    getOrInitCampaignState,
+    saveCampaignState,
+    rotateToNextCampaign,
+    sendMarketingBatch,
+    buildMarketingEmailHtml,
+    generateNextCampaignContent
+} from "./services/marketingService.js";
 
 dotenv.config();
 
@@ -605,112 +613,223 @@ app.get('/rss', async (req, res) => {
     }
 });
 
-// Endpoint: Get Marketing Stats
+// Helper to verify admin request
+async function verifyAdminRequest(req: any, res: any): Promise<boolean> {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        res.status(401).json({ error: "No token provided" });
+        return false;
+    }
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+        res.status(401).json({ error: "Invalid token" });
+        return false;
+    }
+    const { data: profile } = await supabase.from('users').select('role').eq('uid', user.id).single();
+    if (profile?.role !== 'admin') {
+        res.status(403).json({ error: "Unauthorized" });
+        return false;
+    }
+    return true;
+}
+
+// Endpoint: Get Marketing Stats & Active AI Campaign State
 app.get('/api/admin/marketing-stats', async (req, res) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) return res.status(401).json({ error: "No token provided" });
+        if (!(await verifyAdminRequest(req, res))) return;
 
-        const token = authHeader.replace('Bearer ', '');
-        const { data: { user }, error } = await supabase.auth.getUser(token);
-        if (error || !user) return res.status(401).json({ error: "Invalid token" });
-
-        const { data: profile } = await supabase.from('users').select('role').eq('uid', user.id).single();
-        if (profile?.role !== 'admin') return res.status(403).json({ error: "Unauthorized" });
-
+        const campaignState = await getOrInitCampaignState(supabase);
         const { count: sentCount } = await supabase.from('marketing_emails').select('*', { count: 'exact', head: true }).eq('sent', true);
         const { count: unsentCount } = await supabase.from('marketing_emails').select('*', { count: 'exact', head: true }).eq('sent', false);
 
-        res.json({ sent: sentCount || 0, unsent: unsentCount || 0, total: (sentCount || 0) + (unsentCount || 0) });
+        res.json({
+            sent: sentCount || 0,
+            unsent: unsentCount || 0,
+            total: (sentCount || 0) + (unsentCount || 0),
+            campaignState,
+            previewHtml: buildMarketingEmailHtml(campaignState.currentCampaign)
+        });
     } catch (err: any) {
         console.error('Marketing Stats Error:', err);
         res.status(500).json({ error: 'Failed to fetch stats', details: err.message });
     }
 });
 
-// Endpoint: Send 100 marketing emails
+// Endpoint: Send a batch of marketing emails (manual or on-demand)
 app.post('/api/admin/send-marketing', async (req, res) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) return res.status(401).json({ error: "No token provided" });
-        
-        const token = authHeader.replace('Bearer ', '');
-        const { data: { user }, error } = await supabase.auth.getUser(token);
-        if (error || !user) return res.status(401).json({ error: "Invalid token" });
+        if (!(await verifyAdminRequest(req, res))) return;
 
-        const { data: profile } = await supabase.from('users').select('role').eq('uid', user.id).single();
-        if (profile?.role !== 'admin') return res.status(403).json({ error: "Unauthorized" });
-
-        const { data: unsentEmails, error: fetchError } = await supabase
-            .from('marketing_emails')
-            .select('*')
-            .eq('sent', false)
-            .limit(100);
-
-        if (fetchError) throw fetchError;
-
-        if (!unsentEmails || unsentEmails.length === 0) {
-            return res.json({ message: 'Tüm gönderimler tamamlandı.', count: 0 });
-        }
-
-        // Filter out invalid emails
-        const validEmails = unsentEmails.filter((e: any) => {
-            if (!e.email) return false;
-            const email = e.email.trim();
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            return emailRegex.test(email) && !email.includes('..') && !email.includes('.@') && !email.startsWith('.');
+        const result = await sendMarketingBatch(supabase, { isAutoCron: false });
+        res.json({
+            message: result.message,
+            count: result.sentCount,
+            rotatedToNewCampaign: result.rotatedToNewCampaign,
+            campaignNumber: result.campaignNumber,
+            subject: result.subject
         });
-
-        const invalidEmails = unsentEmails.filter((e: any) => !validEmails.includes(e));
-
-        if (invalidEmails.length > 0) {
-            console.warn(`Skipping ${invalidEmails.length} invalid emails.`);
-            // Mark invalid emails as sent so they don't block the queue
-            await supabase
-                .from('marketing_emails')
-                .update({ sent: true, sent_at: new Date().toISOString() })
-                .in('email', invalidEmails.map((e: any) => e.email));
-        }
-
-        if (validEmails.length === 0) {
-             return res.json({ message: 'Geçerli e-posta adresi bulunamadı. Hatalı adresler atlandı.', count: 0 });
-        }
-
-        const MAILTRAP_TOKEN = '6f03fcbc60f27b98ec05e5bc932eb05c';
-        
-        const payload = {
-            from: { email: "hello@avukatagi.net", name: "AvukatAğı" },
-            to: validEmails.map((e: any) => ({ email: e.email, name: `${e.first_name || ''} ${e.last_name || ''}`.trim() })),
-            template_uuid: "029f73fa-3a7a-4850-a6ab-4241898bd502",
-            template_variables: {}
-        };
-
-        const response = await fetch("https://bulk.api.mailtrap.io/api/send", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${MAILTRAP_TOKEN}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Mailtrap API error: ${response.status} ${errorText}`);
-        }
-
-        const sentEmails = validEmails.map((e: any) => e.email);
-        const { error: updateError } = await supabase
-            .from('marketing_emails')
-            .update({ sent: true, sent_at: new Date().toISOString() })
-            .in('email', sentEmails);
-
-        if (updateError) throw updateError;
-
-        res.json({ message: `Başarıyla ${sentEmails.length} kişiye e-posta gönderildi. ${invalidEmails.length > 0 ? `(${invalidEmails.length} hatalı e-posta atlandı)` : ''}`, count: sentEmails.length });
     } catch (err: any) {
         console.error('Marketing Bulk Send Error:', err);
         res.status(500).json({ error: 'Gönderim başarısız.', details: err.message });
+    }
+});
+
+// Endpoint: Update Marketing Automation Settings (autoSendEnabled, dailyLimit)
+app.post('/api/admin/marketing-settings', async (req, res) => {
+    try {
+        if (!(await verifyAdminRequest(req, res))) return;
+
+        const { autoSendEnabled, dailyLimit } = req.body;
+        const state = await getOrInitCampaignState(supabase);
+
+        if (typeof autoSendEnabled === 'boolean') {
+            state.autoSendEnabled = autoSendEnabled;
+        }
+        if (typeof dailyLimit === 'number' && dailyLimit >= 1 && dailyLimit <= 1000) {
+            state.dailyLimit = Math.floor(dailyLimit);
+        }
+
+        await saveCampaignState(supabase, state);
+        res.json({ message: 'Otomasyon ayarları güncellendi.', campaignState: state });
+    } catch (err: any) {
+        console.error('Marketing Settings Update Error:', err);
+        res.status(500).json({ error: 'Ayarlar güncellenemedi.', details: err.message });
+    }
+});
+
+// Endpoint: Generate / Rotate AI Campaign Email
+app.post('/api/admin/marketing-rotate', async (req, res) => {
+    try {
+        if (!(await verifyAdminRequest(req, res))) return;
+
+        const { resetQueue } = req.body || {};
+        const state = await getOrInitCampaignState(supabase);
+
+        let updatedState;
+        if (resetQueue) {
+            updatedState = await rotateToNextCampaign(supabase, state, true);
+        } else {
+            // Generate new content for the next angle without resetting the current sent progress
+            const nextTempNum = state.campaignNumber + 1;
+            const newContent = await generateNextCampaignContent(nextTempNum, [
+                ...state.history,
+                {
+                    campaignNumber: state.campaignNumber,
+                    angleId: state.currentCampaign.angleId,
+                    angleTitle: state.currentCampaign.angleTitle,
+                    subject: state.currentCampaign.subject,
+                    startedAt: state.startedAt,
+                    totalSent: 0
+                }
+            ]);
+            state.currentCampaign = newContent;
+            await saveCampaignState(supabase, state);
+            updatedState = state;
+        }
+
+        res.json({
+            message: resetQueue
+                ? `Yeni Kampanya #${updatedState.campaignNumber} (${updatedState.currentCampaign.angleTitle}) oluşturuldu ve alıcı listesi sıfırlandı.`
+                : `Aktif kampanya metni yeni bir tema (${updatedState.currentCampaign.angleTitle}) ile güncellendi.`,
+            campaignState: updatedState,
+            previewHtml: buildMarketingEmailHtml(updatedState.currentCampaign)
+        });
+    } catch (err: any) {
+        console.error('Marketing Rotate Error:', err);
+        res.status(500).json({ error: 'Yeni kampanya oluşturulamadı.', details: err.message });
+    }
+});
+
+// Endpoint: Add new emails to marketing_emails list (preserves existing sent status, queues new ones as sent=false)
+app.post('/api/admin/marketing-add-emails', async (req, res) => {
+    try {
+        if (!(await verifyAdminRequest(req, res))) return;
+
+        const { rawText } = req.body || {};
+        if (!rawText || typeof rawText !== 'string') {
+            return res.status(400).json({ error: 'Lütfen eklenecek e-posta listesini girin.' });
+        }
+
+        const lines = rawText
+            .split(/[\r\n;]+/)
+            .map((l: string) => l.replace(/"/g, '').trim())
+            .filter((l: string) => l.length > 0);
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const validRowsMap = new Map<string, { email: string; first_name: string; last_name: string; sent: boolean }>();
+        let invalidCount = 0;
+
+        for (const line of lines) {
+            const parts = line.split(',').map(p => p.trim());
+            const email = (parts[0] || '').toLowerCase();
+
+            // Skip CSV header if pasted
+            if (email === 'email' || email === 'e-posta') continue;
+
+            if (!emailRegex.test(email) || email.includes('..') || email.includes('.@') || email.startsWith('.')) {
+                invalidCount++;
+                continue;
+            }
+
+            const firstName = parts.length > 1 ? parts[1] : '';
+            const lastName = parts.length > 2 ? parts.slice(2).join(' ') : '';
+
+            validRowsMap.set(email, {
+                email,
+                first_name: firstName,
+                last_name: lastName,
+                sent: false
+            });
+        }
+
+        const rowsToInsert = Array.from(validRowsMap.values());
+        if (rowsToInsert.length === 0) {
+            return res.status(400).json({ error: 'Geçerli bir e-posta adresi bulunamadı.', invalidCount });
+        }
+
+        const batchSize = 500;
+        for (let i = 0; i < rowsToInsert.length; i += batchSize) {
+            const batch = rowsToInsert.slice(i, i + batchSize);
+            const { error } = await supabase
+                .from('marketing_emails')
+                .upsert(batch, { onConflict: 'email', ignoreDuplicates: true });
+
+            if (error) throw error;
+        }
+
+        res.json({
+            message: `${rowsToInsert.length} geçerli e-posta işlendi ve yeni adresler gönderim kuyruğuna eklendi.${invalidCount > 0 ? ` (${invalidCount} geçersiz satır atlandı)` : ''}`,
+            processedCount: rowsToInsert.length,
+            invalidCount
+        });
+    } catch (err: any) {
+        console.error('Marketing Add Emails Error:', err);
+        res.status(500).json({ error: 'E-postalar eklenirken hata oluştu.', details: err.message });
+    }
+});
+
+// Automated Daily Marketing Email Cron Job
+// Checks every hour between 10:00 and 18:00 Turkey Time; sends up to dailyLimit (100) emails/day automatically
+cron.schedule('0 * * * *', async () => {
+    try {
+        const now = new Date();
+        const trTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
+        const hourOfDay = trTime.getHours();
+
+        if (hourOfDay < 10 || hourOfDay > 18) {
+            return;
+        }
+
+        console.log('📧 Cron: Checking Automated Marketing Email Queue...');
+        const result = await sendMarketingBatch(supabase, { isAutoCron: true });
+        if (result.sentCount > 0) {
+            console.log(`📧 Cron: Auto-sent ${result.sentCount} marketing emails for Campaign #${result.campaignNumber} ("${result.subject}").`);
+        } else {
+            console.log(`📧 Cron: Marketing check skipped (${result.message})`);
+        }
+    } catch (err: any) {
+        console.error('❌ Cron Marketing Auto-Send Error:', err.message || err);
     }
 });
 

@@ -73,6 +73,7 @@ AvukatAgiNet/
         ├── garantiPaymentService.ts# Garanti BBVA 3D Secure hash generation & callback verification
         ├── geminiService.ts        # Gemini AI prompt & JSON generator for realistic legal tasks
         ├── jobBot.ts               # Automated cron bot creating jobs on weekdays (09:00-18:00 TR time)
+        ├── marketingService.ts     # Automated daily AI marketing email campaign engine & rotation service
         ├── notificationService.ts  # NetGSM SMS & Telegram notification fan-out for new jobs
         ├── pushService.ts          # Invokes Supabase send-push Edge Function for mobile push notifications
         └── telegramService.ts      # Telegram Bot HTTP wrapper (sendTelegramMessage, setTelegramWebhook)
@@ -146,6 +147,15 @@ AvukatAgiNet/
   * Inserts the job under `bot@avukatagi.net` with a `555xxxxxxx` phone number and a 15-minute `application_deadline`.
   * On `JobCard.tsx`, once a bot job's 15-minute window expires, it displays `"Görev Atandı: A. Y."` (deterministic initials from `jobId`) so the board looks active and organic.
 
+### 4.6. Automated AI Email Marketing Engine (`src/services/marketingService.ts` & `/admin/marketing`)
+* **State Persistence:** Stored in `public.system_settings` under `key = 'marketing_campaign_state'`, while the recipient list lives in `public.marketing_emails` (`email`, `first_name`, `last_name`, `sent`, `sent_at`).
+* **Daily Automated Sending (`0 * * * *` cron in `src/server.ts`):**
+  * Checks hourly between **10:00 and 18:00 Turkey Time**. If `autoSendEnabled === true` and `sentTodayCount < dailyLimit` (default `100` emails/day), automatically sends the active campaign email (`subject`, `html`, `text`) via Mailtrap Bulk API (`https://bulk.api.mailtrap.io/api/send`) to the next `unsent` (`sent = false`) recipients and marks them `sent = true`.
+* **Automatic AI Campaign Rotation When List Finishes (`unsent === 0`):**
+  * As soon as every recipient in `marketing_emails` has received the current campaign (`remainingUnsent === 0`), the engine automatically archives the finished campaign into `history`, increments `campaignNumber`, generates a **new persuasive email** highlighting a **different feature/side of AvukatAğı** (using Gemini AI `gemini-2.5-flash` with an automatic 7-angle built-in Turkish lawyer campaign library fallback), and resets `sent = false` across `marketing_emails` so the next cycle begins the following day.
+* **Dynamic Recipient List (`POST /api/admin/marketing-add-emails`):**
+  * Admins can paste new email addresses (or `email, first_name, last_name` CSV lines) directly in `/admin/marketing`. Existing emails preserve their current `sent` state (`ignoreDuplicates: true`), while new emails are inserted with `sent = false` so they immediately join the active queue.
+
 ---
 
 ## 5. GitHub & Production Deployment Workflow
@@ -203,3 +213,4 @@ cd /root/AvukatAgiNet
    ```bash
    docker logs -f avukat-agi-container
    ```
+
