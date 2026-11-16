@@ -238,9 +238,20 @@ const JobDetails = ({ user }: { user: User }) => {
     const isOwner = user.uid === job.createdBy;
     const isAssignedToMe = job.selectedApplicant === user.uid;
     const isCompleted = job.status === 'completed';
+    const hasSelectedApplicant = Boolean(job.selectedApplicant) || job.status === 'in_progress' || job.status === 'completed';
     const canViewContact = isOwner || isAssignedToMe;
 
     const handleCancelJob = async () => {
+        if (hasSelectedApplicant) {
+            showAlert({
+                title: "İptal Edilemez",
+                message: "Meslektaş seçimi yaptınız, görevi iptal edemezsiniz.",
+                type: "error",
+                confirmText: "Tamam"
+            });
+            return;
+        }
+
         showAlert({
             title: "Görevi İptal Etmek İstediğinize Emin misiniz?",
             message: "Görev iptal edilecek ve listelerden kaldırılacaktır. Bu işlem geri alınamaz.",
@@ -252,21 +263,10 @@ const JobDetails = ({ user }: { user: User }) => {
                     const { error } = await supabase
                         .from('jobs')
                         .update({ status: 'cancelled' })
-                        .eq('job_id', job.jobId);
+                        .eq('job_id', job.jobId)
+                        .is('selected_applicant', null);
 
                     if (error) throw error;
-
-                    // Notify Applicant if assigned
-                    if (job.selectedApplicant) {
-                        await supabase.from('notifications').insert({
-                            user_id: job.selectedApplicant,
-                            title: "Görev İptal Edildi ⚠️",
-                            message: `"${job.title}" görevi, görev sahibi tarafından iptal edildi.`,
-                            type: "error",
-                            read: false,
-                            metadata: { jobId: job.jobId, type: 'job_cancelled' }
-                        });
-                    }
 
                     navigate('/dashboard');
                 } catch (error) {
@@ -399,10 +399,17 @@ const JobDetails = ({ user }: { user: User }) => {
                         </div>
                         <button
                             onClick={handleCancelJob}
-                            className="w-full flex items-center justify-center px-6 py-4 bg-red-50 text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-100 transition"
+                            disabled={hasSelectedApplicant}
+                            className={`w-full flex items-center justify-center px-6 py-4 rounded-xl font-bold transition ${
+                                hasSelectedApplicant
+                                    ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                                    : 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+                            }`}
                         >
                             <Trash2 className="w-5 h-5 mr-2" />
-                            Görevi İptal Et
+                            {hasSelectedApplicant
+                                ? 'Meslektaş seçimi yaptınız görevi iptal edemezsiniz'
+                                : 'Görevi İptal Et'}
                         </button>
                     </div>
                 ) : (
