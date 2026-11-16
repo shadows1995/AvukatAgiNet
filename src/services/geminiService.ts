@@ -1,9 +1,44 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const apiKey = process.env.GEMINI_API_KEY;
+
+export async function callGeminiJson(prompt: string): Promise<string | null> {
+    const key = process.env.GEMINI_API_KEY || apiKey;
+    if (!key) {
+        console.error("Gemini API key is missing.");
+        return null;
+    }
+
+    // 1. If key is an AQ.* Vertex AI Express key, try Vertex AI Express mode first
+    if (key.startsWith("AQ.")) {
+        try {
+            const ai = new GoogleGenAI({ vertexai: true, apiKey: key });
+            const res = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: { responseMimeType: "application/json" }
+            });
+            if (res.text) return res.text;
+        } catch (vertexErr: any) {
+            console.warn("⚠️ Vertex AI Express call failed, trying Generative Language API fallback:", vertexErr?.message || vertexErr);
+        }
+    }
+
+    // 2. Standard Google AI Studio / Generative Language API
+    const genAI = new GoogleGenerativeAI(key);
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: {
+            responseMimeType: "application/json"
+        }
+    });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+}
 
 interface GeneratedJob {
     title: string;
@@ -52,15 +87,7 @@ export const generateJobDetails = async (courthouse: string, allowedJobTypes?: s
         }
         `;
 
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            generationConfig: {
-                responseMimeType: "application/json"
-            }
-        });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const text = await callGeminiJson(prompt);
 
         if (!text) {
             throw new Error("Empty response from Gemini");

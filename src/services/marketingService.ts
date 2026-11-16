@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { SupabaseClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
+import { callGeminiJson } from "./geminiService.js";
 
 dotenv.config();
 
@@ -343,7 +343,6 @@ export async function generateNextCampaignContent(
     const apiKey = process.env.GEMINI_API_KEY;
     if (apiKey) {
         try {
-            const genAI = new GoogleGenerativeAI(apiKey);
             const pastSubjects = history.slice(-6).map(h => `- ${h.angleTitle}: "${h.subject}"`).join("\n");
 
             const prompt = `
@@ -387,13 +386,7 @@ KURALLAR:
   "closingNote": "Kısa ve sıcak kapanış cümlesi"
 }`;
 
-            const model = genAI.getGenerativeModel({
-                model: "gemini-2.5-flash",
-                generationConfig: { responseMimeType: "application/json" }
-            });
-
-            const result = await model.generateContent(prompt);
-            const text = result.response.text();
+            const text = await callGeminiJson(prompt);
             if (text) {
                 const jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
                 const parsed = JSON.parse(jsonStr);

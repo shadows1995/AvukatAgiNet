@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
+import { callGeminiJson } from "./geminiService.js";
 dotenv.config();
 const SETTINGS_KEY = "marketing_campaign_state";
 const DEFAULT_DAILY_LIMIT = 100;
@@ -292,7 +292,6 @@ export async function generateNextCampaignContent(nextCampaignNumber, history) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (apiKey) {
         try {
-            const genAI = new GoogleGenerativeAI(apiKey);
             const pastSubjects = history.slice(-6).map(h => `- ${h.angleTitle}: "${h.subject}"`).join("\n");
             const prompt = `
 Sen Türkiye'deki avukatlar için geliştirilen "AvukatAğı" (https://avukatagi.net) tevkil ve meslektaş dayanışma platformunun baş pazarlama ve iletişim uzmanısın.
@@ -334,12 +333,7 @@ KURALLAR:
   "ctaText": "Harekete geçirici buton metni (örn: Ücretsiz Hesabınızı Oluşturun)",
   "closingNote": "Kısa ve sıcak kapanış cümlesi"
 }`;
-            const model = genAI.getGenerativeModel({
-                model: "gemini-2.5-flash",
-                generationConfig: { responseMimeType: "application/json" }
-            });
-            const result = await model.generateContent(prompt);
-            const text = result.response.text();
+            const text = await callGeminiJson(prompt);
             if (text) {
                 const jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
                 const parsed = JSON.parse(jsonStr);
