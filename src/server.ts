@@ -1579,11 +1579,97 @@ app.post('/api/jobs/assign', async (req, res) => {
     }
 });
 
-app.get(/.*/, (req, res) => {
-    if (req.url.includes('.js') || req.url.includes('.css') || req.url.includes('.png') || req.url.includes('.jpg')) {
-        console.warn(`⚠️  MISSING ASSET: Serving index.html for ${req.url} - File likely does not exist in dist/assets`);
+const PUBLIC_SEO_ROUTES: Record<string, { title: string; description: string; heading: string; bodyHtml: string }> = {
+    '/': {
+        title: "AvukatAğı — Türkiye'nin Avukat Tevkil ve Görev Paylaşım Platformu",
+        description: "AvukatAğı (avukatagi.net), Türkiye'nin 81 ilindeki avukatları tek çatı altında buluşturan güvenli tevkil, duruşma takibi, icra ve dosya inceleme platformudur.",
+        heading: "AvukatAğı — Meslektaşlarınızla Güçlerinizi Birleştirin",
+        bodyHtml: `<p>AvukatAğı, Türkiye'nin 81 ilindeki tüm adliyelerde avukatlar arası güvenli görev paylaşımı (tevkil), duruşma takibi, icra işlemi, haciz ve dosya inceleme platformudur.</p><ul><li>81 il ve tüm adliyelerde anında meslektaş desteği</li><li>Anında SMS, Telegram (@AvukatAgiBot) ve mobil bildirim</li><li>15 dakikalık adil başvuru toplama ve meslektaş değerlendirme sistemi</li><li>Yeni üyelere özel 2 Ay Ücretsiz Beta Premium+</li></ul><nav><a href="/how-it-works">Nasıl Çalışır?</a> | <a href="/yasal-mevzuat">Yasal Mevzuat</a> | <a href="/about">Hakkımızda</a> | <a href="/register">Ücretsiz Üye Ol</a> | <a href="/login">Giriş Yap</a></nav>`
+    },
+    '/how-it-works': {
+        title: "Nasıl Çalışır? | AvukatAğı",
+        description: "AvukatAğı tevkil sistemi nasıl çalışır? 3 adımda görev oluşturun, başvurular arasından güvenilir meslektaşınızı seçin ve işinizi tamamlayın.",
+        heading: "AvukatAğı Nasıl Çalışır?",
+        bodyHtml: `<p>1. Görev Oluştur: Şehir, adliye, tarih ve ücreti belirterek saniyeler içinde tevkil ilanı açın. 2. Avukat Seç: Başvuru süresi sonunda uzmanlık ve puanlara göre en uygun meslektaşı seçin. 3. İşi Tamamla: WhatsApp veya telefon ile iletişim kurup süreci güvenle tamamlayın.</p>`
+    },
+    '/yasal-mevzuat': {
+        title: "Yasal Mevzuat ve Baro Kuralları | AvukatAğı",
+        description: "AvukatAğı platformunun 1136 sayılı Avukatlık Kanunu, TBB Meslek Kuralları ve KVKK uyumluluğu hakkında bilgilendirme.",
+        heading: "Yasal Mevzuat ve Mesleki Uyum",
+        bodyHtml: `<p>AvukatAğı yalnızca baro levhasına kayıtlı avukatların mesleki yardımlaşma ve tevkil süreçlerini kolaylaştırmak amacıyla Avukatlık Kanunu ve TBB Meslek Kuralları çerçevesinde hizmet verir.</p>`
+    },
+    '/about': {
+        title: "Hakkımızda | AvukatAğı",
+        description: "Türkiye'nin avukatlar arası dijital tevkil ve mesleki dayanışma ağı AvukatAğı hakkında detaylı bilgi.",
+        heading: "AvukatAğı Hakkında",
+        bodyHtml: `<p>AvukatAğı, avukatların adliye dışı ve şehir dışı duruşma, icra, haciz ve dosya inceleme süreçlerinde zaman ve maliyet tasarrufu sağlaması için geliştirilmiş profesyonel bir hukuk ağıdır.</p>`
+    },
+    '/register': {
+        title: "Ücretsiz Üye Ol | AvukatAğı",
+        description: "AvukatAğı'na ücretsiz kayıt olun, 2 Ay Ücretsiz Beta Premium+ ayrıcalığı ile 81 ildeki tevkil görevlerine erişin.",
+        heading: "AvukatAğı'na Ücretsiz Kayıt Olun",
+        bodyHtml: `<p>Baro sicil bilgilerinizle ücretsiz kayıt olarak hem tevkil ilanı açabilir hem de izlediğiniz adliyelerdeki açık görevlere başvurabilirsiniz.</p>`
+    },
+    '/login': {
+        title: "Giriş Yap | AvukatAğı",
+        description: "AvukatAğı hesabınıza giriş yapın ve açık tevkil görevlerini görüntüleyin.",
+        heading: "AvukatAğı Giriş",
+        bodyHtml: `<p>AvukatAğı avukat paneline giriş yapın.</p>`
+    },
+    '/terms': {
+        title: "Kullanım Koşulları | AvukatAğı",
+        description: "AvukatAğı platformu kullanım koşulları ve üyelik şartları.",
+        heading: "Kullanım Koşulları",
+        bodyHtml: `<p>AvukatAğı kullanım koşulları ve yasal şartlar.</p>`
+    },
+    '/privacy': {
+        title: "Gizlilik Politikası ve KVKK | AvukatAğı",
+        description: "AvukatAğı kişisel verilerin korunması (KVKK) ve gizlilik politikası.",
+        heading: "Gizlilik Politikası",
+        bodyHtml: `<p>AvukatAğı gizlilik politikası ve KVKK aydınlatma metni.</p>`
     }
-    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+};
+
+let cachedIndexHtml: string | null = null;
+
+app.get(/.*/, (req, res) => {
+    if (/\.(js|css|png|jpe?g|svg|ico|webp|woff2?|map)$/i.test(req.path)) {
+        console.warn(`⚠️  MISSING ASSET: 404 for ${req.url}`);
+        return res.status(404).send('Not Found');
+    }
+
+    const indexPath = path.join(__dirname, '../dist', 'index.html');
+    if (!cachedIndexHtml && fs.existsSync(indexPath)) {
+        cachedIndexHtml = fs.readFileSync(indexPath, 'utf8');
+    }
+
+    if (!cachedIndexHtml) {
+        return res.sendFile(indexPath);
+    }
+
+    const cleanPath = req.path === '/' ? '/' : req.path.replace(/\/+$/, '');
+    const seo = PUBLIC_SEO_ROUTES[cleanPath];
+
+    let html = cachedIndexHtml;
+    if (seo) {
+        const canonical = `https://avukatagi.net${cleanPath === '/' ? '/' : cleanPath}`;
+        html = html
+            .replace(/<title>.*?<\/title>/, `<title>${seo.title}</title>`)
+            .replace(/<meta name="description"[\s\S]*?\/>/, `<meta name="description" content="${seo.description}" />`)
+            .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${canonical}" />`)
+            .replace(/<meta property="og:title" content="[^"]*"\s*\/>/, `<meta property="og:title" content="${seo.title}" />`)
+            .replace(/<meta property="og:description"[\s\S]*?\/>/, `<meta property="og:description" content="${seo.description}" />`)
+            .replace(/<meta property="og:url" content="[^"]*"\s*\/>/, `<meta property="og:url" content="${canonical}" />`)
+            .replace(`<div id="root"></div>`, `<div id="root"><main style="max-width:800px;margin:40px auto;padding:20px;font-family:sans-serif"><h1>${seo.heading}</h1>${seo.bodyHtml}</main></div>`);
+    } else {
+        html = html.replace(
+            `<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />`,
+            `<meta name="robots" content="noindex, nofollow" />`
+        );
+    }
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
 });
 
 app.listen(port, () => {
