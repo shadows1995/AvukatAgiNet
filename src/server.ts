@@ -91,7 +91,7 @@ app.get('/sitemap.xml', (req, res) => {
     res.send(xml);
 });
 
-app.use(express.static(staticPath));
+app.use(express.static(staticPath, { index: false }));
 
 // Initialize Supabase Admin Client
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
@@ -1740,12 +1740,37 @@ function getCourthouseSeoMeta(cleanPath: string): { title: string; description: 
 
         const extraHead = `<script type="application/ld+json">${JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'LegalService',
-            name: `AvukatAğı — ${displayName} Tevkil Ağı`,
-            description,
-            url: canonical,
-            areaServed: { '@type': 'City', name: entry.city },
-            provider: { '@type': 'Organization', name: 'AvukatAğı', url: 'https://avukatagi.net/' }
+            '@graph': [
+                {
+                    '@type': 'BreadcrumbList',
+                    itemListElement: [
+                        { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://avukatagi.net/' },
+                        { '@type': 'ListItem', position: 2, name: 'Adliyeler', item: 'https://avukatagi.net/adliyeler' },
+                        ...(isCity
+                            ? [{ '@type': 'ListItem', position: 3, name: `${entry.city} Adliyeleri`, item: canonical }]
+                            : [
+                                  { '@type': 'ListItem', position: 3, name: `${entry.city} Adliyeleri`, item: `https://avukatagi.net/tevkil/${entry.citySlug}` },
+                                  { '@type': 'ListItem', position: 4, name: entry.courthouse, item: canonical }
+                              ])
+                    ]
+                },
+                {
+                    '@type': 'LegalService',
+                    name: `AvukatAğı — ${displayName} Tevkil Ağı`,
+                    description,
+                    url: canonical,
+                    areaServed: { '@type': 'City', name: entry.city },
+                    provider: { '@type': 'Organization', name: 'AvukatAğı', url: 'https://avukatagi.net/' }
+                },
+                {
+                    '@type': 'FAQPage',
+                    mainEntity: localFaqs.map(f => ({
+                        '@type': 'Question',
+                        name: f.q,
+                        acceptedAnswer: { '@type': 'Answer', text: f.a }
+                    }))
+                }
+            ]
         })}</script>`;
 
         return {
