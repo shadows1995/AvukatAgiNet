@@ -1415,6 +1415,12 @@ const PUBLIC_SEO_ROUTES = {
         description: "AvukatAğı kişisel verilerin korunması (KVKK) ve gizlilik politikası.",
         heading: "Gizlilik Politikası",
         bodyHtml: `<p>AvukatAğı gizlilik politikası ve KVKK aydınlatma metni.</p>`
+    },
+    '/distance-sales-agreement': {
+        title: "Mesafeli Satış Sözleşmesi | AvukatAğı",
+        description: "AvukatAğı Premium ve Premium+ üyelik paketleri mesafeli satış sözleşmesi.",
+        heading: "Mesafeli Satış Sözleşmesi",
+        bodyHtml: `<p>AvukatAğı platformu üyelik paketlerine ilişkin mesafeli satış sözleşmesi ve bilgilendirme metni.</p>`
     }
 };
 let cachedIndexHtml = null;
