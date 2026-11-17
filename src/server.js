@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { Builder } from 'xml2js';
 import { COURTHOUSES } from '../data/courthouses.js';
+import { ALL_SEO_ENTRIES, getSeoEntryBySlug, FAQ_ITEMS, getCourthouseSlug } from '../data/seoData.js';
 import { verifyGarantiCallback } from "./services/garantiPaymentService.js";
 import { getOrInitCampaignState, saveCampaignState, rotateToNextCampaign, sendMarketingBatch, sendTestMarketingEmail, buildMarketingEmailHtml, generateNextCampaignContent } from "./services/marketingService.js";
 dotenv.config();
@@ -42,6 +43,34 @@ else {
 app.use((req, res, next) => {
     console.log(`Incoming Request: ${req.method} ${req.url}`);
     next();
+});
+// Dynamic XML Sitemap covering all public pages, FAQ, 81 cities, and all courthouses
+app.get('/sitemap.xml', (req, res) => {
+    const today = new Date().toISOString().split('T')[0];
+    const staticUrls = [
+        { loc: 'https://avukatagi.net/', changefreq: 'daily', priority: '1.0' },
+        { loc: 'https://avukatagi.net/adliyeler', changefreq: 'weekly', priority: '0.9' },
+        { loc: 'https://avukatagi.net/how-it-works', changefreq: 'weekly', priority: '0.9' },
+        { loc: 'https://avukatagi.net/sss', changefreq: 'weekly', priority: '0.9' },
+        { loc: 'https://avukatagi.net/yasal-mevzuat', changefreq: 'monthly', priority: '0.8' },
+        { loc: 'https://avukatagi.net/about', changefreq: 'monthly', priority: '0.8' },
+        { loc: 'https://avukatagi.net/register', changefreq: 'monthly', priority: '0.8' },
+        { loc: 'https://avukatagi.net/login', changefreq: 'monthly', priority: '0.6' },
+        { loc: 'https://avukatagi.net/terms', changefreq: 'yearly', priority: '0.4' },
+        { loc: 'https://avukatagi.net/privacy', changefreq: 'yearly', priority: '0.4' },
+        { loc: 'https://avukatagi.net/distance-sales-agreement', changefreq: 'yearly', priority: '0.4' }
+    ];
+    const dynamicUrls = ALL_SEO_ENTRIES.map(entry => ({
+        loc: `https://avukatagi.net/tevkil/${entry.slug}`,
+        changefreq: 'weekly',
+        priority: entry.type === 'city' ? '0.8' : '0.7'
+    }));
+    const allUrls = [...staticUrls, ...dynamicUrls];
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${allUrls
+        .map(u => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`)
+        .join('\n')}\n</urlset>`;
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.send(xml);
 });
 app.use(express.static(staticPath));
 // Initialize Supabase Admin Client
@@ -1367,12 +1396,39 @@ app.post('/api/jobs/assign', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+const escapeHtmlAttr = (str) => str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const buildFaqHtmlSection = (items = FAQ_ITEMS) => `<section><h2>Sıkça Sorulan Sorular</h2>${items
+    .map(f => `<article><h3>${f.question}</h3><p>${f.answer}</p></article>`)
+    .join('')}</section>`;
+const buildFaqJsonLdScript = (items = FAQ_ITEMS) => `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(f => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer }
+    }))
+})}</script>`;
 const PUBLIC_SEO_ROUTES = {
     '/': {
         title: "AvukatAğı — Türkiye'nin Avukat Tevkil ve Görev Paylaşım Platformu",
         description: "AvukatAğı (avukatagi.net), Türkiye'nin 81 ilindeki avukatları tek çatı altında buluşturan güvenli tevkil, duruşma takibi, icra ve dosya inceleme platformudur.",
         heading: "AvukatAğı — Meslektaşlarınızla Güçlerinizi Birleştirin",
-        bodyHtml: `<p>AvukatAğı, Türkiye'nin 81 ilindeki tüm adliyelerde avukatlar arası güvenli görev paylaşımı (tevkil), duruşma takibi, icra işlemi, haciz ve dosya inceleme platformudur.</p><ul><li>81 il ve tüm adliyelerde anında meslektaş desteği</li><li>Anında SMS, Telegram (@AvukatAgiBot) ve mobil bildirim</li><li>15 dakikalık adil başvuru toplama ve meslektaş değerlendirme sistemi</li><li>Yeni üyelere özel 2 Ay Ücretsiz Beta Premium+</li></ul><nav><a href="/how-it-works">Nasıl Çalışır?</a> | <a href="/yasal-mevzuat">Yasal Mevzuat</a> | <a href="/about">Hakkımızda</a> | <a href="/register">Ücretsiz Üye Ol</a> | <a href="/login">Giriş Yap</a></nav>`
+        bodyHtml: `<p>AvukatAğı, Türkiye'nin 81 ilindeki tüm adliyelerde avukatlar arası güvenli görev paylaşımı (tevkil), duruşma takibi, icra işlemi, haciz ve dosya inceleme platformudur.</p><ul><li>81 il ve tüm adliyelerde anında meslektaş desteği</li><li>Anında SMS, Telegram (@AvukatAgiBot) ve mobil bildirim</li><li>15 dakikalık adil başvuru toplama ve meslektaş değerlendirme sistemi</li><li>Yeni üyelere özel 2 Ay Ücretsiz Beta Premium+</li></ul><nav><a href="/how-it-works">Nasıl Çalışır?</a> | <a href="/adliyeler">81 İl ve Adliyeler</a> | <a href="/sss">Sıkça Sorulan Sorular</a> | <a href="/yasal-mevzuat">Yasal Mevzuat</a> | <a href="/about">Hakkımızda</a> | <a href="/register">Ücretsiz Üye Ol</a> | <a href="/login">Giriş Yap</a></nav>${buildFaqHtmlSection(FAQ_ITEMS.slice(0, 7))}`,
+        extraHead: buildFaqJsonLdScript(FAQ_ITEMS.slice(0, 7))
+    },
+    '/sss': {
+        title: "Sıkça Sorulan Sorular (SSS) | AvukatAğı",
+        description: "AvukatAğı tevkil sistemi, üyelik, ücretlendirme, yetki belgesi, bildirimler ve görev iptal kuralları hakkında sıkça sorulan sorular ve cevapları.",
+        heading: "Sıkça Sorulan Sorular — AvukatAğı",
+        bodyHtml: `<p>AvukatAğı platformu hakkında merak ettiğiniz tüm sorular ve yanıtları.</p>${buildFaqHtmlSection(FAQ_ITEMS)}`,
+        extraHead: buildFaqJsonLdScript(FAQ_ITEMS)
+    },
+    '/adliyeler': {
+        title: "81 İl ve Tüm Adliyeler Tevkil Rehberi | AvukatAğı",
+        description: "Türkiye'nin 81 ilindeki tüm adliyeler için AvukatAğı tevkil ağı. Duruşma, icra, haciz ve dosya inceleme görevleri için adliyenizi seçin.",
+        heading: "Türkiye Adliyeleri Tevkil Rehberi (81 İl)",
+        bodyHtml: `<p>Türkiye genelindeki 81 il ve tüm adliyeler için AvukatAğı tevkil sayfaları:</p><ul>${ALL_SEO_ENTRIES.map(e => `<li><a href="/tevkil/${e.slug}">${e.type === 'city' ? `${e.city} Adliyeleri Tevkil` : `${e.courthouse} Tevkil (${e.city})`}</a></li>`).join('')}</ul>`
     },
     '/how-it-works': {
         title: "Nasıl Çalışır? | AvukatAğı",
@@ -1423,6 +1479,57 @@ const PUBLIC_SEO_ROUTES = {
         bodyHtml: `<p>AvukatAğı platformu üyelik paketlerine ilişkin mesafeli satış sözleşmesi ve bilgilendirme metni.</p>`
     }
 };
+function getCourthouseSeoMeta(cleanPath) {
+    if (PUBLIC_SEO_ROUTES[cleanPath]) {
+        return PUBLIC_SEO_ROUTES[cleanPath];
+    }
+    if (cleanPath.startsWith('/tevkil/')) {
+        const slug = cleanPath.replace('/tevkil/', '');
+        const entry = getSeoEntryBySlug(slug);
+        if (!entry)
+            return undefined;
+        const isCity = entry.type === 'city';
+        const displayName = isCity ? `${entry.city} Adliyeleri` : entry.courthouse;
+        const title = isCity
+            ? `${entry.city} Tevkil Platformu — ${entry.city} Avukat Görev Paylaşımı | AvukatAğı`
+            : `${entry.courthouse} Tevkil — ${entry.city} Avukat Görevlendirme | AvukatAğı`;
+        const description = isCity
+            ? `${entry.city} ili ve ilçelerindeki tüm adliyelerde duruşma, icra, haciz ve dosya inceleme için AvukatAğı üzerinden güvenle tevkil verin veya görev alın.`
+            : `${entry.courthouse} (${entry.city}) için duruşma, icra işlemi, haciz ve dosya inceleme tevkil görevleri. Baro kayıtlı meslektaşlarla anında görev paylaşımı yapın.`;
+        const canonical = `https://avukatagi.net/tevkil/${entry.slug}`;
+        const siblingLinks = entry.courthousesInCity
+            .filter(ch => ch !== entry.courthouse)
+            .map(ch => `<li><a href="/tevkil/${getCourthouseSlug(entry.city, ch)}">${ch} Tevkil</a></li>`)
+            .join('');
+        const localFaqs = [
+            {
+                q: `${displayName} için tevkil görevi nasıl oluşturulur?`,
+                a: `AvukatAğı'na ücretsiz üye olduktan sonra ${entry.city}${isCity ? '' : ` / ${entry.courthouse}`} seçimi yaparak saniyeler içinde ücretsiz tevkil ilanı oluşturabilirsiniz.`
+            },
+            {
+                q: `${displayName} görevlerinden anlık bildirim nasıl alırım?`,
+                a: `Ayarlar bölümünden ${displayName} tercihinizi ekleyerek yeni görev açıldığında anında SMS, Telegram (@AvukatAgiBot) ve mobil bildirim alabilirsiniz.`
+            }
+        ];
+        const extraHead = `<script type="application/ld+json">${JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LegalService',
+            name: `AvukatAğı — ${displayName} Tevkil Ağı`,
+            description,
+            url: canonical,
+            areaServed: { '@type': 'City', name: entry.city },
+            provider: { '@type': 'Organization', name: 'AvukatAğı', url: 'https://avukatagi.net/' }
+        })}</script>`;
+        return {
+            title,
+            description,
+            heading: `${displayName} Tevkil ve Avukat Görevlendirme Ağı`,
+            bodyHtml: `<p>${description}</p><ul><li>Duruşma Temsili (900 TL+)</li><li>Haciz ve Dosya İnceleme (700 TL+)</li><li>İcra İşlemleri (600 TL+)</li><li>Dilekçe ve Adliye Dışı İşlemler</li></ul>${localFaqs.map(f => `<article><h3>${f.q}</h3><p>${f.a}</p></article>`).join('')}${siblingLinks ? `<section><h2>${entry.city} İlindeki Diğer Adliyeler</h2><ul>${siblingLinks}</ul></section>` : ''}<p><a href="/register">Ücretsiz Üye Ol</a> | <a href="/adliyeler">Tüm Adliyeler</a></p>`,
+            extraHead
+        };
+    }
+    return undefined;
+}
 let cachedIndexHtml = null;
 app.get(/.*/, (req, res) => {
     if (/\.(js|css|png|jpe?g|svg|ico|webp|woff2?|map)$/i.test(req.path)) {
@@ -1437,18 +1544,23 @@ app.get(/.*/, (req, res) => {
         return res.sendFile(indexPath);
     }
     const cleanPath = req.path === '/' ? '/' : req.path.replace(/\/+$/, '');
-    const seo = PUBLIC_SEO_ROUTES[cleanPath];
+    const seo = getCourthouseSeoMeta(cleanPath);
     let html = cachedIndexHtml;
     if (seo) {
         const canonical = `https://avukatagi.net${cleanPath === '/' ? '/' : cleanPath}`;
+        const safeTitle = escapeHtmlAttr(seo.title);
+        const safeDesc = escapeHtmlAttr(seo.description);
         html = html
-            .replace(/<title>.*?<\/title>/, `<title>${seo.title}</title>`)
-            .replace(/<meta name="description"[\s\S]*?\/>/, `<meta name="description" content="${seo.description}" />`)
+            .replace(/<title>.*?<\/title>/, `<title>${safeTitle}</title>`)
+            .replace(/<meta name="description"[\s\S]*?\/>/, `<meta name="description" content="${safeDesc}" />`)
             .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${canonical}" />`)
-            .replace(/<meta property="og:title" content="[^"]*"\s*\/>/, `<meta property="og:title" content="${seo.title}" />`)
-            .replace(/<meta property="og:description"[\s\S]*?\/>/, `<meta property="og:description" content="${seo.description}" />`)
+            .replace(/<meta property="og:title" content="[^"]*"\s*\/>/, `<meta property="og:title" content="${safeTitle}" />`)
+            .replace(/<meta property="og:description"[\s\S]*?\/>/, `<meta property="og:description" content="${safeDesc}" />`)
             .replace(/<meta property="og:url" content="[^"]*"\s*\/>/, `<meta property="og:url" content="${canonical}" />`)
             .replace(`<div id="root"></div>`, `<div id="root"><main style="max-width:800px;margin:40px auto;padding:20px;font-family:sans-serif"><h1>${seo.heading}</h1>${seo.bodyHtml}</main></div>`);
+        if (seo.extraHead) {
+            html = html.replace('</head>', `${seo.extraHead}\n</head>`);
+        }
     }
     else {
         html = html.replace(`<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />`, `<meta name="robots" content="noindex, nofollow" />`);

@@ -294,6 +294,12 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
                 <Link to="/how-it-works" className="text-slate-600 hover:text-primary-600 font-medium px-3 py-2">
                   Nasıl Çalışır?
                 </Link>
+                <Link to="/adliyeler" className="text-slate-600 hover:text-primary-600 font-medium px-3 py-2">
+                  Adliyeler
+                </Link>
+                <Link to="/sss" className="text-slate-600 hover:text-primary-600 font-medium px-3 py-2">
+                  SSS
+                </Link>
                 <Link to="/login" className="text-slate-600 hover:text-primary-600 font-medium px-3 py-2">
                   Giriş Yap
                 </Link>
@@ -428,6 +434,8 @@ const Navbar = ({ user, onLogout }: { user: User | null, onLogout: () => void })
             <>
               <Link to="/how-it-works" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Nasıl Çalışır?</Link>
               <Link to="/yasal-mevzuat" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Yasal Mevzuat</Link>
+              <Link to="/adliyeler" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Adliyeler</Link>
+              <Link to="/sss" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Sıkça Sorulan Sorular</Link>
               <div className="pt-2 border-t border-slate-100 mt-2">
                 <Link to="/login" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Giriş Yap</Link>
                 <Link to="/register" onClick={() => setIsOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-primary-600 font-bold hover:bg-primary-50">Kayıt Ol</Link>

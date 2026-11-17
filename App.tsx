@@ -30,6 +30,9 @@ import DistanceSalesAgreementPage from './pages/DistanceSalesAgreementPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import LegalCompliancePage from './pages/LegalCompliancePage';
 import AboutPage from './pages/AboutPage';
+import FAQPage from './pages/FAQPage';
+import CourthousesDirectoryPage from './pages/CourthousesDirectoryPage';
+import CourthouseSeoPage from './pages/CourthouseSeoPage';
 
 import TaskDisputePage from './pages/TaskDisputePage';
 
@@ -214,7 +217,7 @@ const AppContent = () => {
   if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="h-12 w-12 text-primary-600 animate-spin" /></div>;
 
   // Footer visibility logic
-  const showFooter = ['/', '/home', '/login', '/register', '/forgot-password', '/reset-password', '/terms', '/privacy'].includes(location.pathname);
+  const showFooter = ['/', '/home', '/login', '/register', '/forgot-password', '/reset-password', '/terms', '/privacy', '/how-it-works', '/yasal-mevzuat', '/about', '/distance-sales-agreement', '/sss', '/adliyeler'].includes(location.pathname) || location.pathname.startsWith('/tevkil/');
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -260,6 +263,9 @@ const AppContent = () => {
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/yasal-mevzuat" element={<LegalCompliancePage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/sss" element={<FAQPage />} />
+          <Route path="/adliyeler" element={<CourthousesDirectoryPage />} />
+          <Route path="/tevkil/:slug" element={<CourthouseSeoPage />} />
 
 
           {/* Admin Routes */}

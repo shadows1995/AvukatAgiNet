@@ -9,8 +9,11 @@ import { useAlert } from '../contexts/AlertContext';
 import { useMobileApp } from '../hooks/useMobileApp';
 import { SHOW_PREMIUM_FEATURES, IS_BETA_PROMO_ACTIVE } from '../config';
 
+import { Helmet } from 'react-helmet-async';
 import InteractiveSphere from '../components/InteractiveSphere';
 import SEO from '../components/SEO';
+import FAQSection from '../components/FAQSection';
+import { FAQ_ITEMS, getCourthouseSlug, slugifyTr } from '../data/seoData';
 
 declare global {
   interface Window {
@@ -36,12 +39,29 @@ const Logo = ({ className = "" }: { className?: string }) => (
 
 export const LandingPage = () => {
   const isMobileApp = useMobileApp();
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.slice(0, 7).map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer
+      }
+    }))
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <SEO
-        title="AvukatAğı - Avukatlar Arası İş Birliği ve Tevkil Platformu"
-        description="Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara işlerinizi tevkil edin. Tevkil platformuna katılın."
+        title="AvukatAğı — Türkiye'nin Avukat Tevkil ve Görev Paylaşım Platformu"
+        description="Duruşma, dosya inceleme ve haciz işlemleri için güvenilir avukatlara işlerinizi tevkil edin. Türkiye'nin 81 ilinde tevkil platformuna katılın."
+        canonicalUrl="https://avukatagi.net/"
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
       {/* Hero Section */}
       {/* Hero Section */}
       <div className="bg-slate-50 pt-24 pb-32 px-4 relative overflow-hidden">
@@ -158,6 +178,47 @@ export const LandingPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Popular Courthouses Quick Links */}
+      <div className="py-16 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">81 İl ve Tüm Adliyelerde Tevkil Ağı</h2>
+          <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
+            Türkiye genelindeki tüm il ve ilçe adliyelerinde duruşma, icra, haciz ve dosya inceleme görevleri için anında meslektaş desteği.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2.5 max-w-4xl mx-auto mb-8">
+            {[
+              { label: 'İstanbul Adliyesi (Çağlayan)', slug: getCourthouseSlug('İstanbul', 'İstanbul Adliyesi (Çağlayan)') },
+              { label: 'İstanbul Anadolu Adliyesi', slug: getCourthouseSlug('İstanbul', 'İstanbul Anadolu Adliyesi') },
+              { label: 'Bakırköy Adliyesi', slug: getCourthouseSlug('İstanbul', 'Bakırköy Adliyesi') },
+              { label: 'Ankara Adliyesi (Sıhhiye)', slug: getCourthouseSlug('Ankara', 'Ankara Adliyesi (Sıhhiye)') },
+              { label: 'İzmir Adliyesi', slug: getCourthouseSlug('İzmir', 'İzmir Adliyesi') },
+              { label: 'Bursa Adliyesi', slug: getCourthouseSlug('Bursa', 'Bursa Adliyesi') },
+              { label: 'Antalya Adliyesi', slug: getCourthouseSlug('Antalya', 'Antalya Adliyesi') },
+              { label: 'Adana Adliyesi', slug: getCourthouseSlug('Adana', 'Adana Adliyesi') },
+              { label: 'Konya Adliyesi', slug: slugifyTr('Konya') },
+              { label: 'Gaziantep Adliyesi', slug: slugifyTr('Gaziantep') }
+            ].map(item => (
+              <Link
+                key={item.slug}
+                to={`/tevkil/${item.slug}`}
+                className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 transition"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <Link
+            to="/adliyeler"
+            className="inline-flex items-center text-primary-600 font-bold hover:text-primary-700 hover:underline"
+          >
+            81 İl ve Tüm Adliyeleri Görüntüle <ArrowRight className="w-4 h-4 ml-1.5" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Bottom FAQ Section */}
+      <FAQSection limit={7} showViewAllLink={true} />
     </div>
   );
 };

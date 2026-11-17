@@ -9,6 +9,7 @@ import InteractiveSphere from '../components/InteractiveSphere';
 
 import SEO from '../components/SEO';
 import ProfileCompletionModal from '../components/ProfileCompletionModal';
+import FAQSection from '../components/FAQSection';
 import { useMobileApp } from '../hooks/useMobileApp';
 import { SHOW_PREMIUM_FEATURES } from '../config';
 
@@ -679,6 +680,9 @@ const HomePage = ({ user }: { user: User }) => {
                </div>
             </div>
          </div>
+
+         {/* Bottom FAQ Section */}
+         <FAQSection limit={7} showViewAllLink={true} />
       </div>
    );
 };
